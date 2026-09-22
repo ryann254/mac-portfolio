@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme static {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  --color-desk-sky: #3f7fd4;
+  --color-desk-haze: #7aa7dd;
+  --color-desk-sand: #e0b98c;
+  --color-desk-dusk: #1c2d52;
+  --color-desk-night: #060b1a;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  overscroll-behavior: none;
+}
