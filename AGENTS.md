@@ -30,3 +30,4 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, GSAP with Draggable
 - Copy goes through the `humanizer` skill before it ships. See the copy section in `PLAN.md`.
 - Window drag and resize use pointer events, never mouse events, so touch works.
 - Every animation is gated on `prefers-reduced-motion`.
+- Lists styled with `list-none` keep an explicit `role="list"`. Safari drops list semantics for VoiceOver once list styling is removed, so the role is doing real work. Biome's `noRedundantRoles` does not know that and is turned off. A list that keeps its `list-disc` marker does not need the role.
