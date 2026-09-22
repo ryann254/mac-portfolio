@@ -1,0 +1,14 @@
+---
+status: open
+owner:
+files: []
+pr:
+---
+Problem: Every later phase renders Ryan's CV and projects. Without typed content each app invents its own shape and the copy gets written twice over.
+Fix: Add typed profile, projects, and experience modules. Enter the CV under the Senior Frontend Engineer headline, summary employer-neutral and through humanizer. Capture the three missing thumbnails, copy the macOS assets in, and render each section on a plain route.
+Done when:
+- Unit tests assert every project has a thumbnail on disk and a stack tag.
+- No content file contains the word Moniepoint.
+- Each plain route renders its heading and one known string.
+- Ryan approves the rewritten summary on the PR.
+Out of scope: Window chrome, dock, and any macOS styling.
