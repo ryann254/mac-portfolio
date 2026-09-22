@@ -8,6 +8,7 @@ Read `PLAN.md` for the decisions, the app inventory, the performance budget, and
 
 ```sh
 pnpm install
+pnpm exec playwright install chromium   # the browser tier and pnpm size both need it
 pnpm dev
 ```
 

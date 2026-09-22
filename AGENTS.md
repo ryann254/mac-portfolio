@@ -12,6 +12,7 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, GSAP with Draggable
 
 | What | Command |
 | --- | --- |
+| First-time setup | `pnpm install && pnpm exec playwright install chromium` |
 | Dev server | `pnpm dev` |
 | Format and lint, with fixes | `pnpm fix` |
 | Lint check only | `pnpm lint` |
