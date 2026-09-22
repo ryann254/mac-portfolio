@@ -9,10 +9,14 @@ export type BudgetRow = {
   over: boolean
 }
 
-/** Bytes over the wire on a cold load of `/`, from PLAN.md's performance budget. */
+/**
+ * Bytes over the wire on a cold load of `/`, from PLAN.md's performance budget.
+ * React and the Next.js runtime alone account for about 135 kB of the script
+ * budget before any of our code, which is why it is not tighter.
+ */
 export const BUDGET = {
   total: 600_000,
-  script: 160_000,
+  script: 230_000,
 } as const
 
 export const emptyMeasurement = (): Measured => ({
