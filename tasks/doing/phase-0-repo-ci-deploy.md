@@ -1,7 +1,7 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: agent:claude-962984cc
+files: [package.json, biome.json, vitest.config.ts, playwright.config.ts, lighthouserc.json, scripts/size-check.mjs, src/app/layout.tsx, src/app/page.tsx, src/app/globals.css, .github/workflows/ci.yml]
 pr:
 ---
 Problem: Mac-Portfolio has a plan and nothing else. No app runs, nothing catches a regression, and there is no URL to look at, so no phase can prove anything.
