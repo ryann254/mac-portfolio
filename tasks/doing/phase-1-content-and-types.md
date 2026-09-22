@@ -1,7 +1,7 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: agent:claude-962984cc
+files: [src/content/profile.ts, src/content/projects.ts, src/content/experience.ts, src/content/types.ts, src/content/content.test.ts, src/app/(plain)/**, public/icons/**, public/wallpapers/**, public/projects/**, tests/content.spec.ts]
 pr:
 ---
 Problem: Every later phase renders Ryan's CV and projects. Without typed content each app invents its own shape and the copy gets written twice over.
