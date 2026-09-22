@@ -22,12 +22,12 @@ const MONTHS = [
   'December',
 ]
 
-export function readableMonth(yearMonth: string): string {
+function readableMonth(yearMonth: string): string {
   const [year, month] = yearMonth.split('-')
   return `${MONTHS[Number(month) - 1]} ${year}`
 }
 
-export function span(role: Role): string {
+function span(role: Role): string {
   return `${readableMonth(role.start)} to ${role.end ? readableMonth(role.end) : 'now'}`
 }
 
