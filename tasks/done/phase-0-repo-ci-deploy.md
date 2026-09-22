@@ -1,8 +1,8 @@
 ---
-status: doing
+status: done
 owner: agent:claude-962984cc
 files: [package.json, biome.json, vitest.config.ts, playwright.config.ts, lighthouserc.json, scripts/size-check.mjs, src/app/layout.tsx, src/app/page.tsx, src/app/globals.css, .github/workflows/ci.yml]
-pr:
+pr: https://github.com/ryann254/mac-portfolio/pull/1
 ---
 Problem: Mac-Portfolio has a plan and nothing else. No app runs, nothing catches a regression, and there is no URL to look at, so no phase can prove anything.
 Fix: Scaffold Next.js with TypeScript strict and Tailwind 4. Add the three test tiers from PLAN.md and a page showing only the wallpaper. Wire GitHub and Vercel for previews.
