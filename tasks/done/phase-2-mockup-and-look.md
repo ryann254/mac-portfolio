@@ -1,8 +1,8 @@
 ---
-status: doing
+status: done
 owner: agent:claude-962984cc
-files: [mockup/index.html, tasks/doing/phase-2-mockup-and-look.md]
-pr:
+files: [mockup/index.html, tasks/done/phase-2-mockup-and-look.md]
+pr: https://github.com/ryann254/mac-portfolio/pull/3
 ---
 Problem: Phases 3 to 9 build fourteen screens. Settling how they look after the code exists means building them twice.
 Fix: Build one self-contained HTML mockup with a tab per state listed in PLAN.md, from boot through the mobile layout. Use the real content, wallpaper, and icons from phase 1 so nothing is a placeholder.
