@@ -12,8 +12,15 @@
   real files from public/, so the colours and crops you see are the ones we ship.
 -->
 <style>
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../public/fonts/inter-latin.woff2") format("woff2");
+}
 :root {
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --font: "Inter", "Inter Fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --tab-bg: #2c2c2c;
 }
@@ -143,9 +150,10 @@ body {
   transform-origin: bottom center; transition: transform .16s cubic-bezier(.2,.7,.3,1);
 }
 .dock-item img, .dock-item .drawn { width: 50px; height: 50px; display: block; border-radius: 11px; }
-.dock-item:hover { transform: scale(1.36) translateY(-7px); }
-.dock-item:hover + .dock-item, .dock-item:has(+ .dock-item:hover) { transform: scale(1.16) translateY(-3px); }
 .dock-item:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 12px; }
+/* While the pointer drives the scale there is nothing to ease towards, so the
+   transition only runs on the way back to rest. */
+.dock.live .dock-item { transition: none; will-change: transform; }
 .dock-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,.6); margin-top: 3px; }
 .screen[data-theme="dark"] .dock-dot:not(.off) { background: rgba(255,255,255,.75); }
 .dock-dot.off { background: transparent; }
@@ -254,7 +262,7 @@ body {
 
 .deskfolders { position: absolute; left: 20px; top: 38px; z-index: 12; display: flex; flex-direction: column; gap: 4px; }
 .deskfolder {
-  width: 108px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 124px; display: flex; flex-direction: column; align-items: center; gap: 4px;
   border: 0; background: none; padding: 8px 4px 6px; border-radius: 9px; cursor: pointer;
   font: inherit; font-size: 12.5px; color: #fff; text-align: center;
   text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(0,0,0,.3);
@@ -264,7 +272,7 @@ body {
 .deskfolder:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 
 .flip {
-  position: absolute; right: 54px; top: 38%; z-index: 12; text-align: center;
+  position: absolute; right: 44px; bottom: 30px; z-index: 12; text-align: center;
   color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.4);
 }
 .flip .date { margin: 0 0 13px; font-size: 14px; font-weight: 600; letter-spacing: .16em; text-shadow: 0 1px 3px rgba(0,0,0,.55), 0 0 14px rgba(0,0,0,.4); }
@@ -280,9 +288,6 @@ body {
 .flip .card::after { content: ""; position: absolute; inset: 50% 0 auto; height: 1px; background: rgba(0,0,0,.3); }
 .flip .colon { font-size: 42px; font-weight: 600; opacity: .9; }
 
-/* GitHub and LinkedIn are flat brand marks. A tile makes them sit as app icons. */
-.tile { background: #fff; display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.16); }
-.dock-item .tile img, .lp-app .tile img, .ios-app .tile img { width: 68%; height: 68%; border-radius: 0; }
 
 /* ---------- safari ---------- */
 .sf-tabs { display: flex; gap: 6px; padding: 6px 12px 0; background: var(--win-head); }
@@ -509,14 +514,14 @@ body {
 
 <!-- 2 ------------------------------------------------------------------ -->
 <section class="state" data-title="Desktop">
-  <p class="note">Folders top left, flip clock on the right, and the dock with GitHub and LinkedIn tiled so they sit as app icons. Hover the dock for the magnification and the labels. Both clocks are live and read the same time.</p>
+  <p class="note">Folders top left, clock bottom right, and the dock. <strong>Run the pointer along the dock.</strong> Each icon is scaled by how far it sits from the pointer rather than by which one is hovered, so the wave flows instead of popping between sizes. Both clocks are live and read the same time.</p>
   <div class="screen">
     <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="welcome">
       <h1>Ryan Waweru</h1>
       <p class="role">Senior Frontend Engineer</p>
-      <p class="line">Six years of React and TypeScript, mostly on screens where the data keeps arriving while you are looking at it.</p>
+      <p class="line">6+ years of React, Next.js, and TypeScript building large scale projects in the education, real estate and many other sectors...</p>
     </div>
     <div data-chrome="dock"></div>
   </div>
@@ -1000,13 +1005,10 @@ const APPS = [
   { id: 'resume',    name: 'Resume',    icon: 'preview.webp' },
   { id: 'contact',   name: 'Contact',   icon: 'mail.webp' },
   { id: 'github',    name: 'GitHub',    icon: 'github.png',   external: true },
-  { id: 'linkedin',  name: 'LinkedIn',  icon: 'linkedin.png', external: true },
+  { id: 'linkedin',  name: 'LinkedIn',  icon: 'linkedin.svg', external: true },
 ]
 const ICON = (id) => '../public/icons/' + APPS.find((a) => a.id === id).icon
-const appArt = (app) => {
-  const img = '<img src="' + ICON(app.id) + '" alt="' + esc(app.name) + '">'
-  return app.external ? '<span class="drawn tile">' + img + '</span>' : img
-}
+const appArt = (app) => '<img src="' + ICON(app.id) + '" alt="' + esc(app.name) + '">'
 
 const PROJECTS = [
   { slug: 'streamlyne', name: 'Streamlyne', host: 'streamlyne.com', url: 'https://streamlyne.com/',
@@ -1251,7 +1253,66 @@ function stampChrome() {
       dock.appendChild(b)
     })
     slot.replaceWith(dock)
+    wireDock(dock)
   })
+}
+
+/* ---- dock magnification ---- */
+const DOCK_GROWTH = 0.5   // how much bigger the icon under the pointer gets
+const DOCK_REACH = 2.7    // how many icons either side the wave touches
+const DOCK_LIFT = 15      // px the biggest icon rises
+
+function wireDock(dock) {
+  const items = $$('.dock-item', dock)
+  if (!items.length) return
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)')
+  let pending = 0
+  let geometry = null
+
+  /* Measured once when the pointer arrives. Transforms do not move offsetLeft,
+     and nothing else shifts while you are over the dock, so reading any of
+     this per frame would only buy a forced layout on every one of them. */
+  const measure = () => {
+    const box = dock.getBoundingClientRect()
+    const scale = box.width / dock.offsetWidth
+    return {
+      left: box.left,
+      scale,
+      reach: items[0].offsetWidth * DOCK_REACH,
+      centres: items.map((item) => item.offsetLeft + item.offsetWidth / 2),
+    }
+  }
+
+  const magnify = (clientX) => {
+    pending = 0
+    if (!geometry) return
+    const x = (clientX - geometry.left) / geometry.scale
+    items.forEach((item, i) => {
+      const away = Math.abs(x - geometry.centres[i])
+      const fall = Math.cos(Math.min(1, away / geometry.reach) * Math.PI / 2) ** 2
+      const grow = DOCK_GROWTH * fall
+      item.style.transform = grow < 0.004 ? '' : 'scale(' + (1 + grow) + ') translateY(' + (-DOCK_LIFT * fall) + 'px)'
+    })
+  }
+
+  const rest = () => {
+    if (pending) cancelAnimationFrame(pending)
+    pending = 0
+    geometry = null
+    dock.classList.remove('live')
+    items.forEach((item) => { item.style.transform = '' })
+  }
+
+  dock.addEventListener('pointermove', (e) => {
+    if (still.matches || e.pointerType === 'touch') return
+    if (!geometry) {
+      geometry = measure()
+      dock.classList.add('live')
+    }
+    const { clientX } = e
+    if (!pending) pending = requestAnimationFrame(() => magnify(clientX))
+  })
+  dock.addEventListener('pointerleave', rest)
 }
 
 /* ---- finder ---- */
