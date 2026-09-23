@@ -1,0 +1,1552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mac-Portfolio look mockup</title>
+<!--
+  Phase 2. One file, no server, no build. Open it with file:// and click the tabs.
+  Everything here is thrown away once phases 3 to 9 build the real thing, so it
+  trades correctness for speed: no framework, no state, inline SVG for the icons
+  we do not own yet. The wallpaper, app icons, and project screenshots are the
+  real files from public/, so the colours and crops you see are the ones we ship.
+-->
+<style>
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../public/fonts/inter-latin.woff2") format("woff2");
+}
+:root {
+  --font: "Inter", "Inter Fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --tab-bg: #2c2c2c;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: #101012;
+  color: #e8e8ea;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* ---------- the tab bar ---------- */
+.tabbar {
+  position: sticky; top: 0; z-index: 999;
+  background: var(--tab-bg);
+  border-bottom: 1px solid #000;
+  padding: 10px 16px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+}
+.tabbar b { color: #8d8d93; font-weight: 600; font-size: 12px; margin-right: 6px; letter-spacing: .02em; }
+.tabbar button {
+  font: inherit; font-size: 12px;
+  color: #b9b9be; background: #3a3a3c;
+  border: 1px solid #4a4a4d; border-radius: 6px;
+  padding: 5px 9px; cursor: pointer;
+}
+.tabbar button:hover { background: #4a4a4d; color: #fff; }
+.tabbar button[aria-current="true"] { background: #f2f2f4; border-color: #f2f2f4; color: #1d1d1f; font-weight: 600; }
+.tabbar button:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+
+.state { display: none; padding: 18px 16px 24px; max-width: 1560px; margin: 0 auto; }
+.stage { display: flex; justify-content: center; overflow: hidden; }
+.state[data-active] { display: block; }
+.note {
+  margin: 0 0 14px; color: #9a9aa0; font-size: 13px; max-width: 78ch;
+}
+.note strong { color: #e8e8ea; font-weight: 600; }
+.note code { font-family: var(--mono); font-size: 12px; color: #c6c6cb; background: #1c1c1e; padding: 1px 5px; border-radius: 4px; }
+
+/* ---------- the screen ---------- */
+.screen {
+  position: relative; width: 1440px; height: 900px; flex: none;
+  overflow: hidden; border-radius: 12px; transform-origin: top center;
+  box-shadow: 0 30px 70px rgba(0,0,0,.55);
+  font-family: var(--font); color: var(--ink);
+  --bar: rgba(252,252,253,.66);
+  --bar-ink: #15161a;
+  --win: #f7f7f8;
+  --win-head: rgba(244,244,246,.86);
+  --ink: #1d1d1f;
+  --ink-2: #6e6e73;
+  --ink-3: #8e8e93;
+  --line: rgba(0,0,0,.13);
+  --side: rgba(236,236,239,.76);
+  --sel: rgba(0,0,0,.085);
+  --field: rgba(0,0,0,.055);
+  --accent: #0a7cff;
+  --panel: rgba(250,250,252,.74);
+  --chip: rgba(0,0,0,.06);
+}
+.screen[data-theme="dark"] {
+  --bar: rgba(22,22,24,.55);
+  --bar-ink: #f5f5f7;
+  --win: #222225;
+  --win-head: rgba(48,48,52,.86);
+  --ink: #f5f5f7;
+  --ink-2: #a1a1a8;
+  --ink-3: #8a8a90;
+  --line: rgba(255,255,255,.13);
+  --side: rgba(36,36,39,.72);
+  --sel: rgba(255,255,255,.13);
+  --field: rgba(255,255,255,.09);
+  --accent: #0a84ff;
+  --panel: rgba(36,36,39,.74);
+  --chip: rgba(255,255,255,.1);
+}
+.wall { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- menu bar ---------- */
+.menubar {
+  position: absolute; inset: 0 0 auto; height: 28px; z-index: 75;
+  display: flex; align-items: center; gap: 18px; padding: 0 12px;
+  background: var(--bar); backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  color: var(--bar-ink); font-size: 13px;
+}
+.menubar .apple { width: 15px; height: 15px; fill: currentColor; opacity: .92; }
+.menubar .appname { font-weight: 700; }
+.menubar .menus { display: flex; gap: 17px; }
+.menubar .right { margin-left: auto; display: flex; align-items: center; gap: 15px; }
+.menubar .right svg { width: 16px; height: 16px; fill: currentColor; opacity: .88; }
+.menubar .clock { font-variant-numeric: tabular-nums; }
+
+/* ---------- welcome ---------- */
+.welcome {
+  position: absolute; left: 0; right: 0; top: 24%; z-index: 10;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 2px 22px rgba(0,0,0,.35);
+}
+.welcome > * { position: relative; }
+.welcome::before {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 1240px; height: 620px;
+  background: radial-gradient(closest-side, rgba(0,0,0,.4) 0%, rgba(0,0,0,.36) 32%, rgba(0,0,0,.16) 66%, transparent 100%);
+}
+.welcome h1 { margin: 0; font-size: clamp(34px, 4.6vw, 62px); font-weight: 600; letter-spacing: -.02em; }
+.welcome .role { margin: 6px 0 0; font-size: clamp(15px, 1.5vw, 20px); font-weight: 500; }
+.welcome .line { margin: 14px 0 0; font-size: clamp(13px, 1.15vw, 15px); max-width: 54ch; opacity: .93; }
+
+/* ---------- dock ---------- */
+.dock {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 76;
+  display: flex; align-items: flex-end; gap: 7px; padding: 6px;
+  background: rgba(255,255,255,.26); border: .5px solid rgba(255,255,255,.34);
+  border-radius: 20px; backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: 0 10px 30px rgba(0,0,0,.28);
+}
+.screen[data-theme="dark"] .dock { background: rgba(60,60,66,.4); border-color: rgba(255,255,255,.16); }
+.dock .sep { width: 1px; align-self: stretch; margin: 4px 3px; background: rgba(255,255,255,.34); }
+.dock-item {
+  position: relative; width: 50px; display: flex; flex-direction: column; align-items: center;
+  border: 0; background: none; padding: 0; cursor: pointer;
+  transform-origin: bottom center; transition: transform .16s cubic-bezier(.2,.7,.3,1);
+}
+.dock-item img, .dock-item .drawn { width: 50px; height: 50px; display: block; border-radius: 11px; }
+.dock-item:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 12px; }
+/* While the pointer drives the scale there is nothing to ease towards, so the
+   transition only runs on the way back to rest. */
+.dock.live .dock-item { transition: none; will-change: transform; }
+.dock-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(0,0,0,.6); margin-top: 3px; }
+.screen[data-theme="dark"] .dock-dot:not(.off) { background: rgba(255,255,255,.75); }
+.dock-dot.off { background: transparent; }
+.dock-label {
+  position: absolute; bottom: 100%; margin-bottom: 12px; white-space: nowrap;
+  background: rgba(240,240,242,.9); color: #1d1d1f; font-size: 12px;
+  padding: 3px 9px; border-radius: 6px; border: .5px solid rgba(0,0,0,.14);
+  box-shadow: 0 4px 14px rgba(0,0,0,.2);
+  opacity: 0; pointer-events: none; transition: opacity .12s;
+}
+.dock-item:hover .dock-label, .dock-item:focus-visible .dock-label { opacity: 1; }
+
+/* ---------- window chrome ---------- */
+.win {
+  position: absolute; z-index: 20; display: flex; flex-direction: column;
+  background: var(--win); color: var(--ink);
+  border-radius: 11px; overflow: hidden;
+  box-shadow: 0 0 0 .5px rgba(0,0,0,.24), 0 26px 60px rgba(0,0,0,.38), 0 3px 10px rgba(0,0,0,.18);
+}
+.screen[data-theme="dark"] .win { box-shadow: 0 0 0 .5px rgba(255,255,255,.16), 0 26px 60px rgba(0,0,0,.6); }
+.win.back { z-index: 15; box-shadow: 0 0 0 .5px rgba(0,0,0,.18), 0 12px 30px rgba(0,0,0,.24); }
+.titlebar {
+  display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 12px; flex: none;
+  background: var(--win-head); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: .5px solid var(--line);
+}
+.titlebar.tall { height: 46px; }
+.lights { display: flex; gap: 8px; align-items: center; }
+.light {
+  width: 12px; height: 12px; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
+  display: grid; place-items: center; font-size: 9px; line-height: 1; color: rgba(0,0,0,.55);
+}
+.light span { opacity: 0; font-weight: 700; }
+.lights:hover .light span { opacity: 1; }
+.light.red { background: #ff5f57; }
+.light.yellow { background: #febc2e; }
+.light.green { background: #28c840; }
+.win.back .light { background: #d4d4d6; }
+.screen[data-theme="dark"] .win.back .light { background: #4d4d51; }
+.win-title { font-size: 13px; font-weight: 600; letter-spacing: -.01em; }
+.win.back .win-title { color: var(--ink-3); }
+.win-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.pane { flex: 1; min-width: 0; overflow: auto; padding: 18px 22px; background: var(--win); container-type: inline-size; }
+
+/* ---------- finder ---------- */
+.sidebar {
+  width: 186px; flex: none; padding: 10px 8px; overflow: auto;
+  background: var(--side); border-right: .5px solid var(--line);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.sb-group { margin: 0 0 4px; padding: 8px 8px 4px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.sb-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 5px 8px; border: 0; border-radius: 6px; background: none;
+  font: inherit; font-size: 13px; color: var(--ink); text-align: left; cursor: pointer;
+}
+.sb-item:hover { background: var(--sel); }
+.sb-item[aria-current="true"] { background: var(--sel); font-weight: 500; }
+.sb-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sb-item svg { width: 15px; height: 15px; flex: none; }
+.crumbs { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 13px; }
+.chev { width: 13px; height: 13px; opacity: .55; }
+.toolbtn { border: 0; background: none; padding: 2px; border-radius: 5px; cursor: pointer; color: var(--ink-2); display: grid; place-items: center; }
+.toolbtn:hover { background: var(--sel); }
+.toolbtn svg { width: 15px; height: 15px; }
+.search {
+  margin-left: auto; display: flex; align-items: center; gap: 6px;
+  background: var(--field); border-radius: 7px; padding: 3px 9px; color: var(--ink-3); font-size: 12px; min-width: 130px;
+}
+.search svg { width: 12px; height: 12px; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 6px 4px; align-content: start;
+}
+.file {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 9px 4px 7px; border: 0; background: none; border-radius: 7px; cursor: pointer;
+  font: inherit; font-size: 12px; color: var(--ink); text-align: center;
+}
+.file:hover { background: var(--sel); }
+.file[aria-selected="true"] { background: rgba(10,124,255,.18); }
+.file svg, .file .shot { width: 54px; height: 54px; flex: none; }
+.file .shot { object-fit: cover; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.28); }
+.file .nm { line-height: 1.25; word-break: break-word; }
+.file .nm em { font-style: normal; background: rgba(10,124,255,.9); color: #fff; border-radius: 3px; padding: 0 3px; }
+
+/* ---------- shared bits ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.chips li { font-size: 11.5px; color: var(--ink-2); background: var(--chip); border-radius: 999px; padding: 3px 9px; }
+.h { margin: 0 0 4px; font-size: 19px; font-weight: 650; letter-spacing: -.015em; }
+.sub { margin: 0; color: var(--ink-2); font-size: 13px; }
+.body-txt { font-size: 13.5px; line-height: 1.62; }
+.body-txt p { margin: 0 0 11px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 13px; font-weight: 500;
+  background: var(--accent); color: #fff; border: 0; border-radius: 7px; padding: 6px 13px; cursor: pointer;
+}
+.btn { text-decoration: none; }
+.btn.ghost { background: var(--field); color: var(--ink); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- wallpaper, desktop icons, clock ---------- */
+.wall { position: absolute; inset: 0; }
+.wall svg { width: 100%; height: 100%; display: block; }
+
+.deskfolders { position: absolute; left: 20px; top: 38px; z-index: 12; display: flex; flex-direction: column; gap: 4px; }
+.deskfolder {
+  width: 124px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 0; background: none; padding: 8px 4px 6px; border-radius: 9px; cursor: pointer;
+  font: inherit; font-size: 12.5px; color: #fff; text-align: center;
+  text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(0,0,0,.3);
+}
+.deskfolder svg { width: 58px; height: 47px; filter: drop-shadow(0 2px 5px rgba(0,0,0,.3)); }
+.deskfolder:hover { background: rgba(255,255,255,.16); }
+.deskfolder:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+
+.flip {
+  position: absolute; right: 44px; bottom: 30px; z-index: 12; text-align: center;
+  color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.4);
+}
+.flip .date { margin: 0 0 13px; font-size: 14px; font-weight: 600; letter-spacing: .16em; text-shadow: 0 1px 3px rgba(0,0,0,.55), 0 0 14px rgba(0,0,0,.4); }
+.flip .digits { display: flex; align-items: center; gap: 9px; }
+.flip .pair { display: flex; gap: 6px; }
+.flip .card {
+  position: relative; width: 70px; height: 94px; border-radius: 11px;
+  background: rgba(22,18,32,.74); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: grid; place-items: center; font-size: 56px; font-weight: 500;
+  font-variant-numeric: tabular-nums; line-height: 1; text-shadow: none;
+  box-shadow: 0 7px 22px rgba(0,0,0,.26), inset 0 0 0 .5px rgba(255,255,255,.12);
+}
+.flip .card::after { content: ""; position: absolute; inset: 50% 0 auto; height: 1px; background: rgba(0,0,0,.3); }
+.flip .colon { font-size: 42px; font-weight: 600; opacity: .9; }
+
+
+/* ---------- safari ---------- */
+.sf-tabs { display: flex; gap: 6px; padding: 6px 12px 0; background: var(--win-head); }
+.sf-tab {
+  display: flex; align-items: center; gap: 7px; min-width: 0; max-width: 190px;
+  font: inherit; font-size: 12.5px; color: var(--ink-2);
+  background: var(--sel); border: 0; border-radius: 8px 8px 0 0; padding: 6px 12px; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sf-tab[aria-selected="true"] { background: var(--win); color: var(--ink); font-weight: 500; }
+.sf-tab .fav { width: 13px; height: 13px; border-radius: 3px; flex: none; }
+.urlbar {
+  display: flex; align-items: center; gap: 7px; margin: 7px 12px 9px;
+  background: var(--field); border-radius: 8px; padding: 5px 11px; font-size: 12.5px; color: var(--ink-2);
+}
+.urlbar .lock { width: 11px; height: 11px; }
+.urlbar .host { color: var(--ink); }
+.sf-cols { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+@container (max-width: 620px) { .sf-cols { grid-template-columns: 1fr; } }
+.hero { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 9px; box-shadow: 0 2px 14px rgba(0,0,0,.2); display: block; }
+
+/* ---------- terminal ---------- */
+.term {
+  flex: 1; overflow: auto; padding: 14px 16px; background: rgba(20,20,22,.9);
+  color: #e6e6e8; font-family: var(--mono); font-size: 12.5px; line-height: 1.62;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.term .neo { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 14px; }
+.term .neo svg { width: 76px; height: 76px; flex: none; }
+.term .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0 14px; }
+.term .k { color: #5ccf7f; }
+.term .prompt { color: #5ccf7f; }
+.term .path { color: #62b0ff; }
+.term .dim { color: #8d8d93; }
+.term h3 { margin: 0; font-size: 12.5px; font-weight: 700; color: #f0b429; }
+.term .caret { display: inline-block; width: 7px; height: 14px; background: #e6e6e8; vertical-align: -2px; animation: blink 1.1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---------- photos ---------- */
+.ph-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ph-grid button { border: 0; padding: 0; background: none; cursor: pointer; border-radius: 7px; overflow: hidden; }
+.ph-grid img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; }
+.ph-grid button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- resume / preview ---------- */
+.pv-rail { width: 120px; flex: none; padding: 12px 10px; background: var(--side); border-right: .5px solid var(--line); overflow: auto; }
+.pv-thumb { width: 100%; aspect-ratio: 8.5 / 11; background: #fff; border: .5px solid rgba(0,0,0,.2); border-radius: 3px; box-shadow: 0 1px 6px rgba(0,0,0,.22); margin-bottom: 8px; }
+.pv-thumb.on { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pv-page {
+  width: min(460px, 92%); margin: 0 auto; aspect-ratio: 8.5 / 11; background: #fff; color: #1d1d1f;
+  border-radius: 3px; box-shadow: 0 4px 22px rgba(0,0,0,.3); padding: 30px 34px; font-size: 9.5px; line-height: 1.6; overflow: hidden;
+}
+.pv-page h4 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+.pv-page .r { margin: 9px 0 0; }
+.pv-page .r b { font-size: 10px; }
+.pv-page hr { border: 0; border-top: 1px solid #d8d8dc; margin: 10px 0; }
+
+/* ---------- contact ---------- */
+.rows { list-style: none; margin: 14px 0 0; padding: 0; border: .5px solid var(--line); border-radius: 10px; overflow: hidden; }
+.rows li + li { border-top: .5px solid var(--line); }
+.rows a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-decoration: none; color: var(--ink); }
+.rows a:hover { background: var(--sel); }
+.rows img, .rows svg { width: 26px; height: 26px; border-radius: 6px; flex: none; }
+.rows .lbl { font-size: 13px; font-weight: 500; }
+.rows .val { font-size: 12.5px; color: var(--ink-2); }
+.rows .go { margin-left: auto; color: var(--ink-3); }
+.broken { display: inline-grid; place-items: center; padding: 4px 8px; border-radius: 6px; font-size: 10px;
+  background: #b3261e; color: #fff; font-family: var(--mono); word-break: break-all; }
+
+/* ---------- launchpad ---------- */
+.lp { position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0 0;
+  background: rgba(0,0,0,.24); backdrop-filter: blur(34px) saturate(130%); -webkit-backdrop-filter: blur(34px) saturate(130%); }
+.lp-search {
+  display: flex; align-items: center; gap: 8px; width: 240px; margin-bottom: 40px;
+  background: rgba(255,255,255,.22); border: .5px solid rgba(255,255,255,.3); border-radius: 8px;
+  padding: 5px 11px; color: rgba(255,255,255,.85); font-size: 13px;
+}
+.lp-search svg { width: 13px; height: 13px; }
+.lp-grid { display: grid; grid-template-columns: repeat(5, 116px); gap: 30px 20px; }
+.lp-app { display: flex; flex-direction: column; align-items: center; gap: 8px; border: 0; background: none; padding: 0; cursor: pointer;
+  color: #fff; font: inherit; font-size: 12.5px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.lp-app img, .lp-app .drawn { width: 66px; height: 66px; border-radius: 15px; }
+.lp-app:hover img, .lp-app:hover .drawn { transform: scale(1.06); transition: transform .14s; }
+.lp-app:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 10px; }
+.lp-dots { display: flex; gap: 8px; position: absolute; bottom: 82px; }
+.lp-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.lp-dots i.on { background: rgba(255,255,255,.95); }
+
+/* ---------- spotlight ---------- */
+.sp-scrim { position: absolute; inset: 0; z-index: 70; display: flex; justify-content: center; padding-top: 120px; background: rgba(0,0,0,.1); }
+.sp {
+  width: min(672px, 88%); align-self: flex-start; border-radius: 13px; overflow: hidden;
+  background: var(--panel); backdrop-filter: blur(34px) saturate(180%); -webkit-backdrop-filter: blur(34px) saturate(180%);
+  border: .5px solid var(--line); box-shadow: 0 24px 64px rgba(0,0,0,.42);
+}
+.sp-field { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: .5px solid var(--line); }
+.sp-field svg { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
+.sp-field .q { font-size: 20px; color: var(--ink); }
+.sp-field .caret2 { display: inline-block; width: 1.5px; height: 22px; background: var(--accent); vertical-align: -4px; animation: blink 1.1s step-end infinite; }
+.sp-cols { display: flex; max-height: 330px; }
+.sp-list { flex: 1; min-width: 0; padding: 6px; overflow: auto; }
+.sp-sec { padding: 7px 10px 3px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.sp-row { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; border-radius: 6px;
+  padding: 6px 10px; font: inherit; font-size: 13px; color: var(--ink); text-align: left; cursor: pointer; }
+.sp-row img, .sp-row svg.ic { width: 20px; height: 20px; border-radius: 5px; flex: none; }
+.sp-row .kind { margin-left: auto; font-size: 11.5px; color: var(--ink-3); }
+.sp-row[aria-selected="true"] { background: var(--accent); color: #fff; }
+.sp-row[aria-selected="true"] .kind { color: rgba(255,255,255,.8); }
+.sp-preview { width: 248px; flex: none; border-left: .5px solid var(--line); padding: 16px; text-align: center; }
+.sp-preview img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 7px; }
+
+/* ---------- control center ---------- */
+.cc {
+  position: absolute; top: 34px; right: 10px; z-index: 65; width: 304px; padding: 12px;
+  display: grid; gap: 10px; border-radius: 17px;
+  background: var(--panel); backdrop-filter: blur(34px) saturate(180%); -webkit-backdrop-filter: blur(34px) saturate(180%);
+  border: .5px solid var(--line); box-shadow: 0 20px 50px rgba(0,0,0,.36);
+}
+.cc-tile { background: var(--sel); border-radius: 12px; padding: 11px 13px; }
+.cc-tile h4 { margin: 0 0 9px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.seg { display: flex; gap: 5px; }
+.seg button { flex: 1; font: inherit; font-size: 12.5px; color: var(--ink); background: var(--field); border: .5px solid transparent; border-radius: 8px; padding: 7px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--win); border-color: var(--line); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+.slider { position: relative; height: 26px; border-radius: 8px; background: var(--field); overflow: hidden; }
+.slider i { position: absolute; inset: 0 auto 0 0; width: 72%; background: var(--ink); opacity: .82; }
+.slider svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--win); }
+.wp-pick { display: flex; gap: 8px; }
+.wp-pick button { flex: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 8px; }
+.wp-pick .sw { display: block; aspect-ratio: 16/10; border-radius: 8px; overflow: hidden; }
+.wp-pick .sw svg { width: 100%; height: 100%; display: block; }
+.wp-pick button[aria-pressed="true"] .sw { outline: 2.5px solid var(--accent); outline-offset: -2px; }
+.wp-pick button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- boot ---------- */
+.boot { position: absolute; inset: 0; z-index: 90; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; background: #000; }
+.boot svg { width: 72px; height: 72px; fill: #fff; }
+.boot .bar { width: 256px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.2); overflow: hidden; }
+.boot .bar i { display: block; height: 100%; width: 0; background: #fff; border-radius: 2px; }
+.state[data-active] .boot .bar i { animation: fill 1.4s cubic-bezier(.4,.05,.2,1) forwards; }
+@keyframes fill { from { width: 0; } to { width: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .state[data-active] .boot .bar i { animation: none; width: 100%; }
+  .term .caret, .sp-field .caret2 { animation: none; }
+  /* Written at the same specificity as the :hover rules they answer, because
+     a shorter selector inside a media query still loses to a longer one
+     outside it. The dock's own magnification is off already; the script
+     checks the same query before it touches a transform. */
+  .dock-item,
+  .dock-item .dock-label,
+  .dock-item:hover .dock-label,
+  .lp-app img, .lp-app .drawn,
+  .lp-app:hover img, .lp-app:hover .drawn {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ---------- mobile ---------- */
+.phones { display: flex; gap: 34px; width: 850px; height: 862px; flex: none; transform-origin: top center; }
+.phone {
+  position: relative; width: 408px; height: 862px; flex: none;
+  border-radius: 54px; padding: 9px; background: #1b1b1d;
+  box-shadow: 0 0 0 2px #3a3a3d, 0 26px 60px rgba(0,0,0,.55);
+}
+.phone .screen { position: absolute; inset: 9px; width: auto; height: auto; transform: none; border-radius: 45px; box-shadow: none; font-size: 14px; }
+/* iOS dims the home screen wallpaper so white labels hold up over any of it. */
+.phone .wall::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.36) 0%, rgba(0,0,0,.12) 42%, rgba(0,0,0,.1) 72%, rgba(0,0,0,.3) 100%);
+}
+.notch { position: absolute; z-index: 90; top: 20px; left: 50%; transform: translateX(-50%); width: 126px; height: 34px; border-radius: 18px; background: #000; }
+.ios-bar { position: absolute; inset: 0 0 auto; height: 54px; z-index: 50; display: flex; align-items: center; padding: 0 30px; color: #fff; font-size: 15px; font-weight: 600; }
+.ios-bar .t { font-variant-numeric: tabular-nums; }
+.ios-bar .st { margin-left: auto; display: flex; gap: 5px; align-items: center; }
+.ios-bar .st svg { width: 18px; height: 14px; fill: currentColor; }
+.ios-bar.ink { color: var(--ink); }
+.ios-home { position: absolute; inset: 54px 0 0; z-index: 10; display: flex; flex-direction: column; padding: 0 20px 18px; }
+.ios-hello { text-align: center; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.5); margin: 8px 0 20px; }
+.ios-hello h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -.01em; }
+.ios-hello p { margin: 4px 0 0; font-size: 15px; opacity: .92; }
+.ios-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px 8px; }
+.ios-app { display: flex; flex-direction: column; align-items: center; gap: 5px; border: 0; background: none; padding: 0; cursor: pointer;
+  color: #fff; font: inherit; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.55); }
+.ios-app img, .ios-app .drawn { width: 62px; height: 62px; border-radius: 14px; }
+.ios-dots { display: flex; gap: 6px; justify-content: center; margin: auto 0 10px; }
+.ios-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); }
+.ios-dots i.on { background: #fff; }
+.ios-dock { display: flex; justify-content: space-around; padding: 10px 12px; border-radius: 26px;
+  background: rgba(255,255,255,.22); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.ios-dock img { width: 62px; height: 62px; border-radius: 14px; }
+.sheet { position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; padding-top: 54px; background: var(--win); border-radius: 45px; overflow: hidden; }
+.sheet .grab { width: 38px; height: 5px; border-radius: 3px; background: var(--ink-3); opacity: .45; margin: 8px auto 0; flex: none; }
+.sheet-head { display: flex; align-items: center; gap: 11px; padding: 11px 20px; border-bottom: .5px solid var(--line); flex: none; }
+.sheet-head img { width: 27px; height: 27px; border-radius: 7px; }
+.sheet-head .t { font-size: 15px; font-weight: 600; }
+.sheet-head .done { margin-left: auto; font-size: 14px; color: var(--accent); font-weight: 500; background: none; border: 0; cursor: pointer; font-family: inherit; }
+.sheet-body { flex: 1; overflow: auto; padding: 16px 20px 28px; }
+</style>
+</head>
+<body>
+<!--
+  The chrome lives in these templates and gets stamped into each state by the
+  script at the bottom. Twelve hand-copied menu bars would drift apart by the
+  third edit, and the whole point of this file is that one look is agreed.
+-->
+<template id="tpl-menubar">
+  <div class="menubar">
+    <svg class="apple" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.61-1.7-3.18-1.73-1.35-.14-2.64.79-3.33.79-.69 0-1.75-.77-2.87-.75-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.11 8.76.73 1.06 1.6 2.25 2.75 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.14.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.32-3.5zM14.88 5.6c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z"/></svg>
+    <span class="appname" data-slot="app">Finder</span>
+    <span class="menus" data-slot="menus"></span>
+    <span class="right">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm0-4.6c1.3 0 2.5.5 3.4 1.4l-1.4 1.4a2.9 2.9 0 0 0-4 0l-1.4-1.4a4.8 4.8 0 0 1 3.4-1.4zm0-4.2c2.4 0 4.6.9 6.3 2.5l-1.4 1.4a7 7 0 0 0-9.8 0l-1.4-1.4A8.9 8.9 0 0 1 12 9.7zm0-4.2c3.5 0 6.7 1.3 9.1 3.5l-1.4 1.4a11.2 11.2 0 0 0-15.4 0L2.9 9A13.1 13.1 0 0 1 12 5.5z"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm1 1.6v4.8h12V8.6H6zm15 .9h1v3h-1z"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h6a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2zm0 5h14a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2zm0 5h9a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2z"/></svg>
+      <span class="clock">Tue 23 Sep  6:41 PM</span>
+    </span>
+  </div>
+</template>
+
+<template id="tpl-dock"><div class="dock"></div></template>
+
+<div class="tabbar" aria-label="Mockup states"><b>State:</b></div>
+<main id="states">
+
+<!-- 1 ------------------------------------------------------------------ -->
+<section class="state" data-title="Boot">
+  <p class="note">On the real site this runs for <strong>1.4 seconds</strong>, once per browser session, and any key skips it. <code>prefers-reduced-motion</code> fills the bar with no animation at all. Here it stays on screen so you can look at it; click this tab again to replay the fill.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div class="boot">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.61-1.7-3.18-1.73-1.35-.14-2.64.79-3.33.79-.69 0-1.75-.77-2.87-.75-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.11 8.76.73 1.06 1.6 2.25 2.75 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.14.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.32-3.5zM14.88 5.6c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z"/></svg>
+      <div class="bar"><i></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 ------------------------------------------------------------------ -->
+<section class="state" data-title="Desktop">
+  <p class="note">Folders top left, clock bottom right, and the dock. <strong>Run the pointer along the dock.</strong> Each icon is scaled by how far it sits from the pointer rather than by which one is hovered, so the wave flows instead of popping between sizes. Both clocks are live and read the same time.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="welcome">
+      <h1>Ryan Waweru</h1>
+      <p class="role">Senior Frontend Engineer</p>
+      <p class="line">6+ years of React, Next.js, and TypeScript building large scale projects in the education, real estate and many other sectors...</p>
+    </div>
+    <div data-chrome="dock"></div>
+  </div>
+</section>
+
+<!-- 3 ------------------------------------------------------------------ -->
+<section class="state" data-title="One window">
+  <p class="note">Finder opens at <strong>About</strong>. The window is 840&times;540 at 260,150 on a 1440&times;900 desktop, sitting a little high so the title bar stays clear of the menu bar. Hover the traffic lights to see their glyphs.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="welcome" style="top:20%"><h1>Ryan Waweru</h1><p class="role">Senior Frontend Engineer</p></div>
+    <div class="win" style="left:260px;top:150px;width:840px;height:540px">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <button class="toolbtn" aria-label="Back"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 5.4 8.4 12l6.6 6.6 1.3-1.3L11 12l5.3-5.3z"/></svg></button>
+        <button class="toolbtn" aria-label="Forward"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5.4 15.6 12 9 18.6l-1.3-1.3L13 12 7.7 6.7z"/></svg></button>
+        <span class="win-title">About</span>
+        <span class="search"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>Search</span>
+      </div>
+      <div class="win-body">
+        <div data-finder-sidebar data-current="about"></div>
+        <div class="pane"><div class="grid" data-finder-files="about"></div></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="finder"></div>
+  </div>
+</section>
+
+<!-- 4 ------------------------------------------------------------------ -->
+<section class="state" data-title="Two windows">
+  <p class="note">Safari is focused and Finder sits behind it. The window behind keeps a lighter shadow, grey traffic lights, and a grey title, so which one takes the keyboard is obvious without clicking.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Safari" data-menus="File Edit View History Bookmarks Window Help"></div>
+    <div class="win back" style="left:5%;top:14%;width:52%;height:58%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">Projects</span>
+      </div>
+      <div class="win-body">
+        <div data-finder-sidebar data-current="projects"></div>
+        <div class="pane"><div class="grid" data-finder-files="projects"></div></div>
+      </div>
+    </div>
+    <div class="win" style="left:34%;top:24%;width:60%;height:62%">
+      <div class="titlebar tall">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">Streamlyne</span>
+      </div>
+      <div class="win-body" style="flex-direction:column">
+        <div class="urlbar" style="margin-top:9px"><svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 1 5 5v2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v2h6V7a3 3 0 0 0-3-3z"/></svg><span class="host">streamlyne.com</span></div>
+        <div class="pane" style="padding-top:0"><img class="hero" src="../public/projects/streamlyne.png" alt="The Streamlyne homepage"></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="finder safari"></div>
+  </div>
+</section>
+
+<!-- 5 ------------------------------------------------------------------ -->
+<section class="state" data-title="Minimized">
+  <p class="note">Safari has been minimized with the yellow light. It keeps its dot in the dock, and on the site that dot puts the window back where it was, the same size it was. Finder has taken focus, so the menu bar name changed with it. Nothing on this tab is clickable; it is the picture of the state.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="win" style="left:12%;top:18%;width:56%;height:58%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">Experience</span>
+      </div>
+      <div class="win-body">
+        <div data-finder-sidebar data-current="experience"></div>
+        <div class="pane"><div class="grid" data-finder-files="experience"></div></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="finder safari"></div>
+  </div>
+</section>
+<!-- 6 ------------------------------------------------------------------ -->
+<section class="state" data-title="Finder">
+  <p class="note">Live tab. Click the sidebar, then open the <strong>Streamlyne</strong> folder inside Projects. The tree here is a copy typed by hand, because the file has to open with no build step; in phase 6 it is derived from <code>src/content/</code>, so a role added to the CV turns up with no other edit. The file and folder icons are the only ones we draw ourselves, because Apple ships no generic text or image icon we may use.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="win" style="left:8%;top:12%;width:76%;height:76%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <button class="toolbtn" data-finder-back aria-label="Back"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 5.4 8.4 12l6.6 6.6 1.3-1.3L11 12l5.3-5.3z"/></svg></button>
+        <button class="toolbtn" aria-label="Forward"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5.4 15.6 12 9 18.6l-1.3-1.3L13 12 7.7 6.7z"/></svg></button>
+        <span class="crumbs" data-finder-crumbs></span>
+        <span class="search"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>Search</span>
+      </div>
+      <div class="win-body">
+        <div data-finder-sidebar data-live="1" data-current="about"></div>
+        <div class="pane"><div class="grid" data-finder-files="about" data-live="1"></div></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="finder"></div>
+  </div>
+</section>
+
+<!-- 7 ------------------------------------------------------------------ -->
+<section class="state" data-title="Text and Image">
+  <p class="note">The two windows Finder opens when you double-click a file. No toolbar, only a title bar, because a real TextEdit or Preview window opened this way has nothing else. The text window is monospaced on purpose: it is meant to read like a file, not like a web page.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="TextEdit" data-menus="File Edit Format View Window Help"></div>
+    <div class="win back" style="left:48%;top:30%;width:44%;height:52%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">streamlyne.png</span>
+      </div>
+      <div class="win-body"><div class="pane" style="display:grid;place-items:center;background:#1c1c1e;padding:14px"><img src="../public/projects/streamlyne.png" alt="The Streamlyne homepage" style="max-width:100%;max-height:100%;border-radius:5px"></div></div>
+    </div>
+    <div class="win" style="left:9%;top:15%;width:47%;height:64%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">about.txt</span>
+      </div>
+      <div class="win-body"><div class="pane body-txt" style="font-family:var(--mono);font-size:12.5px;line-height:1.7">
+        <p>I'm a frontend engineer with six years of experience, most of it in React and TypeScript. The work I enjoy most is the kind where data keeps arriving while you are looking at it and the page still has to feel quick.</p>
+        <p>At Streamlyne I built a real-time messaging product with voice that helps university researchers draft documents and ask questions about policy. Research submissions went up 29%. I also rebuilt parts of a long-running Java application in React and Node, which cut load times by 44%.</p>
+        <p>Before that I worked on mobile and on the backend: a survey app in Flutter where lazy loading cut load times 25%, an author dashboard publishing to more than 5,000 students, and a property platform where analytics work improved ad spending by 20%.</p>
+        <p>I'm in Nairobi and I work remotely with teams in the US, Europe, and the Middle East.</p>
+      </div></div>
+    </div>
+    <div data-chrome="dock" data-running="finder"></div>
+  </div>
+</section>
+
+<!-- 8 ------------------------------------------------------------------ -->
+<section class="state" data-title="Safari">
+  <p class="note">Live tab strip, click a project. No iframe: three of the five sites refuse to be framed, so the window shows our own screenshot and the button opens the real site in a new tab. Every project's window is the same shape, so the five read as one thing.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Safari" data-menus="File Edit View History Bookmarks Window Help"></div>
+    <div class="win" style="left:9%;top:13%;width:74%;height:68%">
+      <div class="titlebar tall">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title" data-sf-title>Kazi&amp;Budget</span>
+      </div>
+      <div class="sf-tabs" data-sf-tabs></div>
+      <div class="win-body" style="flex-direction:column">
+        <div class="urlbar"><svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 1 5 5v2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v2h6V7a3 3 0 0 0-3-3z"/></svg><span class="host" data-sf-url></span></div>
+        <div class="pane" style="padding-top:0" data-sf-body></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="safari"></div>
+  </div>
+</section>
+
+<!-- 9 ------------------------------------------------------------------ -->
+<section class="state" data-title="Terminal">
+  <p class="note">A neofetch-style card, then the skills. It is a static transcript in v1. If phase 10 has room, <code>help</code>, <code>about</code>, <code>projects</code>, <code>open streamlyne</code>, and <code>contact</code> become real commands.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Terminal" data-menus="Shell Edit View Window Help"></div>
+    <div class="win" style="left:14%;top:14%;width:66%;height:72%">
+      <div class="titlebar" style="background:rgba(58,58,62,.9)">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title" style="color:#e8e8ea">ryan@portfolio &mdash; zsh &mdash; 92&times;28</span>
+      </div>
+      <div class="win-body"><div class="term">
+        <div class="neo">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <defs><linearGradient id="rb" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#5dc22d"/><stop offset="20%" stop-color="#f6c500"/><stop offset="40%" stop-color="#f28d00"/><stop offset="60%" stop-color="#e5352b"/><stop offset="80%" stop-color="#a1257f"/><stop offset="100%" stop-color="#2b86c5"/>
+            </linearGradient></defs>
+            <path fill="url(#rb)" d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.61-1.7-3.18-1.73-1.35-.14-2.64.79-3.33.79-.69 0-1.75-.77-2.87-.75-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.11 8.76.73 1.06 1.6 2.25 2.75 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.14.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.32-3.5zM14.88 5.6c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z"/>
+          </svg>
+          <div>
+            <h3>ryan@portfolio</h3>
+            <div class="dim">--------------</div>
+            <div class="kv">
+              <span class="k">Role</span><span>Senior Frontend Engineer</span>
+              <span class="k">Based</span><span>Nairobi, Kenya. Remote with US, Europe, and Middle East teams</span>
+              <span class="k">Years</span><span>6</span>
+              <span class="k">Main</span><span>React, TypeScript, Next.js, Node</span>
+              <span class="k">Now</span><span>Streamlyne, real-time messaging with voice</span>
+              <span class="k">Email</span><span>ryannjoroge45@gmail.com</span>
+            </div>
+          </div>
+        </div>
+        <div><span class="prompt">&rarr;</span> <span class="path">~</span> cat skills.txt</div>
+        <div class="kv" style="margin:8px 0 14px">
+          <span class="k">Frontend</span><span>React, TypeScript, Next.js, JavaScript, Redux, HTML, CSS, responsive UI</span>
+          <span class="k">Mobile</span><span>Flutter</span>
+          <span class="k">Backend and APIs</span><span>Node.js, REST APIs, GraphQL, MongoDB, SQL</span>
+          <span class="k">Testing and tooling</span><span>Jest, Cypress, Git, Docker, CI/CD, AWS, Figma</span>
+          <span class="k">Also</span><span>Real-time systems, LLM applications, performance, architecture, code reviews, team leadership</span>
+        </div>
+        <div><span class="prompt">&rarr;</span> <span class="path">~</span> <span class="caret"></span></div>
+      </div></div>
+    </div>
+    <div data-chrome="dock" data-running="terminal"></div>
+  </div>
+</section>
+
+<!-- 10 ----------------------------------------------------------------- -->
+<section class="state" data-title="Photos">
+  <p class="note">The same five screenshots Safari uses, as a gallery. Click one to enlarge it, click again to go back. Live in this tab.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Photos" data-menus="File Edit Image View Window Help"></div>
+    <div class="win" style="left:13%;top:16%;width:68%;height:58%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title" data-ph-title>Projects</span>
+      </div>
+      <div class="win-body"><div class="pane" data-ph-body></div></div>
+    </div>
+    <div data-chrome="dock" data-running="photos"></div>
+  </div>
+</section>
+
+<!-- 11 ----------------------------------------------------------------- -->
+<section class="state" data-title="Resume">
+  <p class="note">Preview's window with the page rail on the left and a Download button in the title bar. <strong>The PDF itself is still yours to send</strong>: the one on file is an application to a named employer, so either you send me a neutral version or I generate one from this content.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Preview" data-menus="File Edit View Go Tools Window Help"></div>
+    <div class="win" style="left:18%;top:11%;width:58%;height:80%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">ryan-waweru.pdf</span>
+        <button class="btn ghost" style="margin-left:auto;padding:3px 10px;font-size:12px">Download</button>
+      </div>
+      <div class="win-body">
+        <div class="pv-rail"><div class="pv-thumb on"></div><div class="pv-thumb"></div></div>
+        <div class="pane" style="background:#3a3a3e;padding:18px 0">
+          <div class="pv-page">
+            <h4>Ryan Waweru</h4>
+            <div style="color:#6e6e73">Senior Frontend Engineer &middot; Nairobi, Kenya &middot; ryannjoroge45@gmail.com</div>
+            <hr>
+            <div>Frontend engineer with six years of experience, most of it in React and TypeScript. I like the screens where data keeps arriving while you are looking at them.</div>
+            <hr>
+            <div class="r"><b>Senior Software Engineer, Streamlyne</b> &middot; Jul 2025 to now</div>
+            <div>Real-time messaging with voice for university researchers. Submissions up 29%. Rebuilt Java workflows in React and Node, load times down 44%.</div>
+            <div class="r"><b>Senior Mobile Engineer, Surveva</b> &middot; Apr 2024 to Sep 2025</div>
+            <div>Flutter and Node. Lazy loading cut survey load times 25%. Built the CI/CD pipeline.</div>
+            <div class="r"><b>Software Engineer, Riyadh Real Estate</b> &middot; Dec 2023 to Apr 2024</div>
+            <div>Property platform, onboarded more than 500 owners.</div>
+            <div class="r"><b>Frontend Developer, newLine</b> &middot; Sep 2023 to Nov 2023</div>
+            <div>Author dashboard publishing to more than 5,000 students, Next.js and Redux.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="resume"></div>
+  </div>
+</section>
+
+<!-- 12 ----------------------------------------------------------------- -->
+<section class="state" data-title="Contact">
+  <p class="note">Three rows, no form. A form needs a backend, a spam story, and somewhere to read the mail, and none of that helps a recruiter who already has a mail client open. The email is shown in the open on purpose.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Contact" data-menus="File Edit View Window Help"></div>
+    <div class="win" style="left:26%;top:20%;width:48%;height:54%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">Contact</span>
+      </div>
+      <div class="win-body"><div class="pane">
+        <h2 class="h">Get in touch</h2>
+        <p class="sub">I read email every day and I reply. Nairobi time, so if you are in the US expect me in your morning.</p>
+        <ul class="rows" role="list" data-contact></ul>
+      </div></div>
+    </div>
+    <div data-chrome="dock" data-running="contact"></div>
+  </div>
+</section>
+<!-- 13 ----------------------------------------------------------------- -->
+<section class="state" data-title="Launchpad">
+  <p class="note">Every app on one page, over a blurred wallpaper. Eight apps fit on one page at five across, so there is one dot. The search field is here for the look; phase 8 builds the filtering.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="lp">
+      <div class="lp-search"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>Search</div>
+      <div class="lp-grid" data-launchpad></div>
+      <div class="lp-dots"><i class="on"></i></div>
+    </div>
+    <div data-chrome="dock" data-running=""></div>
+  </div>
+</section>
+
+<!-- 14 ----------------------------------------------------------------- -->
+<section class="state" data-title="Spotlight">
+  <p class="note">On the site this opens with Cmd+K or the magnifier in the menu bar, and searches apps, projects, skills, and roles with a preview of the top hit on the right. This tab is the picture of it mid-search, with the query <code>stream</code>.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="sp-scrim">
+      <div class="sp">
+        <div class="sp-field">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>
+          <span class="q">stream<span class="caret2"></span></span>
+        </div>
+        <div class="sp-cols">
+          <div class="sp-list">
+            <div class="sp-sec">Top hit</div>
+            <button class="sp-row" aria-selected="true"><img src="../public/icons/safari.webp" alt="">Streamlyne<span class="kind">Project</span></button>
+            <div class="sp-sec">Experience</div>
+            <button class="sp-row"><svg class="ic" viewBox="0 0 48 60"><path d="M4 5a4 4 0 0 1 4-4h20l16 15v39a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#fdfdfd" stroke="#c4c4c9"/><path d="M28 1l16 15H32a4 4 0 0 1-4-4z" fill="#e3e3e8"/></svg>Senior Software Engineer, Streamlyne<span class="kind">Role</span></button>
+            <div class="sp-sec">Open</div>
+            <button class="sp-row"><img src="../public/icons/safari.webp" alt="">streamlyne.com<span class="kind">Website</span></button>
+          </div>
+          <div class="sp-preview">
+            <img src="../public/projects/streamlyne.png" alt="The Streamlyne homepage">
+            <p class="sub" style="margin-top:10px;text-align:left">Research administration software that U.S. universities run their grant work on. Real-time messaging with voice, submissions up 29%.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running=""></div>
+  </div>
+</section>
+
+<!-- 15 ----------------------------------------------------------------- -->
+<section class="state" data-title="Control Center">
+  <p class="note"><strong>The wallpaper picker is live.</strong> Click a gradient and every tab changes, so you can judge all three against real windows. Your pick is remembered here too, when the browser lets a local file use storage. On the site both it and the light or dark setting are saved. Brightness dims the wallpaper only, never the text.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="welcome" style="top:26%"><h1>Ryan Waweru</h1><p class="role">Senior Frontend Engineer</p></div>
+    <div class="cc">
+      <div class="cc-tile">
+        <h4>Appearance</h4>
+        <div class="seg"><button aria-pressed="true">Light</button><button aria-pressed="false">Dark</button><button aria-pressed="false">Auto</button></div>
+      </div>
+      <div class="cc-tile">
+        <h4>Display</h4>
+        <div class="slider"><i></i><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0-5h1v3h-1zm0 17h1v3h-1zM2 12h3v1H2zm17 0h3v1h-3z"/></svg></div>
+      </div>
+      <div class="cc-tile">
+        <h4>Wallpaper</h4>
+        <div class="wp-pick" data-wallpicker></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running=""></div>
+  </div>
+</section>
+
+<!-- 16 ----------------------------------------------------------------- -->
+<section class="state" data-title="Dark mode">
+  <p class="note">Same two windows as the <strong>Two windows</strong> tab, in dark, on the night wallpaper. Window grey is #222225, not black, so the shadows still read against the wallpaper.</p>
+  <div class="screen" data-theme="dark">
+    <div data-chrome="wall" data-wall="monterey-night"></div>
+    <div data-chrome="menubar" data-app="Safari" data-menus="File Edit View History Bookmarks Window Help"></div>
+    <div class="win back" style="left:5%;top:14%;width:50%;height:56%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">Skills</span>
+      </div>
+      <div class="win-body">
+        <div data-finder-sidebar data-current="skills"></div>
+        <div class="pane"><div class="grid" data-finder-files="skills"></div></div>
+      </div>
+    </div>
+    <div class="win" style="left:32%;top:22%;width:62%;height:64%">
+      <div class="titlebar tall">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">Surveva</span>
+      </div>
+      <div class="win-body" style="flex-direction:column">
+        <div class="urlbar" style="margin-top:9px"><svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 1 5 5v2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v2h6V7a3 3 0 0 0-3-3z"/></svg><span class="host">surveva.com</span></div>
+        <div class="pane" style="padding-top:0"><div class="sf-cols">
+          <div>
+            <img class="hero" src="../public/projects/surveva.png" alt="The Surveva homepage">
+            <ul class="chips" role="list"><li>Flutter</li><li>Node.js</li><li>REST APIs</li><li>CI/CD</li></ul>
+          </div>
+          <div>
+            <h2 class="h">Surveva</h2>
+            <p class="sub">A polling app where anyone writes a quick survey and gets answers back straight away.</p>
+            <div class="body-txt" style="margin-top:12px">
+              <p>I built and maintained features across the Flutter app and its Node backend.</p>
+              <p>The lazy-loading algorithm I wrote cut survey load times 25%, which people felt most on the longer surveys.</p>
+            </div>
+            <p class="sub">Senior Mobile Engineer, Surveva &middot; 2024 to 2025</p>
+            <p style="margin-top:14px"><a class="btn" href="https://surveva.com/" target="_blank" rel="noopener noreferrer">Open surveva.com &nearr;</a></p>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div data-chrome="dock" data-running="finder safari"></div>
+  </div>
+</section>
+
+<!-- 17 / 18 ------------------------------------------------------------ -->
+<section class="state" data-title="Mobile">
+  <p class="note">Under 768px the desktop is gone. iOS home screen on the left, an app open on the right, both drawn at a real 390&times;844. On the site an app is a full-screen sheet you dismiss with Done or by swiping down, so there is no window to drag on a phone. Neither phone here is clickable.</p>
+  <div class="phones">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div data-chrome="wall"></div>
+        <div class="ios-bar"><span class="t">9:41</span><span class="st">
+          <svg viewBox="0 0 20 14"><path d="M1 10h2v3H1zm4-2h2v5H5zm4-3h2v8H9zm4-3h2v11h-2z"/></svg>
+          <svg viewBox="0 0 20 14"><path d="M10 12.5 6.6 9a4.8 4.8 0 0 1 6.8 0zM3.8 6.2a8.8 8.8 0 0 1 12.4 0l-1.4 1.4a6.8 6.8 0 0 0-9.6 0z"/></svg>
+          <svg viewBox="0 0 26 14"><rect x="1" y="3" width="20" height="9" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="2.6" y="4.6" width="14" height="5.8" rx="1.4"/><path d="M22.4 6.2h.8a2 2 0 0 1 0 3.6h-.8z"/></svg>
+        </span></div>
+        <div class="ios-home">
+          <div class="ios-hello"><h1>Ryan Waweru</h1><p>Senior Frontend Engineer</p></div>
+          <div class="ios-grid" data-ios-grid></div>
+          <div class="ios-dots"><i class="on"></i></div>
+          <div class="ios-dock" data-ios-dock></div>
+        </div>
+      </div>
+    </div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div data-chrome="wall"></div>
+        <div class="ios-bar ink" style="z-index:70"><span class="t">9:41</span><span class="st">
+          <svg viewBox="0 0 20 14"><path d="M1 10h2v3H1zm4-2h2v5H5zm4-3h2v8H9zm4-3h2v11h-2z"/></svg>
+          <svg viewBox="0 0 20 14"><path d="M10 12.5 6.6 9a4.8 4.8 0 0 1 6.8 0zM3.8 6.2a8.8 8.8 0 0 1 12.4 0l-1.4 1.4a6.8 6.8 0 0 0-9.6 0z"/></svg>
+          <svg viewBox="0 0 26 14"><rect x="1" y="3" width="20" height="9" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="2.6" y="4.6" width="14" height="5.8" rx="1.4"/><path d="M22.4 6.2h.8a2 2 0 0 1 0 3.6h-.8z"/></svg>
+        </span></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheet-head"><img src="../public/icons/safari.webp" alt=""><span class="t">Kazi&amp;Budget</span><button class="done">Done</button></div>
+          <div class="sheet-body">
+            <img class="hero" src="../public/projects/kazinbudget.png" alt="The Kazi&amp;Budget homepage">
+            <h2 class="h" style="margin-top:12px">Kazi&amp;Budget</h2>
+            <p class="sub">A salary and budget calculator for people working in Kenya.</p>
+            <div class="body-txt" style="margin-top:10px">
+              <p>My own project. You put in what you earn and what you spend, and it works out what actually reaches you after tax and the monthly bills.</p>
+              <p>It also places your salary against the market, projects it ten years out, and shows the gap between the two.</p>
+            </div>
+            <ul class="chips" role="list"><li>React</li><li>TypeScript</li><li>Tailwind</li><li>Convex</li><li>Clerk</li><li>Recharts</li></ul>
+            <p style="margin-top:14px"><a class="btn" href="https://kazinbudget.netlify.app/" target="_blank" rel="noopener noreferrer">Open kazinbudget.netlify.app &nearr;</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 19 ----------------------------------------------------------------- -->
+<section class="state" data-title="404">
+  <p class="note">A bad URL opens a Finder window instead of a page. It keeps the illusion and it still says the true thing, which is that the address does not exist.</p>
+  <div class="screen">
+    <div data-chrome="wall"></div>
+    <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
+    <div class="win" style="left:28%;top:24%;width:44%;height:46%">
+      <div class="titlebar">
+        <div class="lights"><button class="light red" aria-label="Close"><span>&times;</span></button><button class="light yellow" aria-label="Minimize"><span>&minus;</span></button><button class="light green" aria-label="Maximize"><span>&plus;</span></button></div>
+        <span class="win-title">File not found</span>
+      </div>
+      <div class="win-body"><div class="pane" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center">
+        <svg viewBox="0 0 64 52" style="width:78px;height:64px">
+          <path d="M2 9a6 6 0 0 1 6-6h13l6 6h29a6 6 0 0 1 6 6v29a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6z" fill="#b9c2cc"/>
+          <path d="M2 15a6 6 0 0 1 6-6h48a6 6 0 0 1 6 6v29a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6z" fill="#d4dbe3"/>
+          <text x="33" y="43" text-anchor="middle" font-size="26" font-weight="700" fill="#7c8894" font-family="-apple-system, system-ui, sans-serif">?</text>
+        </svg>
+        <h2 class="h">There is nothing at that address</h2>
+        <p class="sub" style="max-width:38ch"><code style="font-family:var(--mono)">/finder/hobbies</code> is not a folder on this desktop. Either the link is old or I never made that page.</p>
+        <button class="btn">Back to the desktop</button>
+      </div></div>
+    </div>
+    <div data-chrome="dock" data-running=""></div>
+  </div>
+</section>
+</main>
+
+<script>
+/* One registry for the dock, Launchpad, Spotlight, and the phone, which is the
+   rule AGENTS.md sets for the real build. Adding an app here adds it in four
+   places, and that is the whole point of proving it at mockup size first. */
+const APPS = [
+  { id: 'finder',    name: 'Finder',    icon: 'finder.webp' },
+  { id: 'launchpad', name: 'Launchpad', icon: 'launchpad.webp', deskOnly: true },
+  { id: 'safari',    name: 'Safari',    icon: 'safari.webp' },
+  { id: 'terminal',  name: 'Terminal',  icon: 'terminal.webp' },
+  { id: 'photos',    name: 'Photos',    icon: 'photos.webp' },
+  { id: 'resume',    name: 'Resume',    icon: 'preview.webp' },
+  { id: 'contact',   name: 'Contact',   icon: 'mail.webp' },
+  { id: 'github',    name: 'GitHub',    icon: 'github.png',   external: true },
+  { id: 'linkedin',  name: 'LinkedIn',  icon: 'linkedin.svg', external: true },
+]
+const ICON = (id) => '../public/icons/' + APPS.find((a) => a.id === id).icon
+const appArt = (app) => '<img src="' + ICON(app.id) + '" alt="' + esc(app.name) + '">'
+
+const PROJECTS = [
+  { slug: 'streamlyne', name: 'Streamlyne', host: 'streamlyne.com', url: 'https://streamlyne.com/',
+    tagline: 'Research administration software that U.S. universities run their grant work on.',
+    did: ['I built the real-time messaging product with voice that helps researchers draft documents, ask questions about university policy, and plan budgets. Research submissions went up 29%.',
+          'I also rebuilt selected workflows of the long-running Java application in React and Node, which cut load times 44%, and moved the project into Docker so other developers could run it locally.'],
+    under: 'Senior Software Engineer, Streamlyne', period: '2025 to now',
+    stack: ['React', 'TypeScript', 'Node.js', 'Java', 'Docker', 'LLM APIs'] },
+  { slug: 'kazinbudget', name: 'Kazi&Budget', host: 'kazinbudget.netlify.app', url: 'https://kazinbudget.netlify.app/',
+    tagline: 'A salary and budget calculator for people working in Kenya.',
+    did: ['My own project. You put in what you earn and what you spend, and it works out what actually reaches you after tax and the monthly bills.',
+          'It also places your salary against the market, projects it ten years out, and shows the gap between the two.'],
+    under: 'My own project', period: '2025',
+    stack: ['React', 'TypeScript', 'Tailwind', 'Convex', 'Clerk', 'Recharts'] },
+  { slug: 'surveva', name: 'Surveva', host: 'surveva.com', url: 'https://surveva.com/',
+    tagline: 'A polling app where anyone writes a quick survey and gets answers back straight away.',
+    did: ['I built and maintained features across the Flutter app and its Node backend.',
+          'The lazy-loading algorithm I wrote cut survey load times 25%, which people felt most on the longer surveys. I also built the CI/CD pipeline the team shipped through.'],
+    under: 'Senior Mobile Engineer, Surveva', period: '2024 to 2025',
+    stack: ['Flutter', 'Node.js', 'REST APIs', 'CI/CD'] },
+  { slug: 'newline', name: 'newline', host: 'www.newline.co', url: 'https://www.newline.co/',
+    tagline: 'Courses and books for working developers.',
+    did: ['I led the author dashboard, where authors publish videos and books to more than 5,000 students, built in Next.js and Redux.',
+          "I connected it to Discord's API so students could comment without leaving Discord, and built reporting views on MongoDB so authors could see how their content was doing."],
+    under: 'Frontend Developer, newLine', period: '2023',
+    stack: ['Next.js', 'Redux', 'MongoDB', 'Discord API'] },
+  { slug: 'the-players-lounge', name: 'The Players Lounge', host: 'www.theplayerslounge.io', url: 'https://www.theplayerslounge.io/',
+    tagline: 'A network connecting college athletes, athletic departments, and brands.',
+    did: ['I led the subscription dashboard that manages access to premium content and newsletters, and subscriptions rose 25%.',
+          'I worked with a cross-functional team on the frontend of the NFL-focused sports product and helped choose how it was put together.'],
+    under: 'Frontend Engineer, Tintash', period: '2023',
+    stack: ['React', 'JavaScript', 'Cypress', 'Jest'] },
+]
+const SHOT = (slug) => '../public/projects/' + slug + '.png'
+
+const ROLES = ['streamlyne', 'surveva', 'riyadh-real-estate', 'newline', 'tintash', 'majisoft-innovations', 'park254', 'softsearchlab']
+
+/* Apple ships no generic text or image file icon we are allowed to use, so
+   these two are ours. Everything else in the mockup is a real asset. */
+const SVG_FOLDER = '<svg viewBox="0 0 64 52" aria-hidden="true"><path d="M2 9a6 6 0 0 1 6-6h13l6 6h29a6 6 0 0 1 6 6v29a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6z" fill="#3aa7ea"/><path d="M2 15a6 6 0 0 1 6-6h48a6 6 0 0 1 6 6v29a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6z" fill="#69c6f7"/></svg>'
+const SVG_TEXT = '<svg viewBox="0 0 48 60" aria-hidden="true"><path d="M4 5a4 4 0 0 1 4-4h20l16 15v39a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#fdfdfd" stroke="#c4c4c9"/><path d="M28 1l16 15H32a4 4 0 0 1-4-4z" fill="#e3e3e8"/><g stroke="#9aa0a6" stroke-width="1.6" stroke-linecap="round"><path d="M12 26h24M12 33h24M12 40h24M12 47h14"/></g></svg>'
+const SVG_IMAGE = '<svg viewBox="0 0 48 60" aria-hidden="true"><path d="M4 5a4 4 0 0 1 4-4h20l16 15v39a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#fdfdfd" stroke="#c4c4c9"/><path d="M28 1l16 15H32a4 4 0 0 1-4-4z" fill="#e3e3e8"/><rect x="11" y="26" width="26" height="21" rx="2" fill="#cfe6fb"/><circle cx="18" cy="32" r="2.6" fill="#f5c24a"/><path d="M11 43l7-7 6 5 5-4 8 8v2H11z" fill="#5fae6a"/></svg>'
+
+/* The Finder tree, derived from the content the way the real one will be. */
+const TREE = {
+  about:      { title: 'Intro',      files: [ { n: 'about.txt', k: 'text' }, { n: 'photo.jpg', k: 'image' } ] },
+  projects:   { title: 'Projects',   files: PROJECTS.map((p) => ({ n: p.name, k: 'folder', go: 'project:' + p.slug })) },
+  experience: { title: 'Work Experience', files: ROLES.map((r) => ({ n: r + '.txt', k: 'text' })) },
+  skills:     { title: 'Skills',     files: [ { n: 'skills.txt', k: 'text' } ] },
+}
+PROJECTS.forEach((p) => {
+  TREE['project:' + p.slug] = { title: p.name, parent: 'projects',
+    files: [ { n: 'readme.txt', k: 'text' }, { n: p.slug + '.png', k: 'shot', src: SHOT(p.slug) } ] }
+})
+const SIDEBAR = [
+  ['Favourites', [['about', 'Intro'], ['projects', 'Projects'], ['experience', 'Work Experience'], ['skills', 'Skills']]],
+]
+
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel))
+
+/* ---- wallpapers ----
+   Apple's own files are photographs of a gradient: 380 kB of JPEG to say
+   something an SVG says in 2 kB, and a CSS gradient cannot be used because
+   phase 0 proved it never fires a contentful paint. So these are drawn.
+   Monterey's two palettes share one set of paths. */
+const monterey = (id, c) => `<svg viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+<defs>
+<linearGradient id="${id}-b" x1=".2" y1="1" x2=".55" y2="0"><stop offset="0" stop-color="${c.base[0]}"/><stop offset=".38" stop-color="${c.base[1]}"/><stop offset=".72" stop-color="${c.base[2]}"/><stop offset="1" stop-color="${c.base[3]}"/></linearGradient>
+<linearGradient id="${id}-l" x1=".1" y1="1" x2=".62" y2="0"><stop offset="0" stop-color="${c.left[0]}"/><stop offset=".34" stop-color="${c.left[1]}"/><stop offset=".7" stop-color="${c.left[2]}"/><stop offset="1" stop-color="${c.left[3]}"/></linearGradient>
+<linearGradient id="${id}-l2" x1=".1" y1="1" x2=".5" y2=".15"><stop offset="0" stop-color="${c.ridge[0]}"/><stop offset=".5" stop-color="${c.ridge[1]}"/><stop offset="1" stop-color="${c.ridge[2]}"/></linearGradient>
+<linearGradient id="${id}-r" x1="1" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${c.right[0]}"/><stop offset=".34" stop-color="${c.right[1]}"/><stop offset=".7" stop-color="${c.right[2]}"/><stop offset="1" stop-color="${c.right[3]}"/></linearGradient>
+<linearGradient id="${id}-h" x1=".5" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="${c.haze[0]}" stop-opacity=".95"/><stop offset=".32" stop-color="${c.haze[1]}" stop-opacity=".82"/><stop offset=".64" stop-color="${c.haze[2]}" stop-opacity=".46"/><stop offset="1" stop-color="${c.haze[3]}" stop-opacity="0"/></linearGradient>
+<linearGradient id="${id}-h2" x1=".45" y1="0" x2=".55" y2="1"><stop offset="0" stop-color="${c.mist[0]}" stop-opacity=".8"/><stop offset=".5" stop-color="${c.mist[1]}" stop-opacity=".4"/><stop offset="1" stop-color="${c.mist[2]}" stop-opacity="0"/></linearGradient>
+<linearGradient id="${id}-g" x1=".45" y1="1" x2=".52" y2=".1"><stop offset="0" stop-color="${c.glow}" stop-opacity=".92"/><stop offset="1" stop-color="${c.glow}" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="1440" height="900" fill="url(#${id}-b)"/>
+<path d="M1440 0 L1440 900 L760 900 C 800 646 884 400 1020 222 C 1128 82 1272 4 1440 0 Z" fill="url(#${id}-r)" opacity=".92"/>
+<path d="M0 0 L0 900 L560 900 C 524 640 448 398 340 234 C 248 96 132 20 0 0 Z" fill="url(#${id}-l)"/>
+<path d="M0 214 L0 900 L378 900 C 346 656 280 460 192 326 C 134 240 66 200 0 214 Z" fill="url(#${id}-l2)"/>
+<path d="M640 0 L1440 0 L1440 222 C 1330 252 1232 300 1152 354 C 1076 406 1016 456 976 500 C 906 402 818 262 736 148 C 700 98 664 48 640 0 Z" fill="url(#${id}-h)"/>
+<path d="M800 0 L1330 0 L1440 92 C 1330 122 1236 176 1152 236 C 1080 288 1026 336 990 376 C 934 296 872 200 824 116 C 812 78 802 38 800 0 Z" fill="url(#${id}-h2)"/>
+<path d="M0 900 L600 900 C 528 744 384 618 208 578 C 122 558 50 556 0 562 Z" fill="url(#${id}-g)"/>
+</svg>`
+
+let wallSeq = 0
+/** Ids have to be unique per document, and every state carries its own copy. */
+const uniqueIds = (svg, ns) => {
+  const tag = ns + wallSeq++
+  return svg.split('"' + ns).join('"' + tag).split('#' + ns).join('#' + tag)
+}
+
+const WALLPAPERS = {
+  monterey: { label: 'Monterey', ns: 'mo', svg: monterey('mo', {
+    base: ['#7a24e8', '#9b31d8', '#c866c9', '#e7b6dc'],
+    left: ['#7c26ea', '#8527d6', '#a838c8', '#c85fc0'],
+    ridge: ['#6215e0', '#7a20c4', '#9c36b4'],
+    right: ['#f2cfe4', '#dd94c8', '#bb5ec4', '#9634c4'],
+    haze: ['#f6e0ef', '#eccbe4', '#d9a4cf', '#c886c4'],
+    mist: ['#fbeef5', '#f0d9ea', '#e0b8dc'],
+    glow: '#7a2bf7',
+  }) },
+  'monterey-night': { label: 'Monterey at night', ns: 'mn', svg: monterey('mn', {
+    base: ['#1c0552', '#250860', '#341070', '#43207e'],
+    left: ['#1b0556', '#1d0752', '#260b5e', '#33136c'],
+    ridge: ['#0f0238', '#150440', '#1e084e'],
+    right: ['#4a2f7e', '#3b2168', '#2c1652', '#1e0e3e'],
+    haze: ['#6b53a4', '#583f90', '#452e78', '#341f60'],
+    mist: ['#7d64b6', '#63499c', '#4a3480'],
+    glow: '#3a10a0',
+  }) },
+  bigsur: { label: 'Big Sur', ns: 'bs', svg: `<svg viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bs-b" x1="0.15" y1="1" x2="0.85" y2="0"><stop offset="0" stop-color="#8b2a86"/><stop offset="0.3" stop-color="#e0295f"/><stop offset="0.55" stop-color="#fa4a3c"/><stop offset="0.75" stop-color="#ff8c2b"/><stop offset="0.9" stop-color="#ffd24a"/><stop offset="1" stop-color="#2196e8"/></linearGradient><linearGradient id="bs0" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#3fb0ef"/><stop offset="1" stop-color="#1878cc"/></linearGradient><linearGradient id="bs1" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dceefb"/></linearGradient><linearGradient id="bs2" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffd94e"/><stop offset="1" stop-color="#ffab18"/></linearGradient><linearGradient id="bs3" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ff8f2a"/><stop offset="1" stop-color="#ff6326"/></linearGradient><linearGradient id="bs4" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#fb4f33"/><stop offset="1" stop-color="#f53048"/></linearGradient><linearGradient id="bs5" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#f4234f"/><stop offset="1" stop-color="#dd2064"/></linearGradient><linearGradient id="bs6" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#c32478"/><stop offset="1" stop-color="#9b2a8e"/></linearGradient><linearGradient id="bs7" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#8b3199"/><stop offset="1" stop-color="#6b2f96"/></linearGradient></defs><rect width="1440" height="900" fill="url(#bs-b)"/><path d="M0 -400 L1440 -400 L1440 375 L1380 366 L1320 351 L1260 328 L1200 304 L1140 283 L1080 266 L1020 251 L960 230 L900 197 L840 152 L780 101 L720 54 L660 19 L600 -1 L540 -9 L480 -14 L420 -25 L360 -44 L300 -69 L240 -94 L180 -115 L120 -133 L60 -153 L0 -182 Z" fill="url(#bs0)"/><path d="M0 -182 C10 -177 40 -161 60 -153 C80 -145 100 -140 120 -133 C140 -127 160 -122 180 -115 C200 -109 220 -102 240 -94 C260 -86 280 -77 300 -69 C320 -60 340 -51 360 -44 C380 -36 400 -30 420 -25 C440 -20 460 -17 480 -14 C500 -11 520 -11 540 -9 C560 -7 580 -5 600 -1 C620 4 640 10 660 19 C680 28 700 40 720 54 C740 68 760 85 780 101 C800 118 820 136 840 152 C860 168 880 184 900 197 C920 210 940 221 960 230 C980 239 1000 245 1020 251 C1040 257 1060 261 1080 266 C1100 271 1120 276 1140 283 C1160 289 1180 296 1200 304 C1220 312 1240 321 1260 328 C1280 336 1300 344 1320 351 C1340 357 1360 362 1380 366 C1400 370 1430 373 1440 375 L1440 450 L1380 437 L1320 424 L1260 405 L1200 382 L1140 359 L1080 342 L1020 330 L960 319 L900 301 L840 270 L780 225 L720 173 L660 125 L600 88 L540 66 L480 54 L420 45 L360 31 L300 10 L240 -14 L180 -36 L120 -52 L60 -65 L0 -81 Z" fill="url(#bs1)"/><path d="M0 -81 C10 -79 40 -70 60 -65 C80 -60 100 -57 120 -52 C140 -47 160 -42 180 -36 C200 -29 220 -21 240 -14 C260 -6 280 3 300 10 C320 17 340 25 360 31 C380 36 400 41 420 45 C440 48 460 50 480 54 C500 58 520 60 540 66 C560 72 580 78 600 88 C620 98 640 111 660 125 C680 139 700 157 720 173 C740 190 760 209 780 225 C800 241 820 257 840 270 C860 283 880 293 900 301 C920 309 940 314 960 319 C980 324 1000 326 1020 330 C1040 334 1060 337 1080 342 C1100 347 1120 352 1140 359 C1160 366 1180 374 1200 382 C1220 390 1240 398 1260 405 C1280 412 1300 419 1320 424 C1340 429 1360 433 1380 437 C1400 442 1430 448 1440 450 L1440 541 L1380 519 L1320 502 L1260 484 L1200 461 L1140 436 L1080 414 L1020 399 L960 392 L900 385 L840 370 L780 341 L720 297 L660 246 L600 198 L540 160 L480 135 L420 119 L360 105 L300 87 L240 64 L180 40 L120 21 L60 9 L0 1 Z" fill="url(#bs2)"/><path d="M0 1 C10 2 40 6 60 9 C80 13 100 16 120 21 C140 26 160 33 180 40 C200 47 220 56 240 64 C260 72 280 80 300 87 C320 94 340 100 360 105 C380 110 400 114 420 119 C440 124 460 128 480 135 C500 142 520 149 540 160 C560 170 580 183 600 198 C620 212 640 229 660 246 C680 263 700 281 720 297 C740 313 760 329 780 341 C800 353 820 363 840 370 C860 377 880 381 900 385 C920 388 940 389 960 392 C980 394 1000 395 1020 399 C1040 403 1060 407 1080 414 C1100 420 1120 428 1140 436 C1160 443 1180 453 1200 461 C1220 469 1240 477 1260 484 C1280 491 1300 496 1320 502 C1340 508 1360 513 1380 519 C1400 526 1430 538 1440 541 L1440 698 L1380 665 L1320 641 L1260 620 L1200 596 L1140 568 L1080 540 L1020 518 L960 505 L900 501 L840 498 L780 486 L720 459 L660 418 L600 368 L540 321 L480 283 L420 257 L360 237 L300 218 L240 195 L180 168 L120 144 L60 127 L0 118 Z" fill="url(#bs3)"/><path d="M0 118 C10 120 40 123 60 127 C80 131 100 137 120 144 C140 151 160 160 180 168 C200 177 220 186 240 195 C260 203 280 211 300 218 C320 225 340 231 360 237 C380 244 400 249 420 257 C440 264 460 273 480 283 C500 294 520 307 540 321 C560 335 580 352 600 368 C620 385 640 403 660 418 C680 433 700 448 720 459 C740 471 760 480 780 486 C800 493 820 495 840 498 C860 500 880 500 900 501 C920 502 940 503 960 505 C980 508 1000 512 1020 518 C1040 524 1060 532 1080 540 C1100 549 1120 559 1140 568 C1160 578 1180 587 1200 596 C1220 605 1240 612 1260 620 C1280 627 1300 633 1320 641 C1340 649 1360 656 1380 665 C1400 675 1430 693 1440 698 L1440 943 L1380 903 L1320 871 L1260 845 L1200 820 L1140 791 L1080 758 L1020 726 L960 703 L900 691 L840 689 L780 689 L720 679 L660 655 L600 616 L540 570 L480 525 L420 488 L360 461 L300 437 L240 413 L180 385 L120 354 L60 328 L0 312 Z" fill="url(#bs4)"/><path d="M0 312 C10 315 40 321 60 328 C80 336 100 345 120 354 C140 364 160 375 180 385 C200 395 220 404 240 413 C260 422 280 430 300 437 C320 445 340 452 360 461 C380 469 400 477 420 488 C440 499 460 511 480 525 C500 539 520 555 540 570 C560 585 580 602 600 616 C620 631 640 645 660 655 C680 666 700 674 720 679 C740 685 760 687 780 689 C800 690 820 689 840 689 C860 690 880 689 900 691 C920 694 940 697 960 703 C980 709 1000 717 1020 726 C1040 735 1060 747 1080 758 C1100 768 1120 780 1140 791 C1160 801 1180 811 1200 820 C1220 829 1240 836 1260 845 C1280 853 1300 861 1320 871 C1340 880 1360 891 1380 903 C1400 915 1430 937 1440 943 L1440 1234 L1380 1194 L1320 1157 L1260 1127 L1200 1100 L1140 1071 L1080 1038 L1020 1000 L960 965 L900 939 L840 928 L780 926 L720 927 L660 920 L600 898 L540 862 L480 820 L420 778 L360 744 L300 716 L240 690 L180 661 L120 627 L60 593 L0 564 Z" fill="url(#bs5)"/><path d="M0 564 C10 569 40 582 60 593 C80 603 100 616 120 627 C140 639 160 650 180 661 C200 671 220 681 240 690 C260 699 280 707 300 716 C320 725 340 733 360 744 C380 754 400 766 420 778 C440 791 460 806 480 820 C500 834 520 849 540 862 C560 875 580 888 600 898 C620 908 640 915 660 920 C680 925 700 926 720 927 C740 928 760 926 780 926 C800 927 820 925 840 928 C860 930 880 933 900 939 C920 945 940 955 960 965 C980 975 1000 988 1020 1000 C1040 1012 1060 1026 1080 1038 C1100 1049 1120 1061 1140 1071 C1160 1082 1180 1091 1200 1100 C1220 1109 1240 1117 1260 1127 C1280 1136 1300 1146 1320 1157 C1340 1168 1360 1181 1380 1194 C1400 1206 1430 1227 1440 1234 L1440 1521 L1380 1488 L1320 1452 L1260 1420 L1200 1392 L1140 1366 L1080 1335 L1020 1297 L960 1255 L900 1216 L840 1188 L780 1175 L720 1173 L660 1175 L600 1168 L540 1148 L480 1116 L420 1077 L360 1040 L300 1009 L240 982 L180 954 L120 921 L60 882 L0 843 Z" fill="url(#bs6)"/><path d="M0 843 C10 850 40 869 60 882 C80 895 100 909 120 921 C140 933 160 944 180 954 C200 964 220 973 240 982 C260 991 280 999 300 1009 C320 1019 340 1029 360 1040 C380 1052 400 1065 420 1077 C440 1090 460 1104 480 1116 C500 1128 520 1140 540 1148 C560 1157 580 1164 600 1168 C620 1173 640 1174 660 1175 C680 1175 700 1173 720 1173 C740 1174 760 1173 780 1175 C800 1177 820 1181 840 1188 C860 1195 880 1204 900 1216 C920 1227 940 1241 960 1255 C980 1268 1000 1283 1020 1297 C1040 1310 1060 1323 1080 1335 C1100 1346 1120 1356 1140 1366 C1160 1375 1180 1383 1200 1392 C1220 1401 1240 1410 1260 1420 C1280 1430 1300 1441 1320 1452 C1340 1463 1360 1476 1380 1488 C1400 1499 1430 1516 1440 1521 L1440 1300 L0 1300 Z" fill="url(#bs7)"/></svg>` },
+  coral: { label: 'Coral', ns: 'co', svg: `<svg viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="co-b" x1="0" y1="0" x2="0.25" y2="1"><stop offset="0" stop-color="#ff7a68"/><stop offset="0.3" stop-color="#ffb08a"/><stop offset="0.52" stop-color="#eda9d4"/><stop offset="0.74" stop-color="#8f9df0"/><stop offset="1" stop-color="#1b1f68"/></linearGradient><linearGradient id="co0" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ff6f5c"/><stop offset="1" stop-color="#ff8f74"/></linearGradient><linearGradient id="co1" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffb489"/><stop offset="1" stop-color="#ffd0a6"/></linearGradient><linearGradient id="co2" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#fff1df"/><stop offset="1" stop-color="#ffdcc0"/></linearGradient><linearGradient id="co3" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ff9a84"/><stop offset="1" stop-color="#f58193"/></linearGradient><linearGradient id="co4" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#e3a0d2"/><stop offset="1" stop-color="#bda6ea"/></linearGradient><linearGradient id="co5" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#a2aef2"/><stop offset="1" stop-color="#7c93ec"/></linearGradient><linearGradient id="co6" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#5673e0"/><stop offset="1" stop-color="#31419f"/></linearGradient><linearGradient id="co7" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#232a86"/><stop offset="1" stop-color="#111450"/></linearGradient></defs><rect width="1440" height="900" fill="url(#co-b)"/><path d="M0 -400 L1440 -400 L1440 81 L1380 84 L1320 86 L1260 90 L1200 97 L1140 106 L1080 113 L1020 114 L960 107 L900 94 L840 78 L780 67 L720 64 L660 71 L600 86 L540 104 L480 121 L420 133 L360 139 L300 143 L240 147 L180 154 L120 164 L60 175 L0 183 Z" fill="url(#co0)"/><path d="M0 183 C10 182 40 178 60 175 C80 172 100 168 120 164 C140 160 160 157 180 154 C200 151 220 148 240 147 C260 145 280 144 300 143 C320 141 340 141 360 139 C380 138 400 136 420 133 C440 130 460 126 480 121 C500 116 520 110 540 104 C560 98 580 91 600 86 C620 80 640 75 660 71 C680 67 700 65 720 64 C740 63 760 65 780 67 C800 69 820 74 840 78 C860 83 880 89 900 94 C920 98 940 104 960 107 C980 110 1000 113 1020 114 C1040 115 1060 114 1080 113 C1100 112 1120 109 1140 106 C1160 104 1180 100 1200 97 C1220 95 1240 92 1260 90 C1280 88 1300 87 1320 86 C1340 85 1360 85 1380 84 C1400 83 1430 81 1440 81 L1440 167 L1380 174 L1320 178 L1260 182 L1200 190 L1140 201 L1080 213 L1020 223 L960 227 L900 221 L840 208 L780 192 L720 178 L660 172 L600 176 L540 187 L480 202 L420 216 L360 226 L300 232 L240 236 L180 242 L120 252 L60 266 L0 281 Z" fill="url(#co1)"/><path d="M0 281 C10 278 40 271 60 266 C80 261 100 256 120 252 C140 248 160 245 180 242 C200 239 220 238 240 236 C260 234 280 234 300 232 C320 230 340 229 360 226 C380 224 400 220 420 216 C440 212 460 207 480 202 C500 197 520 192 540 187 C560 183 580 178 600 176 C620 173 640 172 660 172 C680 173 700 175 720 178 C740 181 760 187 780 192 C800 197 820 203 840 208 C860 213 880 218 900 221 C920 224 940 226 960 227 C980 227 1000 226 1020 223 C1040 221 1060 217 1080 213 C1100 210 1120 205 1140 201 C1160 197 1180 193 1200 190 C1220 186 1240 184 1260 182 C1280 180 1300 179 1320 178 C1340 177 1360 176 1380 174 C1400 172 1430 168 1440 167 L1440 261 L1380 271 L1320 277 L1260 281 L1200 286 L1140 296 L1080 310 L1020 326 L960 340 L900 347 L840 343 L780 332 L720 316 L660 302 L600 294 L540 294 L480 302 L420 314 L360 324 L300 331 L240 335 L180 339 L120 345 L60 357 L0 374 Z" fill="url(#co2)"/><path d="M0 374 C10 371 40 362 60 357 C80 352 100 348 120 345 C140 342 160 341 180 339 C200 337 220 337 240 335 C260 334 280 333 300 331 C320 330 340 327 360 324 C380 321 400 317 420 314 C440 310 460 305 480 302 C500 299 520 296 540 294 C560 293 580 292 600 294 C620 295 640 298 660 302 C680 305 700 311 720 316 C740 321 760 327 780 332 C800 336 820 341 840 343 C860 346 880 347 900 347 C920 346 940 343 960 340 C980 337 1000 331 1020 326 C1040 322 1060 315 1080 310 C1100 305 1120 300 1140 296 C1160 292 1180 289 1200 286 C1220 284 1240 282 1260 281 C1280 279 1300 279 1320 277 C1340 275 1360 274 1380 271 C1400 268 1430 263 1440 261 L1440 361 L1380 371 L1320 378 L1260 381 L1200 384 L1140 389 L1080 400 L1020 417 L960 436 L900 453 L840 463 L780 463 L720 454 L660 440 L600 426 L540 417 L480 416 L420 421 L360 429 L300 436 L240 440 L180 441 L120 442 L60 448 L0 461 Z" fill="url(#co3)"/><path d="M0 461 C10 458 40 451 60 448 C80 445 100 444 120 442 C140 441 160 441 180 441 C200 440 220 440 240 440 C260 439 280 438 300 436 C320 434 340 431 360 429 C380 426 400 423 420 421 C440 419 460 417 480 416 C500 415 520 416 540 417 C560 419 580 422 600 426 C620 430 640 435 660 440 C680 444 700 450 720 454 C740 458 760 462 780 463 C800 465 820 465 840 463 C860 461 880 458 900 453 C920 449 940 442 960 436 C980 430 1000 423 1020 417 C1040 411 1060 405 1080 400 C1100 395 1120 392 1140 389 C1160 387 1180 385 1200 384 C1220 383 1240 382 1260 381 C1280 380 1300 379 1320 378 C1340 376 1360 374 1380 371 C1400 368 1430 363 1440 361 L1440 472 L1380 478 L1320 485 L1260 488 L1200 488 L1140 488 L1080 492 L1020 503 L960 521 L900 542 L840 562 L780 576 L720 579 L660 573 L600 562 L540 550 L480 542 L420 540 L360 543 L300 548 L240 551 L180 551 L120 549 L60 548 L0 552 Z" fill="url(#co4)"/><path d="M0 552 C10 551 40 548 60 548 C80 547 100 548 120 549 C140 550 160 551 180 551 C200 552 220 552 240 551 C260 551 280 549 300 548 C320 546 340 544 360 543 C380 541 400 540 420 540 C440 539 460 540 480 542 C500 543 520 546 540 550 C560 553 580 558 600 562 C620 566 640 571 660 573 C680 576 700 579 720 579 C740 580 760 579 780 576 C800 573 820 568 840 562 C860 557 880 549 900 542 C920 535 940 527 960 521 C980 514 1000 508 1020 503 C1040 498 1060 495 1080 492 C1100 490 1120 489 1140 488 C1160 488 1180 488 1200 488 C1220 488 1240 488 1260 488 C1280 487 1300 486 1320 485 C1340 483 1360 481 1380 478 C1400 476 1430 473 1440 472 L1440 593 L1380 595 L1320 599 L1260 602 L1200 602 L1140 598 L1080 595 L1020 597 L960 606 L900 624 L840 646 L780 668 L720 685 L660 692 L600 689 L540 681 L480 672 L420 665 L360 664 L300 666 L240 670 L180 670 L120 667 L60 661 L0 656 Z" fill="url(#co5)"/><path d="M0 656 C10 657 40 659 60 661 C80 663 100 665 120 667 C140 668 160 670 180 670 C200 671 220 670 240 670 C260 669 280 667 300 666 C320 666 340 664 360 664 C380 664 400 664 420 665 C440 667 460 669 480 672 C500 674 520 678 540 681 C560 684 580 688 600 689 C620 691 640 692 660 692 C680 691 700 689 720 685 C740 681 760 675 780 668 C800 662 820 654 840 646 C860 639 880 630 900 624 C920 617 940 611 960 606 C980 602 1000 599 1020 597 C1040 595 1060 595 1080 595 C1100 596 1120 597 1140 598 C1160 599 1180 601 1200 602 C1220 602 1240 603 1260 602 C1280 602 1300 600 1320 599 C1340 598 1360 596 1380 595 C1400 594 1430 593 1440 593 L1440 709 L1380 707 L1320 709 L1260 712 L1200 713 L1140 709 L1080 702 L1020 696 L960 694 L900 701 L840 717 L780 739 L720 762 L660 780 L600 790 L540 792 L480 787 L420 781 L360 777 L300 778 L240 781 L180 783 L120 782 L60 776 L0 767 Z" fill="url(#co6)"/><path d="M0 767 C10 768 40 773 60 776 C80 779 100 781 120 782 C140 783 160 784 180 783 C200 783 220 782 240 781 C260 780 280 778 300 778 C320 777 340 777 360 777 C380 778 400 779 420 781 C440 782 460 785 480 787 C500 789 520 791 540 792 C560 792 580 792 600 790 C620 789 640 785 660 780 C680 776 700 769 720 762 C740 755 760 747 780 739 C800 732 820 723 840 717 C860 711 880 705 900 701 C920 697 940 695 960 694 C980 693 1000 694 1020 696 C1040 697 1060 700 1080 702 C1100 705 1120 708 1140 709 C1160 711 1180 712 1200 713 C1220 713 1240 713 1260 712 C1280 712 1300 710 1320 709 C1340 708 1360 707 1380 707 C1400 707 1430 709 1440 709 L1440 1300 L0 1300 Z" fill="url(#co7)"/></svg>` },
+}
+const DEFAULT_WALL = 'monterey'
+
+/* ---- the desktop itself ---- */
+const DESKTOP_FOLDERS = [
+  { label: 'Intro', at: 'about' },
+  { label: 'Projects', at: 'projects' },
+  { label: 'Work Experience', at: 'experience' },
+  { label: 'Contacts', app: 'contact' },
+]
+
+/** Wallpapers the picker may change. A state that named one keeps it. */
+const CHOOSABLE = ['monterey', 'bigsur', 'coral']
+const STORE_KEY = 'mac-portfolio-wallpaper'
+
+const remembered = () => {
+  try {
+    const key = localStorage.getItem(STORE_KEY)
+    return CHOOSABLE.includes(key) ? key : DEFAULT_WALL
+  } catch {
+    return DEFAULT_WALL
+  }
+}
+const remember = (key) => {
+  try {
+    localStorage.setItem(STORE_KEY, key)
+  } catch {
+    /* Chrome refuses storage to file:// pages. The picker still works. */
+  }
+}
+
+function paint(wall, key) {
+  const paper = WALLPAPERS[key]
+  wall.innerHTML = uniqueIds(paper.svg, paper.ns)
+}
+
+function setWallpaper(key) {
+  remember(key)
+  $$('.wall:not([data-fixed])').forEach((wall) => paint(wall, key))
+  $$('[data-wallpicker] button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wall === key)))
+}
+
+function renderWalls() {
+  $$('[data-chrome="wall"]').forEach((slot) => {
+    const onPhone = Boolean(slot.closest('.phone'))
+    const wall = document.createElement('div')
+    wall.className = 'wall'
+    if (slot.dataset.wall) wall.setAttribute('data-fixed', '')
+    paint(wall, slot.dataset.wall || remembered())
+    slot.replaceWith(wall)
+    if (onPhone) return
+    const folders = document.createElement('div')
+    folders.className = 'deskfolders'
+    folders.innerHTML = DESKTOP_FOLDERS.map((f) =>
+      '<button class="deskfolder" type="button">' + SVG_FOLDER + '<span>' + esc(f.label) + '</span></button>').join('')
+    wall.after(folders)
+    const clock = document.createElement('div')
+    clock.setAttribute('data-chrome', 'clock')
+    folders.after(clock)
+  })
+}
+
+/* The menu bar and the desktop clock read the same time, because two clocks
+   disagreeing by a minute is the kind of thing you cannot unsee. */
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+function tick() {
+  const now = new Date()
+  const hh = String(now.getHours() % 12 || 12).padStart(2, '0')
+  const mm = String(now.getMinutes()).padStart(2, '0')
+  $$('[data-flip]').forEach((flip) => {
+    flip.querySelector('.date').textContent = DAYS[now.getDay()] + ' \u00b7 ' + MONTHS[now.getMonth()] + ' ' + now.getDate()
+    flip.querySelectorAll('.card').forEach((card, i) => { card.textContent = (hh + mm)[i] })
+  })
+  const label = DAYS[now.getDay()][0] + DAYS[now.getDay()].slice(1).toLowerCase() + ' '
+    + now.getDate() + ' ' + MONTHS[now.getMonth()][0] + MONTHS[now.getMonth()].slice(1).toLowerCase()
+    + '  ' + hh.replace(/^0/, '') + ':' + mm + ' ' + (now.getHours() < 12 ? 'AM' : 'PM')
+  $$('.menubar .clock').forEach((c) => { c.textContent = label })
+}
+
+function renderPicker() {
+  const picker = document.querySelector('[data-wallpicker]')
+  if (!picker) return
+  const chosen = remembered()
+  picker.innerHTML = CHOOSABLE.map((key) =>
+    '<button type="button" data-wall="' + key + '" aria-pressed="' + (key === chosen) + '" title="' + esc(WALLPAPERS[key].label) + '">'
+    + '<span class="sw">' + uniqueIds(WALLPAPERS[key].svg, WALLPAPERS[key].ns) + '</span></button>').join('')
+  picker.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-wall]')
+    if (b) setWallpaper(b.dataset.wall)
+  })
+}
+
+function renderClocks() {
+  $$('[data-chrome="clock"]').forEach((slot) => {
+    const flip = document.createElement('div')
+    flip.className = 'flip'
+    flip.setAttribute('data-flip', '')
+    flip.innerHTML = '<p class="date"></p><div class="digits">'
+      + '<span class="pair"><span class="card"></span><span class="card"></span></span>'
+      + '<span class="colon">:</span>'
+      + '<span class="pair"><span class="card"></span><span class="card"></span></span></div>'
+    slot.replaceWith(flip)
+  })
+  tick()
+  setInterval(tick, 1000)
+}
+
+/* ---- chrome ---- */
+function stampChrome() {
+  $$('[data-chrome="menubar"]').forEach((slot) => {
+    const bar = document.getElementById('tpl-menubar').content.cloneNode(true)
+    bar.querySelector('[data-slot="app"]').textContent = slot.dataset.app || 'Finder'
+    bar.querySelector('[data-slot="menus"]').innerHTML = (slot.dataset.menus || '')
+      .split(' ').filter(Boolean).map((m) => '<span>' + esc(m) + '</span>').join('')
+    slot.replaceWith(bar)
+  })
+  $$('[data-chrome="dock"]').forEach((slot) => {
+    const running = (slot.dataset.running || '').split(' ').filter(Boolean)
+    const dock = document.getElementById('tpl-dock').content.cloneNode(true).firstElementChild
+    APPS.forEach((app) => {
+      if (app.external && !dock.querySelector('.sep')) dock.appendChild(Object.assign(document.createElement('span'), { className: 'sep' }))
+      const b = document.createElement('button')
+      b.className = 'dock-item'
+      b.type = 'button'
+      b.innerHTML = '<span class="dock-label">' + esc(app.name) + (app.external ? ' &nearr;' : '') + '</span>'
+        + appArt(app)
+        + '<span class="dock-dot' + (running.includes(app.id) ? '' : ' off') + '"></span>'
+      dock.appendChild(b)
+    })
+    slot.replaceWith(dock)
+    wireDock(dock)
+  })
+}
+
+/* ---- contact ---- */
+const CONTACT = [
+  { app: 'contact', label: 'Email', value: 'ryannjoroge45@gmail.com', href: 'mailto:ryannjoroge45@gmail.com', arrow: '&rarr;' },
+  { app: 'github', label: 'GitHub', value: 'github.com/ryann254', href: 'https://github.com/ryann254', arrow: '&nearr;' },
+  { app: 'linkedin', label: 'LinkedIn', value: 'linkedin.com/in/ryan-w-3a81a9198', href: 'https://linkedin.com/in/ryan-w-3a81a9198', arrow: '&nearr;' },
+]
+
+function renderContact() {
+  const rows = document.querySelector('[data-contact]')
+  if (!rows) return
+  rows.innerHTML = CONTACT.map((row) =>
+    '<li><a href="' + row.href + '"' + (row.href.startsWith('http') ? ' target="_blank" rel="noopener noreferrer"' : '') + '>'
+    + '<img src="' + ICON(row.app) + '" alt="">'
+    + '<span><span class="lbl">' + esc(row.label) + '</span><br><span class="val">' + esc(row.value) + '</span></span>'
+    + '<span class="go">' + row.arrow + '</span></a></li>').join('')
+}
+
+/* A missing asset used to show as a blank gap you could scroll straight past.
+   Now it shouts, because a mockup reviewed with a hole in it is worse than
+   one that refuses to hide the hole. */
+function flagBrokenImages() {
+  $$('img').forEach((img) => {
+    const fail = () => {
+      img.replaceWith(Object.assign(document.createElement('span'), {
+        className: 'broken',
+        textContent: 'missing: ' + img.getAttribute('src'),
+      }))
+    }
+    if (img.complete && img.naturalWidth === 0) fail()
+    else img.addEventListener('error', fail)
+  })
+}
+
+/* ---- dock magnification ---- */
+const DOCK_GROWTH = 0.5   // how much bigger the icon under the pointer gets
+const DOCK_REACH = 2.7    // how many icons either side the wave touches
+const DOCK_LIFT = 15      // px the biggest icon rises
+
+function wireDock(dock) {
+  const items = $$('.dock-item', dock)
+  if (!items.length) return
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)')
+  let pending = 0
+  let geometry = null
+
+  /* Measured once when the pointer arrives. Transforms do not move offsetLeft,
+     and nothing else shifts while you are over the dock, so reading any of
+     this per frame would only buy a forced layout on every one of them. */
+  const measure = () => {
+    const box = dock.getBoundingClientRect()
+    const scale = box.width / dock.offsetWidth
+    return {
+      left: box.left,
+      scale,
+      reach: items[0].offsetWidth * DOCK_REACH,
+      centres: items.map((item) => item.offsetLeft + item.offsetWidth / 2),
+    }
+  }
+
+  const magnify = (clientX) => {
+    pending = 0
+    if (!geometry) return
+    const x = (clientX - geometry.left) / geometry.scale
+    items.forEach((item, i) => {
+      const away = Math.abs(x - geometry.centres[i])
+      const fall = Math.cos(Math.min(1, away / geometry.reach) * Math.PI / 2) ** 2
+      const grow = DOCK_GROWTH * fall
+      item.style.transform = grow < 0.004 ? '' : 'scale(' + (1 + grow) + ') translateY(' + (-DOCK_LIFT * fall) + 'px)'
+    })
+  }
+
+  const rest = () => {
+    if (pending) cancelAnimationFrame(pending)
+    pending = 0
+    geometry = null
+    dock.classList.remove('live')
+    items.forEach((item) => { item.style.transform = '' })
+  }
+
+  dock.addEventListener('pointermove', (e) => {
+    if (still.matches || e.pointerType === 'touch') return
+    if (!geometry) {
+      geometry = measure()
+      dock.classList.add('live')
+    }
+    const { clientX } = e
+    if (!pending) pending = requestAnimationFrame(() => magnify(clientX))
+  })
+  dock.addEventListener('pointerleave', rest)
+}
+
+/* ---- finder ---- */
+function fileMarkup(f) {
+  const art = f.k === 'folder' ? SVG_FOLDER
+    : f.k === 'image' ? SVG_IMAGE
+    : f.k === 'shot' ? '<img class="shot" src="' + f.src + '" alt="">'
+    : SVG_TEXT
+  return '<button class="file" type="button"' + (f.go ? ' data-go="' + f.go + '"' : '') + '>'
+    + art + '<span class="nm">' + esc(f.n) + '</span></button>'
+}
+function renderFinder(win, loc) {
+  const side = win.querySelector('[data-finder-sidebar]')
+  const files = win.querySelector('[data-finder-files]')
+  const crumbs = win.querySelector('[data-finder-crumbs]')
+  const title = win.querySelector('.win-title')
+  const node = TREE[loc]
+  const top = node.parent || loc
+  if (side) {
+    side.className = 'sidebar'
+    side.innerHTML = SIDEBAR.map(([group, items]) => '<p class="sb-group">' + group + '</p>'
+      + items.map(([id, label]) => '<button class="sb-item" type="button" data-loc="' + id + '"'
+        + (id === top ? ' aria-current="true"' : '') + '>' + SVG_FOLDER.replace('<svg ', '<svg width="15" ') + esc(label) + '</button>').join('')).join('')
+  }
+  if (files) files.innerHTML = node.files.map(fileMarkup).join('')
+  if (crumbs) {
+    crumbs.innerHTML = node.parent
+      ? '<span>' + esc(TREE[node.parent].title) + '</span><svg class="chev" viewBox="0 0 24 24" fill="currentColor"><path d="M9 5.4 15.6 12 9 18.6l-1.3-1.3L13 12 7.7 6.7z"/></svg><span style="color:var(--ink);font-weight:600">' + esc(node.title) + '</span>'
+      : '<span style="color:var(--ink);font-weight:600">' + esc(node.title) + '</span>'
+  } else if (title) {
+    title.textContent = node.title
+  }
+  win.dataset.at = loc
+}
+function wireFinder() {
+  $$('[data-finder-sidebar]').forEach((side) => renderFinder(side.closest('.win'), side.dataset.current))
+  $$('[data-finder-sidebar][data-live]').forEach((side) => {
+    const win = side.closest('.win')
+    win.addEventListener('click', (e) => {
+      const nav = e.target.closest('[data-loc]') || e.target.closest('[data-go]')
+      if (nav) return renderFinder(win, nav.dataset.loc || nav.dataset.go)
+      if (e.target.closest('[data-finder-back]')) {
+        const up = TREE[win.dataset.at].parent
+        if (up) renderFinder(win, up)
+      }
+    })
+  })
+}
+
+/* ---- safari ---- */
+function renderSafari(root, slug) {
+  const p = PROJECTS.find((x) => x.slug === slug)
+  root.querySelector('[data-sf-title]').textContent = p.name
+  root.querySelector('[data-sf-url]').textContent = p.host
+  root.querySelector('[data-sf-tabs]').innerHTML = PROJECTS.map((x) =>
+    '<button class="sf-tab" type="button" role="tab" data-slug="' + x.slug + '"'
+    + (x.slug === slug ? ' aria-selected="true"' : ' aria-selected="false"') + '>'
+    + esc(x.name) + '</button>').join('')
+  root.querySelector('[data-sf-body]').innerHTML =
+    '<div class="sf-cols"><div>'
+    + '<img class="hero" src="' + SHOT(p.slug) + '" alt="The ' + esc(p.name) + ' homepage">'
+    + '<ul class="chips" role="list">' + p.stack.map((s) => '<li>' + esc(s) + '</li>').join('') + '</ul>'
+    + '</div><div>'
+    + '<h2 class="h">' + esc(p.name) + '</h2>'
+    + '<p class="sub">' + esc(p.tagline) + '</p>'
+    + '<div class="body-txt" style="margin-top:12px">' + p.did.map((d) => '<p>' + esc(d) + '</p>').join('') + '</div>'
+    + '<p class="sub">' + esc(p.under) + ' &middot; ' + esc(p.period) + '</p>'
+    + '<p style="margin-top:14px"><a class="btn" href="' + p.url + '" target="_blank" rel="noopener noreferrer">Open ' + esc(p.host) + ' &nearr;</a></p>'
+    + '</div></div>'
+}
+function wireSafari() {
+  const root = document.querySelector('[data-sf-tabs]')?.closest('.win')
+  if (!root) return
+  renderSafari(root, 'kazinbudget')
+  root.addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-slug]')
+    if (tab) renderSafari(root, tab.dataset.slug)
+  })
+}
+
+/* ---- photos ---- */
+function renderPhotos(root, open) {
+  const title = root.querySelector('[data-ph-title]')
+  const body = root.querySelector('[data-ph-body]')
+  if (open) {
+    const p = PROJECTS.find((x) => x.slug === open)
+    title.textContent = p.slug + '.png'
+    body.innerHTML = '<button type="button" data-ph-close style="border:0;background:none;padding:0;cursor:zoom-out;width:100%">'
+      + '<img src="' + SHOT(p.slug) + '" alt="The ' + esc(p.name) + ' homepage" style="width:100%;border-radius:7px">'
+      + '</button><p class="sub" style="text-align:center;margin-top:10px">' + esc(p.name) + ' &middot; click to go back</p>'
+  } else {
+    title.textContent = 'Projects'
+    body.innerHTML = '<div class="ph-grid">' + PROJECTS.map((p) =>
+      '<button type="button" data-ph-open="' + p.slug + '"><img src="' + SHOT(p.slug) + '" alt="' + esc(p.name) + '"></button>').join('') + '</div>'
+  }
+}
+function wirePhotos() {
+  const root = document.querySelector('[data-ph-body]')?.closest('.win')
+  if (!root) return
+  renderPhotos(root, null)
+  root.addEventListener('click', (e) => {
+    const open = e.target.closest('[data-ph-open]')
+    if (open) return renderPhotos(root, open.dataset.phOpen)
+    if (e.target.closest('[data-ph-close]')) renderPhotos(root, null)
+  })
+}
+
+/* ---- launchpad and the phone ---- */
+function renderGrids() {
+  const lp = document.querySelector('[data-launchpad]')
+  if (lp) lp.innerHTML = APPS.filter((a) => !a.deskOnly).map((a) =>
+    '<button class="lp-app" type="button">' + appArt(a) + esc(a.name) + '</button>').join('')
+  const grid = document.querySelector('[data-ios-grid]')
+  if (grid) grid.innerHTML = APPS.filter((a) => !a.deskOnly).slice(0, 8).map((a) =>
+    '<button class="ios-app" type="button">' + appArt(a) + esc(a.name) + '</button>').join('')
+  const dock = document.querySelector('[data-ios-dock]')
+  if (dock) dock.innerHTML = ['finder', 'safari', 'terminal', 'contact'].map((id) =>
+    '<img src="' + ICON(id) + '" alt="' + esc(APPS.find((a) => a.id === id).name) + '">').join('')
+}
+
+/* ---- tabs ---- */
+function buildTabs() {
+  const bar = document.querySelector('.tabbar')
+  const states = $$('.state')
+  states.forEach((s, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.textContent = (i + 1) + '. ' + s.dataset.title
+    b.addEventListener('click', () => show(i, true))
+    bar.appendChild(b)
+  })
+  const buttons = $$('.tabbar button')
+  function show(i, writeHash) {
+    states.forEach((s) => s.removeAttribute('data-active'))
+    void states[i].offsetWidth
+    states[i].setAttribute('data-active', '')
+    buttons.forEach((b, j) => b.setAttribute('aria-current', String(j === i)))
+    if (writeHash && location.hash !== '#' + (i + 1)) location.hash = String(i + 1)
+    fitStages()
+    window.scrollTo(0, 0)
+  }
+  const fromHash = () => {
+    const i = Number(location.hash.slice(1)) - 1
+    return i >= 0 && i < states.length ? i : 0
+  }
+  show(fromHash(), false)
+  window.addEventListener('hashchange', () => show(fromHash(), false))
+  document.addEventListener('keydown', (e) => {
+    const at = buttons.findIndex((b) => b.getAttribute('aria-current') === 'true')
+    if (e.key === 'ArrowRight' && at < states.length - 1) show(at + 1, true)
+    if (e.key === 'ArrowLeft' && at > 0) show(at - 1, true)
+  })
+}
+
+/* Each desktop state is a real 1440x900 canvas scaled to whatever room the
+   window has, so no tab needs scrolling and nothing inside it gets squashed. */
+let wrapped = false
+function fitStages() {
+  if (!wrapped) {
+    wrapped = true
+    $$('.state > .screen, .state > .phones').forEach((canvas) => {
+      const stage = document.createElement('div')
+      stage.className = 'stage'
+      canvas.replaceWith(stage)
+      stage.appendChild(canvas)
+    })
+  }
+  const barHeight = document.querySelector('.tabbar').offsetHeight
+  $$('.state[data-active] .stage').forEach((stage) => {
+    const canvas = stage.firstElementChild
+    const note = stage.previousElementSibling
+    const chrome = barHeight + (note ? note.offsetHeight + 14 : 0) + 52
+    const byWidth = stage.clientWidth / canvas.offsetWidth
+    const byHeight = (window.innerHeight - chrome) / canvas.offsetHeight
+    const scale = Math.min(1, byWidth, Math.max(0.66, byHeight))
+    canvas.style.transform = 'scale(' + scale + ')'
+    stage.style.height = Math.round(canvas.offsetHeight * scale) + 'px'
+  })
+}
+
+renderWalls()
+stampChrome()
+renderPicker()
+renderContact()
+renderClocks()
+wireFinder()
+wireSafari()
+wirePhotos()
+renderGrids()
+buildTabs()
+flagBrokenImages()
+window.addEventListener('resize', fitStages)
+</script>
+</body>
+</html>

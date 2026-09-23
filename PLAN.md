@@ -14,7 +14,7 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | Tracker | Markdown tasks in `tasks/`. |
 | Hosting | Vercel, because Next.js. |
 | Boot screen | Apple boot screen, fast. |
-| Icons and wallpaper | Apple's assets, as the tutorials use. |
+| Icons and wallpaper | Apple's app icons, as the tutorials use. Wallpapers drawn as SVG gradients. |
 | Primary reference | JavaScript Mastery's video for structure and most content, Daniel Prior's repo and video for the parts JSM doesn't have. |
 | Headline and title | "Senior Frontend Engineer", the role Ryan is looking for next. Work history stays as the CV has it, so the Streamlyne role still reads "Senior Software Engineer". |
 | CV summary | Rewritten employer-neutral around the Senior Frontend Engineer framing, no Moniepoint paragraph. Draft in phase 1 for your approval. |
@@ -123,13 +123,17 @@ Server-rendered in the HTML with inline CSS so it paints before any JavaScript. 
 
 Under 768px there's no window manager. The page shows an iOS home screen with the same app icons, a status bar, and a bottom dock. Tapping an app opens it full-screen with a close button and swipe-down to dismiss. Same routes, same content, different layout component.
 
-### Fonts: system stack, no webfont
+### Fonts: Inter, self hosted
 
-macOS uses SF Pro, which Apple doesn't license for the web. The system stack renders SF on Macs and iPhones and downloads nothing. Windows and Linux visitors get Segoe or their system sans. If the difference bothers us in the mockup, self-host Inter Variable at about 100 KB. Start without.
+The plan started on the system stack, because macOS uses SF Pro and Apple doesn't license it for the web. Seeing it in the phase 2 mockup settled it: on Linux and Windows the system stack is Segoe or DejaVu and the whole illusion reads as a web page rather than a Mac. Ryan picked Inter on the mockup, so Inter it is.
 
-### Icons and wallpaper: Apple's assets
+It ships as one variable file covering every weight, Latin subset only, 48 KB, through `next/font/local`. Self hosted, so no request to a third party and no flash of the wrong font. The CV has no accented characters outside Latin, so the other subsets would be 200 KB of nothing.
 
-Your call. App icons and the Sonoma wallpapers come from Daniel Prior's `public/` folder, which is where both tutorials get them. One line for the record: they're Apple's copyright, the same as on every macOS-clone portfolio out there.
+### Icons: Apple's assets. Wallpapers: drawn
+
+App icons come from Daniel Prior's `public/` folder, which is where both tutorials get them. One line for the record: they're Apple's copyright, the same as on every macOS-clone portfolio out there. Three we draw ourselves, because no permissive source has them: the generic folder, text-file, and image-file icons, plus a LinkedIn app icon, since the only LinkedIn mark around is a flat glyph that sits badly next to Apple's.
+
+The wallpapers are drawn as SVG gradients rather than shipped as photographs. Ryan picked the gradient look in phase 2, and a gradient is the one kind of image that vectorises for nothing: 2 to 8 KB of SVG against about 380 KB for the same thing as a JPEG. It also has to be SVG rather than CSS, because phase 0 proved a CSS gradient never fires a contentful paint and Lighthouse then refuses to score performance at all. Three are offered and Control Center switches between them.
 
 ## The apps
 
@@ -198,7 +202,7 @@ It runs twice. Once in phase 1, when the copy is first drafted, so we're not pol
 
 Phase 0 measured the floor instead of guessing it. A page with one heading on it costs 135.5 KB of gzipped JavaScript, which is React 19 and the Next.js App Router runtime and nothing of ours. That is the number every later phase builds on top of.
 
-From there, all gzipped: GSAP core and Draggable about 30 KB, zustand 1 KB, next-themes 2 KB, and the shell we write, meaning the window manager, dock, menu bar, and boot screen, about 30 KB. That lands near 200 KB, so the JavaScript budget is 230 KB and the total transfer budget stays at 600 KB. Add the wallpaper at 150 KB as AVIF and app icons at 60 KB and a cold load sits around 480 KB.
+From there, all gzipped: GSAP core and Draggable about 30 KB, zustand 1 KB, next-themes 2 KB, and the shell we write, meaning the window manager, dock, menu bar, and boot screen, about 30 KB. That lands near 200 KB, so the JavaScript budget is 230 KB and the total transfer budget stays at 600 KB. Add app icons at 60 KB and Inter at 48 KB, with the wallpaper drawn inline for about 8 KB, and a cold load sits around 350 KB.
 
 The first estimate here said 160 KB of JavaScript, written before anything had been built. It was wrong by the width of the Next.js runtime, and phase 4 would have breached it before a single window opened. Measure first, then budget.
 
@@ -206,7 +210,7 @@ Rules that keep us under it:
 
 - Every app component loads with `next/dynamic` when first opened. The first load carries the desktop, dock, menu bar, and boot screen only.
 - GSAP is imported piecemeal. If `pnpm size` shows more than 40 KB from it, Motion is the swap.
-- No webfont, no icon font, no analytics heavier than 2 KB.
+- One webfont, Inter, self hosted as a 48 KB variable Latin subset. No icon font. No analytics heavier than 2 KB.
 - `pnpm size` loads the production build in a real browser and adds up what it downloads, listing the biggest resources so a phase can see what grew. It runs in CI and fails the build when it goes over.
 
 ## SEO, the basics only
@@ -249,7 +253,8 @@ Mac-Portfolio/
       mobile/                  HomeScreen  AppSheet
     styles/globals.css         Tailwind 4 theme tokens, light and dark
   public/
-    icons/  wallpapers/        Apple's assets
+    icons/                     Apple's app icons
+    fonts/                     inter-latin.woff2
     resume.pdf  favicon.ico
 ```
 
@@ -273,7 +278,7 @@ Done when: a PR preview URL loads on Vercel, all three CI tiers are green, and L
 
 ### Phase 1: content and types
 
-Build: `profile.ts`, `projects.ts`, `experience.ts` with their types. The CV entered with the new headline and the rewritten summary. Every string through `humanizer` before the PR opens. Three homepage screenshots captured and cropped, two og:images fetched. Apple's icons and wallpapers in `public/`. Plain routes that render each section as HTML with no desktop yet.
+Build: `profile.ts`, `projects.ts`, `experience.ts` with their types. The CV entered with the new headline and the rewritten summary. Every string through `humanizer` before the PR opens. Three homepage screenshots captured and cropped, two og:images fetched. Apple's icons in `public/`. Plain routes that render each section as HTML with no desktop yet.
 
 Tests, unit: every project has a `url`, a `thumbnail` that exists on disk, and at least one stack tag. Experience roles are in reverse date order with no gaps in required fields. The word "Moniepoint" appears nowhere in `content/`. The headline equals "Senior Frontend Engineer". Tests, browser: every plain route renders its `h1` and one known string from its content.
 

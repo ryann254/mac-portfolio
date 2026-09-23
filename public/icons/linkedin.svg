@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="LinkedIn">
+  <defs>
+    <linearGradient id="linkedin-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a97e8"/>
+      <stop offset="1" stop-color="#0a5aa6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="url(#linkedin-tile)"/>
+  <g fill="#fff">
+    <ellipse cx="152" cy="142" rx="40" ry="36"/>
+    <rect x="119" y="198" width="66" height="212" rx="7"/>
+    <path d="M215 198h63v31c15-21 40-35 71-35 59 0 97 39 97 106v110h-67V308c0-35-17-54-45-54s-51 21-51 56v100h-68z"/>
+  </g>
+</svg>
