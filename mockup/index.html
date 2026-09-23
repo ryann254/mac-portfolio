@@ -435,6 +435,11 @@ body {
   box-shadow: 0 0 0 2px #3a3a3d, 0 26px 60px rgba(0,0,0,.55);
 }
 .phone .screen { position: absolute; inset: 9px; width: auto; height: auto; transform: none; border-radius: 45px; box-shadow: none; font-size: 14px; }
+/* iOS dims the home screen wallpaper so white labels hold up over any of it. */
+.phone .wall::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.36) 0%, rgba(0,0,0,.12) 42%, rgba(0,0,0,.1) 72%, rgba(0,0,0,.3) 100%);
+}
 .notch { position: absolute; z-index: 90; top: 20px; left: 50%; transform: translateX(-50%); width: 126px; height: 34px; border-radius: 18px; background: #000; }
 .ios-bar { position: absolute; inset: 0 0 auto; height: 54px; z-index: 50; display: flex; align-items: center; padding: 0 30px; color: #fff; font-size: 15px; font-weight: 600; }
 .ios-bar .t { font-variant-numeric: tabular-nums; }
