@@ -114,7 +114,13 @@ body {
 .welcome {
   position: absolute; left: 0; right: 0; top: 24%; z-index: 10;
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  color: #fff; text-shadow: 0 1px 16px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.4);
+  color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 2px 22px rgba(0,0,0,.35);
+}
+.welcome > * { position: relative; }
+.welcome::before {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 1240px; height: 620px;
+  background: radial-gradient(closest-side, rgba(0,0,0,.4) 0%, rgba(0,0,0,.36) 32%, rgba(0,0,0,.16) 66%, transparent 100%);
 }
 .welcome h1 { margin: 0; font-size: clamp(34px, 4.6vw, 62px); font-weight: 600; letter-spacing: -.02em; }
 .welcome .role { margin: 6px 0 0; font-size: clamp(15px, 1.5vw, 20px); font-weight: 500; }
@@ -242,6 +248,42 @@ body {
 .btn.ghost { background: var(--field); color: var(--ink); }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* ---------- wallpaper, desktop icons, clock ---------- */
+.wall { position: absolute; inset: 0; }
+.wall svg { width: 100%; height: 100%; display: block; }
+
+.deskfolders { position: absolute; left: 20px; top: 38px; z-index: 12; display: flex; flex-direction: column; gap: 4px; }
+.deskfolder {
+  width: 108px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 0; background: none; padding: 8px 4px 6px; border-radius: 9px; cursor: pointer;
+  font: inherit; font-size: 12.5px; color: #fff; text-align: center;
+  text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(0,0,0,.3);
+}
+.deskfolder svg { width: 58px; height: 47px; filter: drop-shadow(0 2px 5px rgba(0,0,0,.3)); }
+.deskfolder:hover { background: rgba(255,255,255,.16); }
+.deskfolder:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+
+.flip {
+  position: absolute; right: 54px; top: 38%; z-index: 12; text-align: center;
+  color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.4);
+}
+.flip .date { margin: 0 0 13px; font-size: 14px; font-weight: 600; letter-spacing: .16em; text-shadow: 0 1px 3px rgba(0,0,0,.55), 0 0 14px rgba(0,0,0,.4); }
+.flip .digits { display: flex; align-items: center; gap: 9px; }
+.flip .pair { display: flex; gap: 6px; }
+.flip .card {
+  position: relative; width: 70px; height: 94px; border-radius: 11px;
+  background: rgba(22,18,32,.74); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: grid; place-items: center; font-size: 56px; font-weight: 500;
+  font-variant-numeric: tabular-nums; line-height: 1; text-shadow: none;
+  box-shadow: 0 7px 22px rgba(0,0,0,.26), inset 0 0 0 .5px rgba(255,255,255,.12);
+}
+.flip .card::after { content: ""; position: absolute; inset: 50% 0 auto; height: 1px; background: rgba(0,0,0,.3); }
+.flip .colon { font-size: 42px; font-weight: 600; opacity: .9; }
+
+/* GitHub and LinkedIn are flat brand marks. A tile makes them sit as app icons. */
+.tile { background: #fff; display: grid; place-items: center; overflow: hidden; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.16); }
+.dock-item .tile img, .lp-app .tile img, .ios-app .tile img { width: 68%; height: 68%; border-radius: 0; }
+
 /* ---------- safari ---------- */
 .sf-tabs { display: flex; gap: 6px; padding: 6px 12px 0; background: var(--win-head); }
 .sf-tab {
@@ -366,9 +408,11 @@ body {
 .slider i { position: absolute; inset: 0 auto 0 0; width: 72%; background: var(--ink); opacity: .82; }
 .slider svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--win); }
 .wp-pick { display: flex; gap: 8px; }
-.wp-pick button { flex: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 8px; overflow: hidden; }
-.wp-pick img { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; border-radius: 8px; }
-.wp-pick button[aria-pressed="true"] img { outline: 2.5px solid var(--accent); outline-offset: -2px; }
+.wp-pick button { flex: 1; border: 0; padding: 0; background: none; cursor: pointer; border-radius: 8px; }
+.wp-pick .sw { display: block; aspect-ratio: 16/10; border-radius: 8px; overflow: hidden; }
+.wp-pick .sw svg { width: 100%; height: 100%; display: block; }
+.wp-pick button[aria-pressed="true"] .sw { outline: 2.5px solid var(--accent); outline-offset: -2px; }
+.wp-pick button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- boot ---------- */
 .boot { position: absolute; inset: 0; z-index: 90; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; background: #000; }
@@ -450,7 +494,7 @@ body {
 <section class="state" data-title="Boot">
   <p class="note">On the real site this runs for <strong>1.4 seconds</strong>, once per browser session, and any key skips it. <code>prefers-reduced-motion</code> fills the bar with no animation at all. Here it stays on screen so you can look at it; click this tab again to replay the fill.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div class="boot">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.61-1.7-3.18-1.73-1.35-.14-2.64.79-3.33.79-.69 0-1.75-.77-2.87-.75-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.11 8.76.73 1.06 1.6 2.25 2.75 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.86.69 1.18-.02 1.93-1.08 2.65-2.14.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.32-3.5zM14.88 5.6c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z"/></svg>
       <div class="bar"><i></i></div>
@@ -460,9 +504,9 @@ body {
 
 <!-- 2 ------------------------------------------------------------------ -->
 <section class="state" data-title="Desktop">
-  <p class="note">Nothing open. Hover the dock to see the magnification and the labels. The wallpaper is Apple's, shipped in <code>public/wallpapers/</code>.</p>
+  <p class="note">Folders top left, flip clock on the right, and the dock with GitHub and LinkedIn tiled so they sit as app icons. Hover the dock for the magnification and the labels. Both clocks are live and read the same time.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="welcome">
       <h1>Ryan Waweru</h1>
@@ -477,7 +521,7 @@ body {
 <section class="state" data-title="One window">
   <p class="note">Finder opens at <strong>About</strong>. The window is 840&times;540 at 260,150 on a 1440&times;900 desktop, sitting a little high so the title bar stays clear of the menu bar. Hover the traffic lights to see their glyphs.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="welcome" style="top:20%"><h1>Ryan Waweru</h1><p class="role">Senior Frontend Engineer</p></div>
     <div class="win" style="left:260px;top:150px;width:840px;height:540px">
@@ -501,7 +545,7 @@ body {
 <section class="state" data-title="Two windows">
   <p class="note">Safari is focused and Finder sits behind it. The window behind keeps a lighter shadow, grey traffic lights, and a grey title, so which one takes the keyboard is obvious without clicking.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Safari" data-menus="File Edit View History Bookmarks Window Help"></div>
     <div class="win back" style="left:5%;top:14%;width:52%;height:58%">
       <div class="titlebar">
@@ -531,7 +575,7 @@ body {
 <section class="state" data-title="Minimized">
   <p class="note">Safari has been minimized with the yellow light. It keeps its dot in the dock, and clicking that dot puts it back where it was, the same size it was. Finder takes focus, so the menu bar name changes with it.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="win" style="left:12%;top:18%;width:56%;height:58%">
       <div class="titlebar">
@@ -550,7 +594,7 @@ body {
 <section class="state" data-title="Finder">
   <p class="note">Live tab. Click the sidebar, then open the <strong>Streamlyne</strong> folder inside Projects. The tree comes from <code>src/content/</code>, so a role added to the CV appears here with no other edit. The file and folder icons are the only ones we draw ourselves, because Apple ships no generic text or image icon we may use.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="win" style="left:8%;top:12%;width:76%;height:76%">
       <div class="titlebar">
@@ -573,7 +617,7 @@ body {
 <section class="state" data-title="Text and Image">
   <p class="note">The two windows Finder opens when you double-click a file. No toolbar, only a title bar, because a real TextEdit or Preview window opened this way has nothing else. The text window is monospaced on purpose: it is meant to read like a file, not like a web page.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="TextEdit" data-menus="File Edit Format View Window Help"></div>
     <div class="win back" style="left:48%;top:30%;width:44%;height:52%">
       <div class="titlebar">
@@ -602,7 +646,7 @@ body {
 <section class="state" data-title="Safari">
   <p class="note">Live tab strip, click a project. No iframe: three of the five sites refuse to be framed, so the window shows our own screenshot and the button opens the real site in a new tab. Every project's window is the same shape, so the five read as one thing.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Safari" data-menus="File Edit View History Bookmarks Window Help"></div>
     <div class="win" style="left:9%;top:13%;width:74%;height:68%">
       <div class="titlebar tall">
@@ -623,7 +667,7 @@ body {
 <section class="state" data-title="Terminal">
   <p class="note">A neofetch-style card, then the skills. It is a static transcript in v1. If phase 10 has room, <code>help</code>, <code>about</code>, <code>projects</code>, <code>open streamlyne</code>, and <code>contact</code> become real commands.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Terminal" data-menus="Shell Edit View Window Help"></div>
     <div class="win" style="left:14%;top:14%;width:66%;height:72%">
       <div class="titlebar" style="background:rgba(58,58,62,.9)">
@@ -670,7 +714,7 @@ body {
 <section class="state" data-title="Photos">
   <p class="note">The same five screenshots Safari uses, as a gallery. Click one to enlarge it, click again to go back. Live in this tab.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Photos" data-menus="File Edit Image View Window Help"></div>
     <div class="win" style="left:13%;top:16%;width:68%;height:58%">
       <div class="titlebar">
@@ -687,7 +731,7 @@ body {
 <section class="state" data-title="Resume">
   <p class="note">Preview's window with the page rail on the left and a Download button in the title bar. <strong>The PDF itself is still yours to send</strong>: the one on file is an application to a named employer, so either you send me a neutral version or I generate one from this content.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Preview" data-menus="File Edit View Go Tools Window Help"></div>
     <div class="win" style="left:18%;top:11%;width:58%;height:80%">
       <div class="titlebar">
@@ -724,7 +768,7 @@ body {
 <section class="state" data-title="Contact">
   <p class="note">Three rows, no form. A form needs a backend, a spam story, and somewhere to read the mail, and none of that helps a recruiter who already has a mail client open. The email is shown in the open on purpose.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Contact" data-menus="File Edit View Window Help"></div>
     <div class="win" style="left:26%;top:20%;width:48%;height:54%">
       <div class="titlebar">
@@ -748,7 +792,7 @@ body {
 <section class="state" data-title="Launchpad">
   <p class="note">Every app on one page, over a blurred wallpaper. Eight apps fit on one page at five across, so there is one dot. The search field is here for the look; phase 8 builds the filtering.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="lp">
       <div class="lp-search"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3-1.4 1.4-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>Search</div>
@@ -763,7 +807,7 @@ body {
 <section class="state" data-title="Spotlight">
   <p class="note">Cmd+K, or the magnifier in the menu bar. It searches apps, projects, skills, and roles, with a preview of the top hit on the right. Here the query is <code>stream</code>.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="sp-scrim">
       <div class="sp">
@@ -793,9 +837,9 @@ body {
 
 <!-- 15 ----------------------------------------------------------------- -->
 <section class="state" data-title="Control Center">
-  <p class="note">Three controls and nothing else. Appearance and wallpaper are saved to <code>localStorage</code> so a second visit opens the way you left it. Brightness dims the wallpaper only, never the text, so contrast holds at every setting.</p>
+  <p class="note"><strong>The wallpaper picker is live.</strong> Click a gradient and every tab changes, so you can judge all three against the real windows. Appearance and wallpaper save to <code>localStorage</code> so a second visit opens the way you left it. Brightness dims the wallpaper only, never the text.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="welcome" style="top:26%"><h1>Ryan Waweru</h1><p class="role">Senior Frontend Engineer</p></div>
     <div class="cc">
@@ -809,10 +853,7 @@ body {
       </div>
       <div class="cc-tile">
         <h4>Wallpaper</h4>
-        <div class="wp-pick">
-          <button aria-pressed="true"><img src="../public/wallpapers/wallpaper-day.jpg" alt="Day"></button>
-          <button aria-pressed="false"><img src="../public/wallpapers/wallpaper-night.jpg" alt="Night"></button>
-        </div>
+        <div class="wp-pick" data-wallpicker></div>
       </div>
     </div>
     <div data-chrome="dock" data-running=""></div>
@@ -823,7 +864,7 @@ body {
 <section class="state" data-title="Dark mode">
   <p class="note">Same two windows as the <strong>Two windows</strong> tab, in dark, on the night wallpaper. Window grey is #222225, not black, so the shadows still read against the wallpaper.</p>
   <div class="screen" data-theme="dark">
-    <img class="wall" src="../public/wallpapers/wallpaper-night.jpg" alt="">
+    <div data-chrome="wall" data-wall="monterey-night"></div>
     <div data-chrome="menubar" data-app="Safari" data-menus="File Edit View History Bookmarks Window Help"></div>
     <div class="win back" style="left:5%;top:14%;width:50%;height:56%">
       <div class="titlebar">
@@ -871,7 +912,7 @@ body {
     <div class="phone">
       <div class="notch"></div>
       <div class="screen">
-        <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+        <div data-chrome="wall"></div>
         <div class="ios-bar"><span class="t">9:41</span><span class="st">
           <svg viewBox="0 0 20 14"><path d="M1 10h2v3H1zm4-2h2v5H5zm4-3h2v8H9zm4-3h2v11h-2z"/></svg>
           <svg viewBox="0 0 20 14"><path d="M10 12.5 6.6 9a4.8 4.8 0 0 1 6.8 0zM3.8 6.2a8.8 8.8 0 0 1 12.4 0l-1.4 1.4a6.8 6.8 0 0 0-9.6 0z"/></svg>
@@ -888,7 +929,7 @@ body {
     <div class="phone">
       <div class="notch"></div>
       <div class="screen">
-        <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+        <div data-chrome="wall"></div>
         <div class="ios-bar ink" style="z-index:70"><span class="t">9:41</span><span class="st">
           <svg viewBox="0 0 20 14"><path d="M1 10h2v3H1zm4-2h2v5H5zm4-3h2v8H9zm4-3h2v11h-2z"/></svg>
           <svg viewBox="0 0 20 14"><path d="M10 12.5 6.6 9a4.8 4.8 0 0 1 6.8 0zM3.8 6.2a8.8 8.8 0 0 1 12.4 0l-1.4 1.4a6.8 6.8 0 0 0-9.6 0z"/></svg>
@@ -918,7 +959,7 @@ body {
 <section class="state" data-title="404">
   <p class="note">A bad URL opens a Finder window instead of a page. It keeps the illusion and it still says the true thing, which is that the address does not exist.</p>
   <div class="screen">
-    <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
+    <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
     <div class="win" style="left:28%;top:24%;width:44%;height:46%">
       <div class="titlebar">
@@ -957,6 +998,10 @@ const APPS = [
   { id: 'linkedin',  name: 'LinkedIn',  icon: 'linkedin.png', external: true },
 ]
 const ICON = (id) => '../public/icons/' + APPS.find((a) => a.id === id).icon
+const appArt = (app) => {
+  const img = '<img src="' + ICON(app.id) + '" alt="' + esc(app.name) + '">'
+  return app.external ? '<span class="drawn tile">' + img + '</span>' : img
+}
 
 const PROJECTS = [
   { slug: 'streamlyne', name: 'Streamlyne', host: 'streamlyne.com', url: 'https://streamlyne.com/',
@@ -1002,9 +1047,9 @@ const SVG_IMAGE = '<svg viewBox="0 0 48 60" aria-hidden="true"><path d="M4 5a4 4
 
 /* The Finder tree, derived from the content the way the real one will be. */
 const TREE = {
-  about:      { title: 'About',      files: [ { n: 'about.txt', k: 'text' }, { n: 'photo.jpg', k: 'image' } ] },
+  about:      { title: 'Intro',      files: [ { n: 'about.txt', k: 'text' }, { n: 'photo.jpg', k: 'image' } ] },
   projects:   { title: 'Projects',   files: PROJECTS.map((p) => ({ n: p.name, k: 'folder', go: 'project:' + p.slug })) },
-  experience: { title: 'Experience', files: ROLES.map((r) => ({ n: r + '.txt', k: 'text' })) },
+  experience: { title: 'Work Experience', files: ROLES.map((r) => ({ n: r + '.txt', k: 'text' })) },
   skills:     { title: 'Skills',     files: [ { n: 'skills.txt', k: 'text' } ] },
 }
 PROJECTS.forEach((p) => {
@@ -1012,11 +1057,152 @@ PROJECTS.forEach((p) => {
     files: [ { n: 'readme.txt', k: 'text' }, { n: p.slug + '.png', k: 'shot', src: SHOT(p.slug) } ] }
 })
 const SIDEBAR = [
-  ['Favourites', [['about', 'About'], ['projects', 'Projects'], ['experience', 'Experience'], ['skills', 'Skills']]],
+  ['Favourites', [['about', 'Intro'], ['projects', 'Projects'], ['experience', 'Work Experience'], ['skills', 'Skills']]],
 ]
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel))
+
+/* ---- wallpapers ----
+   Apple's own files are photographs of a gradient: 380 kB of JPEG to say
+   something an SVG says in 2 kB, and a CSS gradient cannot be used because
+   phase 0 proved it never fires a contentful paint. So these are drawn.
+   Monterey's two palettes share one set of paths. */
+const monterey = (id, c) => `<svg viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+<defs>
+<linearGradient id="${id}-b" x1=".2" y1="1" x2=".55" y2="0"><stop offset="0" stop-color="${c.base[0]}"/><stop offset=".38" stop-color="${c.base[1]}"/><stop offset=".72" stop-color="${c.base[2]}"/><stop offset="1" stop-color="${c.base[3]}"/></linearGradient>
+<linearGradient id="${id}-l" x1=".1" y1="1" x2=".62" y2="0"><stop offset="0" stop-color="${c.left[0]}"/><stop offset=".34" stop-color="${c.left[1]}"/><stop offset=".7" stop-color="${c.left[2]}"/><stop offset="1" stop-color="${c.left[3]}"/></linearGradient>
+<linearGradient id="${id}-l2" x1=".1" y1="1" x2=".5" y2=".15"><stop offset="0" stop-color="${c.ridge[0]}"/><stop offset=".5" stop-color="${c.ridge[1]}"/><stop offset="1" stop-color="${c.ridge[2]}"/></linearGradient>
+<linearGradient id="${id}-r" x1="1" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="${c.right[0]}"/><stop offset=".34" stop-color="${c.right[1]}"/><stop offset=".7" stop-color="${c.right[2]}"/><stop offset="1" stop-color="${c.right[3]}"/></linearGradient>
+<linearGradient id="${id}-h" x1=".5" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="${c.haze[0]}" stop-opacity=".95"/><stop offset=".32" stop-color="${c.haze[1]}" stop-opacity=".82"/><stop offset=".64" stop-color="${c.haze[2]}" stop-opacity=".46"/><stop offset="1" stop-color="${c.haze[3]}" stop-opacity="0"/></linearGradient>
+<linearGradient id="${id}-h2" x1=".45" y1="0" x2=".55" y2="1"><stop offset="0" stop-color="${c.mist[0]}" stop-opacity=".8"/><stop offset=".5" stop-color="${c.mist[1]}" stop-opacity=".4"/><stop offset="1" stop-color="${c.mist[2]}" stop-opacity="0"/></linearGradient>
+<linearGradient id="${id}-g" x1=".45" y1="1" x2=".52" y2=".1"><stop offset="0" stop-color="${c.glow}" stop-opacity=".92"/><stop offset="1" stop-color="${c.glow}" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="1440" height="900" fill="url(#${id}-b)"/>
+<path d="M1440 0 L1440 900 L760 900 C 800 646 884 400 1020 222 C 1128 82 1272 4 1440 0 Z" fill="url(#${id}-r)" opacity=".92"/>
+<path d="M0 0 L0 900 L560 900 C 524 640 448 398 340 234 C 248 96 132 20 0 0 Z" fill="url(#${id}-l)"/>
+<path d="M0 214 L0 900 L378 900 C 346 656 280 460 192 326 C 134 240 66 200 0 214 Z" fill="url(#${id}-l2)"/>
+<path d="M640 0 L1440 0 L1440 222 C 1330 252 1232 300 1152 354 C 1076 406 1016 456 976 500 C 906 402 818 262 736 148 C 700 98 664 48 640 0 Z" fill="url(#${id}-h)"/>
+<path d="M800 0 L1330 0 L1440 92 C 1330 122 1236 176 1152 236 C 1080 288 1026 336 990 376 C 934 296 872 200 824 116 C 812 78 802 38 800 0 Z" fill="url(#${id}-h2)"/>
+<path d="M0 900 L600 900 C 528 744 384 618 208 578 C 122 558 50 556 0 562 Z" fill="url(#${id}-g)"/>
+</svg>`
+
+let wallSeq = 0
+/** Ids have to be unique per document, and every state carries its own copy. */
+const uniqueIds = (svg, ns) => {
+  const tag = ns + wallSeq++
+  return svg.split('"' + ns).join('"' + tag).split('#' + ns).join('#' + tag)
+}
+
+const WALLPAPERS = {
+  monterey: { label: 'Monterey', ns: 'mo', svg: monterey('mo', {
+    base: ['#7a24e8', '#9b31d8', '#c866c9', '#e7b6dc'],
+    left: ['#7c26ea', '#8527d6', '#a838c8', '#c85fc0'],
+    ridge: ['#6215e0', '#7a20c4', '#9c36b4'],
+    right: ['#f2cfe4', '#dd94c8', '#bb5ec4', '#9634c4'],
+    haze: ['#f6e0ef', '#eccbe4', '#d9a4cf', '#c886c4'],
+    mist: ['#fbeef5', '#f0d9ea', '#e0b8dc'],
+    glow: '#7a2bf7',
+  }) },
+  'monterey-night': { label: 'Monterey at night', ns: 'mn', svg: monterey('mn', {
+    base: ['#1c0552', '#250860', '#341070', '#43207e'],
+    left: ['#1b0556', '#1d0752', '#260b5e', '#33136c'],
+    ridge: ['#0f0238', '#150440', '#1e084e'],
+    right: ['#4a2f7e', '#3b2168', '#2c1652', '#1e0e3e'],
+    haze: ['#6b53a4', '#583f90', '#452e78', '#341f60'],
+    mist: ['#7d64b6', '#63499c', '#4a3480'],
+    glow: '#3a10a0',
+  }) },
+  bigsur: { label: 'Big Sur', ns: 'bs', svg: `<svg viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bs-b" x1="0.15" y1="1" x2="0.85" y2="0"><stop offset="0" stop-color="#8b2a86"/><stop offset="0.3" stop-color="#e0295f"/><stop offset="0.55" stop-color="#fa4a3c"/><stop offset="0.75" stop-color="#ff8c2b"/><stop offset="0.9" stop-color="#ffd24a"/><stop offset="1" stop-color="#2196e8"/></linearGradient><linearGradient id="bs0" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#3fb0ef"/><stop offset="1" stop-color="#1878cc"/></linearGradient><linearGradient id="bs1" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dceefb"/></linearGradient><linearGradient id="bs2" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffd94e"/><stop offset="1" stop-color="#ffab18"/></linearGradient><linearGradient id="bs3" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ff8f2a"/><stop offset="1" stop-color="#ff6326"/></linearGradient><linearGradient id="bs4" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#fb4f33"/><stop offset="1" stop-color="#f53048"/></linearGradient><linearGradient id="bs5" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#f4234f"/><stop offset="1" stop-color="#dd2064"/></linearGradient><linearGradient id="bs6" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#c32478"/><stop offset="1" stop-color="#9b2a8e"/></linearGradient><linearGradient id="bs7" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#8b3199"/><stop offset="1" stop-color="#6b2f96"/></linearGradient></defs><rect width="1440" height="900" fill="url(#bs-b)"/><path d="M0 -400 L1440 -400 L1440 375 L1380 366 L1320 351 L1260 328 L1200 304 L1140 283 L1080 266 L1020 251 L960 230 L900 197 L840 152 L780 101 L720 54 L660 19 L600 -1 L540 -9 L480 -14 L420 -25 L360 -44 L300 -69 L240 -94 L180 -115 L120 -133 L60 -153 L0 -182 Z" fill="url(#bs0)"/><path d="M0 -182 C10 -177 40 -161 60 -153 C80 -145 100 -140 120 -133 C140 -127 160 -122 180 -115 C200 -109 220 -102 240 -94 C260 -86 280 -77 300 -69 C320 -60 340 -51 360 -44 C380 -36 400 -30 420 -25 C440 -20 460 -17 480 -14 C500 -11 520 -11 540 -9 C560 -7 580 -5 600 -1 C620 4 640 10 660 19 C680 28 700 40 720 54 C740 68 760 85 780 101 C800 118 820 136 840 152 C860 168 880 184 900 197 C920 210 940 221 960 230 C980 239 1000 245 1020 251 C1040 257 1060 261 1080 266 C1100 271 1120 276 1140 283 C1160 289 1180 296 1200 304 C1220 312 1240 321 1260 328 C1280 336 1300 344 1320 351 C1340 357 1360 362 1380 366 C1400 370 1430 373 1440 375 L1440 450 L1380 437 L1320 424 L1260 405 L1200 382 L1140 359 L1080 342 L1020 330 L960 319 L900 301 L840 270 L780 225 L720 173 L660 125 L600 88 L540 66 L480 54 L420 45 L360 31 L300 10 L240 -14 L180 -36 L120 -52 L60 -65 L0 -81 Z" fill="url(#bs1)"/><path d="M0 -81 C10 -79 40 -70 60 -65 C80 -60 100 -57 120 -52 C140 -47 160 -42 180 -36 C200 -29 220 -21 240 -14 C260 -6 280 3 300 10 C320 17 340 25 360 31 C380 36 400 41 420 45 C440 48 460 50 480 54 C500 58 520 60 540 66 C560 72 580 78 600 88 C620 98 640 111 660 125 C680 139 700 157 720 173 C740 190 760 209 780 225 C800 241 820 257 840 270 C860 283 880 293 900 301 C920 309 940 314 960 319 C980 324 1000 326 1020 330 C1040 334 1060 337 1080 342 C1100 347 1120 352 1140 359 C1160 366 1180 374 1200 382 C1220 390 1240 398 1260 405 C1280 412 1300 419 1320 424 C1340 429 1360 433 1380 437 C1400 442 1430 448 1440 450 L1440 541 L1380 519 L1320 502 L1260 484 L1200 461 L1140 436 L1080 414 L1020 399 L960 392 L900 385 L840 370 L780 341 L720 297 L660 246 L600 198 L540 160 L480 135 L420 119 L360 105 L300 87 L240 64 L180 40 L120 21 L60 9 L0 1 Z" fill="url(#bs2)"/><path d="M0 1 C10 2 40 6 60 9 C80 13 100 16 120 21 C140 26 160 33 180 40 C200 47 220 56 240 64 C260 72 280 80 300 87 C320 94 340 100 360 105 C380 110 400 114 420 119 C440 124 460 128 480 135 C500 142 520 149 540 160 C560 170 580 183 600 198 C620 212 640 229 660 246 C680 263 700 281 720 297 C740 313 760 329 780 341 C800 353 820 363 840 370 C860 377 880 381 900 385 C920 388 940 389 960 392 C980 394 1000 395 1020 399 C1040 403 1060 407 1080 414 C1100 420 1120 428 1140 436 C1160 443 1180 453 1200 461 C1220 469 1240 477 1260 484 C1280 491 1300 496 1320 502 C1340 508 1360 513 1380 519 C1400 526 1430 538 1440 541 L1440 698 L1380 665 L1320 641 L1260 620 L1200 596 L1140 568 L1080 540 L1020 518 L960 505 L900 501 L840 498 L780 486 L720 459 L660 418 L600 368 L540 321 L480 283 L420 257 L360 237 L300 218 L240 195 L180 168 L120 144 L60 127 L0 118 Z" fill="url(#bs3)"/><path d="M0 118 C10 120 40 123 60 127 C80 131 100 137 120 144 C140 151 160 160 180 168 C200 177 220 186 240 195 C260 203 280 211 300 218 C320 225 340 231 360 237 C380 244 400 249 420 257 C440 264 460 273 480 283 C500 294 520 307 540 321 C560 335 580 352 600 368 C620 385 640 403 660 418 C680 433 700 448 720 459 C740 471 760 480 780 486 C800 493 820 495 840 498 C860 500 880 500 900 501 C920 502 940 503 960 505 C980 508 1000 512 1020 518 C1040 524 1060 532 1080 540 C1100 549 1120 559 1140 568 C1160 578 1180 587 1200 596 C1220 605 1240 612 1260 620 C1280 627 1300 633 1320 641 C1340 649 1360 656 1380 665 C1400 675 1430 693 1440 698 L1440 943 L1380 903 L1320 871 L1260 845 L1200 820 L1140 791 L1080 758 L1020 726 L960 703 L900 691 L840 689 L780 689 L720 679 L660 655 L600 616 L540 570 L480 525 L420 488 L360 461 L300 437 L240 413 L180 385 L120 354 L60 328 L0 312 Z" fill="url(#bs4)"/><path d="M0 312 C10 315 40 321 60 328 C80 336 100 345 120 354 C140 364 160 375 180 385 C200 395 220 404 240 413 C260 422 280 430 300 437 C320 445 340 452 360 461 C380 469 400 477 420 488 C440 499 460 511 480 525 C500 539 520 555 540 570 C560 585 580 602 600 616 C620 631 640 645 660 655 C680 666 700 674 720 679 C740 685 760 687 780 689 C800 690 820 689 840 689 C860 690 880 689 900 691 C920 694 940 697 960 703 C980 709 1000 717 1020 726 C1040 735 1060 747 1080 758 C1100 768 1120 780 1140 791 C1160 801 1180 811 1200 820 C1220 829 1240 836 1260 845 C1280 853 1300 861 1320 871 C1340 880 1360 891 1380 903 C1400 915 1430 937 1440 943 L1440 1234 L1380 1194 L1320 1157 L1260 1127 L1200 1100 L1140 1071 L1080 1038 L1020 1000 L960 965 L900 939 L840 928 L780 926 L720 927 L660 920 L600 898 L540 862 L480 820 L420 778 L360 744 L300 716 L240 690 L180 661 L120 627 L60 593 L0 564 Z" fill="url(#bs5)"/><path d="M0 564 C10 569 40 582 60 593 C80 603 100 616 120 627 C140 639 160 650 180 661 C200 671 220 681 240 690 C260 699 280 707 300 716 C320 725 340 733 360 744 C380 754 400 766 420 778 C440 791 460 806 480 820 C500 834 520 849 540 862 C560 875 580 888 600 898 C620 908 640 915 660 920 C680 925 700 926 720 927 C740 928 760 926 780 926 C800 927 820 925 840 928 C860 930 880 933 900 939 C920 945 940 955 960 965 C980 975 1000 988 1020 1000 C1040 1012 1060 1026 1080 1038 C1100 1049 1120 1061 1140 1071 C1160 1082 1180 1091 1200 1100 C1220 1109 1240 1117 1260 1127 C1280 1136 1300 1146 1320 1157 C1340 1168 1360 1181 1380 1194 C1400 1206 1430 1227 1440 1234 L1440 1521 L1380 1488 L1320 1452 L1260 1420 L1200 1392 L1140 1366 L1080 1335 L1020 1297 L960 1255 L900 1216 L840 1188 L780 1175 L720 1173 L660 1175 L600 1168 L540 1148 L480 1116 L420 1077 L360 1040 L300 1009 L240 982 L180 954 L120 921 L60 882 L0 843 Z" fill="url(#bs6)"/><path d="M0 843 C10 850 40 869 60 882 C80 895 100 909 120 921 C140 933 160 944 180 954 C200 964 220 973 240 982 C260 991 280 999 300 1009 C320 1019 340 1029 360 1040 C380 1052 400 1065 420 1077 C440 1090 460 1104 480 1116 C500 1128 520 1140 540 1148 C560 1157 580 1164 600 1168 C620 1173 640 1174 660 1175 C680 1175 700 1173 720 1173 C740 1174 760 1173 780 1175 C800 1177 820 1181 840 1188 C860 1195 880 1204 900 1216 C920 1227 940 1241 960 1255 C980 1268 1000 1283 1020 1297 C1040 1310 1060 1323 1080 1335 C1100 1346 1120 1356 1140 1366 C1160 1375 1180 1383 1200 1392 C1220 1401 1240 1410 1260 1420 C1280 1430 1300 1441 1320 1452 C1340 1463 1360 1476 1380 1488 C1400 1499 1430 1516 1440 1521 L1440 1300 L0 1300 Z" fill="url(#bs7)"/></svg>` },
+  coral: { label: 'Coral', ns: 'co', svg: `<svg viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="co-b" x1="0" y1="0" x2="0.25" y2="1"><stop offset="0" stop-color="#ff7a68"/><stop offset="0.3" stop-color="#ffb08a"/><stop offset="0.52" stop-color="#eda9d4"/><stop offset="0.74" stop-color="#8f9df0"/><stop offset="1" stop-color="#1b1f68"/></linearGradient><linearGradient id="co0" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ff6f5c"/><stop offset="1" stop-color="#ff8f74"/></linearGradient><linearGradient id="co1" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffb489"/><stop offset="1" stop-color="#ffd0a6"/></linearGradient><linearGradient id="co2" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#fff1df"/><stop offset="1" stop-color="#ffdcc0"/></linearGradient><linearGradient id="co3" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ff9a84"/><stop offset="1" stop-color="#f58193"/></linearGradient><linearGradient id="co4" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#e3a0d2"/><stop offset="1" stop-color="#bda6ea"/></linearGradient><linearGradient id="co5" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#a2aef2"/><stop offset="1" stop-color="#7c93ec"/></linearGradient><linearGradient id="co6" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#5673e0"/><stop offset="1" stop-color="#31419f"/></linearGradient><linearGradient id="co7" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#232a86"/><stop offset="1" stop-color="#111450"/></linearGradient></defs><rect width="1440" height="900" fill="url(#co-b)"/><path d="M0 -400 L1440 -400 L1440 81 L1380 84 L1320 86 L1260 90 L1200 97 L1140 106 L1080 113 L1020 114 L960 107 L900 94 L840 78 L780 67 L720 64 L660 71 L600 86 L540 104 L480 121 L420 133 L360 139 L300 143 L240 147 L180 154 L120 164 L60 175 L0 183 Z" fill="url(#co0)"/><path d="M0 183 C10 182 40 178 60 175 C80 172 100 168 120 164 C140 160 160 157 180 154 C200 151 220 148 240 147 C260 145 280 144 300 143 C320 141 340 141 360 139 C380 138 400 136 420 133 C440 130 460 126 480 121 C500 116 520 110 540 104 C560 98 580 91 600 86 C620 80 640 75 660 71 C680 67 700 65 720 64 C740 63 760 65 780 67 C800 69 820 74 840 78 C860 83 880 89 900 94 C920 98 940 104 960 107 C980 110 1000 113 1020 114 C1040 115 1060 114 1080 113 C1100 112 1120 109 1140 106 C1160 104 1180 100 1200 97 C1220 95 1240 92 1260 90 C1280 88 1300 87 1320 86 C1340 85 1360 85 1380 84 C1400 83 1430 81 1440 81 L1440 167 L1380 174 L1320 178 L1260 182 L1200 190 L1140 201 L1080 213 L1020 223 L960 227 L900 221 L840 208 L780 192 L720 178 L660 172 L600 176 L540 187 L480 202 L420 216 L360 226 L300 232 L240 236 L180 242 L120 252 L60 266 L0 281 Z" fill="url(#co1)"/><path d="M0 281 C10 278 40 271 60 266 C80 261 100 256 120 252 C140 248 160 245 180 242 C200 239 220 238 240 236 C260 234 280 234 300 232 C320 230 340 229 360 226 C380 224 400 220 420 216 C440 212 460 207 480 202 C500 197 520 192 540 187 C560 183 580 178 600 176 C620 173 640 172 660 172 C680 173 700 175 720 178 C740 181 760 187 780 192 C800 197 820 203 840 208 C860 213 880 218 900 221 C920 224 940 226 960 227 C980 227 1000 226 1020 223 C1040 221 1060 217 1080 213 C1100 210 1120 205 1140 201 C1160 197 1180 193 1200 190 C1220 186 1240 184 1260 182 C1280 180 1300 179 1320 178 C1340 177 1360 176 1380 174 C1400 172 1430 168 1440 167 L1440 261 L1380 271 L1320 277 L1260 281 L1200 286 L1140 296 L1080 310 L1020 326 L960 340 L900 347 L840 343 L780 332 L720 316 L660 302 L600 294 L540 294 L480 302 L420 314 L360 324 L300 331 L240 335 L180 339 L120 345 L60 357 L0 374 Z" fill="url(#co2)"/><path d="M0 374 C10 371 40 362 60 357 C80 352 100 348 120 345 C140 342 160 341 180 339 C200 337 220 337 240 335 C260 334 280 333 300 331 C320 330 340 327 360 324 C380 321 400 317 420 314 C440 310 460 305 480 302 C500 299 520 296 540 294 C560 293 580 292 600 294 C620 295 640 298 660 302 C680 305 700 311 720 316 C740 321 760 327 780 332 C800 336 820 341 840 343 C860 346 880 347 900 347 C920 346 940 343 960 340 C980 337 1000 331 1020 326 C1040 322 1060 315 1080 310 C1100 305 1120 300 1140 296 C1160 292 1180 289 1200 286 C1220 284 1240 282 1260 281 C1280 279 1300 279 1320 277 C1340 275 1360 274 1380 271 C1400 268 1430 263 1440 261 L1440 361 L1380 371 L1320 378 L1260 381 L1200 384 L1140 389 L1080 400 L1020 417 L960 436 L900 453 L840 463 L780 463 L720 454 L660 440 L600 426 L540 417 L480 416 L420 421 L360 429 L300 436 L240 440 L180 441 L120 442 L60 448 L0 461 Z" fill="url(#co3)"/><path d="M0 461 C10 458 40 451 60 448 C80 445 100 444 120 442 C140 441 160 441 180 441 C200 440 220 440 240 440 C260 439 280 438 300 436 C320 434 340 431 360 429 C380 426 400 423 420 421 C440 419 460 417 480 416 C500 415 520 416 540 417 C560 419 580 422 600 426 C620 430 640 435 660 440 C680 444 700 450 720 454 C740 458 760 462 780 463 C800 465 820 465 840 463 C860 461 880 458 900 453 C920 449 940 442 960 436 C980 430 1000 423 1020 417 C1040 411 1060 405 1080 400 C1100 395 1120 392 1140 389 C1160 387 1180 385 1200 384 C1220 383 1240 382 1260 381 C1280 380 1300 379 1320 378 C1340 376 1360 374 1380 371 C1400 368 1430 363 1440 361 L1440 472 L1380 478 L1320 485 L1260 488 L1200 488 L1140 488 L1080 492 L1020 503 L960 521 L900 542 L840 562 L780 576 L720 579 L660 573 L600 562 L540 550 L480 542 L420 540 L360 543 L300 548 L240 551 L180 551 L120 549 L60 548 L0 552 Z" fill="url(#co4)"/><path d="M0 552 C10 551 40 548 60 548 C80 547 100 548 120 549 C140 550 160 551 180 551 C200 552 220 552 240 551 C260 551 280 549 300 548 C320 546 340 544 360 543 C380 541 400 540 420 540 C440 539 460 540 480 542 C500 543 520 546 540 550 C560 553 580 558 600 562 C620 566 640 571 660 573 C680 576 700 579 720 579 C740 580 760 579 780 576 C800 573 820 568 840 562 C860 557 880 549 900 542 C920 535 940 527 960 521 C980 514 1000 508 1020 503 C1040 498 1060 495 1080 492 C1100 490 1120 489 1140 488 C1160 488 1180 488 1200 488 C1220 488 1240 488 1260 488 C1280 487 1300 486 1320 485 C1340 483 1360 481 1380 478 C1400 476 1430 473 1440 472 L1440 593 L1380 595 L1320 599 L1260 602 L1200 602 L1140 598 L1080 595 L1020 597 L960 606 L900 624 L840 646 L780 668 L720 685 L660 692 L600 689 L540 681 L480 672 L420 665 L360 664 L300 666 L240 670 L180 670 L120 667 L60 661 L0 656 Z" fill="url(#co5)"/><path d="M0 656 C10 657 40 659 60 661 C80 663 100 665 120 667 C140 668 160 670 180 670 C200 671 220 670 240 670 C260 669 280 667 300 666 C320 666 340 664 360 664 C380 664 400 664 420 665 C440 667 460 669 480 672 C500 674 520 678 540 681 C560 684 580 688 600 689 C620 691 640 692 660 692 C680 691 700 689 720 685 C740 681 760 675 780 668 C800 662 820 654 840 646 C860 639 880 630 900 624 C920 617 940 611 960 606 C980 602 1000 599 1020 597 C1040 595 1060 595 1080 595 C1100 596 1120 597 1140 598 C1160 599 1180 601 1200 602 C1220 602 1240 603 1260 602 C1280 602 1300 600 1320 599 C1340 598 1360 596 1380 595 C1400 594 1430 593 1440 593 L1440 709 L1380 707 L1320 709 L1260 712 L1200 713 L1140 709 L1080 702 L1020 696 L960 694 L900 701 L840 717 L780 739 L720 762 L660 780 L600 790 L540 792 L480 787 L420 781 L360 777 L300 778 L240 781 L180 783 L120 782 L60 776 L0 767 Z" fill="url(#co6)"/><path d="M0 767 C10 768 40 773 60 776 C80 779 100 781 120 782 C140 783 160 784 180 783 C200 783 220 782 240 781 C260 780 280 778 300 778 C320 777 340 777 360 777 C380 778 400 779 420 781 C440 782 460 785 480 787 C500 789 520 791 540 792 C560 792 580 792 600 790 C620 789 640 785 660 780 C680 776 700 769 720 762 C740 755 760 747 780 739 C800 732 820 723 840 717 C860 711 880 705 900 701 C920 697 940 695 960 694 C980 693 1000 694 1020 696 C1040 697 1060 700 1080 702 C1100 705 1120 708 1140 709 C1160 711 1180 712 1200 713 C1220 713 1240 713 1260 712 C1280 712 1300 710 1320 709 C1340 708 1360 707 1380 707 C1400 707 1430 709 1440 709 L1440 1300 L0 1300 Z" fill="url(#co7)"/></svg>` },
+}
+const DEFAULT_WALL = 'monterey'
+
+/* ---- the desktop itself ---- */
+const DESKTOP_FOLDERS = [
+  { label: 'Intro', at: 'about' },
+  { label: 'Projects', at: 'projects' },
+  { label: 'Work Experience', at: 'experience' },
+  { label: 'Contacts', app: 'contact' },
+]
+
+/** Wallpapers the picker may change. A state that named one keeps it. */
+const CHOOSABLE = ['monterey', 'bigsur', 'coral']
+
+function paint(wall, key) {
+  const paper = WALLPAPERS[key]
+  wall.innerHTML = uniqueIds(paper.svg, paper.ns)
+}
+
+function setWallpaper(key) {
+  $$('.wall:not([data-fixed])').forEach((wall) => paint(wall, key))
+  $$('[data-wallpicker] button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wall === key)))
+}
+
+function renderWalls() {
+  $$('[data-chrome="wall"]').forEach((slot) => {
+    const onPhone = Boolean(slot.closest('.phone'))
+    const wall = document.createElement('div')
+    wall.className = 'wall'
+    if (slot.dataset.wall) wall.setAttribute('data-fixed', '')
+    paint(wall, slot.dataset.wall || DEFAULT_WALL)
+    slot.replaceWith(wall)
+    if (onPhone) return
+    const folders = document.createElement('div')
+    folders.className = 'deskfolders'
+    folders.innerHTML = DESKTOP_FOLDERS.map((f) =>
+      '<button class="deskfolder" type="button">' + SVG_FOLDER + '<span>' + esc(f.label) + '</span></button>').join('')
+    wall.after(folders)
+    const clock = document.createElement('div')
+    clock.setAttribute('data-chrome', 'clock')
+    folders.after(clock)
+  })
+}
+
+/* The menu bar and the desktop clock read the same time, because two clocks
+   disagreeing by a minute is the kind of thing you cannot unsee. */
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+function tick() {
+  const now = new Date()
+  const hh = String(now.getHours() % 12 || 12).padStart(2, '0')
+  const mm = String(now.getMinutes()).padStart(2, '0')
+  $$('[data-flip]').forEach((flip) => {
+    flip.querySelector('.date').textContent = DAYS[now.getDay()] + ' \u00b7 ' + MONTHS[now.getMonth()] + ' ' + now.getDate()
+    flip.querySelectorAll('.card').forEach((card, i) => { card.textContent = (hh + mm)[i] })
+  })
+  const label = DAYS[now.getDay()][0] + DAYS[now.getDay()].slice(1).toLowerCase() + ' '
+    + now.getDate() + ' ' + MONTHS[now.getMonth()][0] + MONTHS[now.getMonth()].slice(1).toLowerCase()
+    + '  ' + hh.replace(/^0/, '') + ':' + mm + ' ' + (now.getHours() < 12 ? 'AM' : 'PM')
+  $$('.menubar .clock').forEach((c) => { c.textContent = label })
+}
+
+function renderPicker() {
+  const picker = document.querySelector('[data-wallpicker]')
+  if (!picker) return
+  picker.innerHTML = CHOOSABLE.map((key) =>
+    '<button type="button" data-wall="' + key + '" aria-pressed="' + (key === DEFAULT_WALL) + '" title="' + esc(WALLPAPERS[key].label) + '">'
+    + '<span class="sw">' + uniqueIds(WALLPAPERS[key].svg, WALLPAPERS[key].ns) + '</span></button>').join('')
+  picker.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-wall]')
+    if (b) setWallpaper(b.dataset.wall)
+  })
+}
+
+function renderClocks() {
+  $$('[data-chrome="clock"]').forEach((slot) => {
+    const flip = document.createElement('div')
+    flip.className = 'flip'
+    flip.setAttribute('data-flip', '')
+    flip.innerHTML = '<p class="date"></p><div class="digits">'
+      + '<span class="pair"><span class="card"></span><span class="card"></span></span>'
+      + '<span class="colon">:</span>'
+      + '<span class="pair"><span class="card"></span><span class="card"></span></span></div>'
+    slot.replaceWith(flip)
+  })
+  tick()
+  setInterval(tick, 1000)
+}
 
 /* ---- chrome ---- */
 function stampChrome() {
@@ -1036,7 +1222,7 @@ function stampChrome() {
       b.className = 'dock-item'
       b.type = 'button'
       b.innerHTML = '<span class="dock-label">' + esc(app.name) + (app.external ? ' &nearr;' : '') + '</span>'
-        + '<img src="' + ICON(app.id) + '" alt="' + esc(app.name) + '">'
+        + appArt(app)
         + '<span class="dock-dot' + (running.includes(app.id) ? '' : ' off') + '"></span>'
       dock.appendChild(b)
     })
@@ -1153,10 +1339,10 @@ function wirePhotos() {
 function renderGrids() {
   const lp = document.querySelector('[data-launchpad]')
   if (lp) lp.innerHTML = APPS.filter((a) => !a.deskOnly).map((a) =>
-    '<button class="lp-app" type="button"><img src="' + ICON(a.id) + '" alt="">' + esc(a.name) + '</button>').join('')
+    '<button class="lp-app" type="button">' + appArt(a) + esc(a.name) + '</button>').join('')
   const grid = document.querySelector('[data-ios-grid]')
   if (grid) grid.innerHTML = APPS.filter((a) => !a.deskOnly).slice(0, 8).map((a) =>
-    '<button class="ios-app" type="button"><img src="' + ICON(a.id) + '" alt="">' + esc(a.name) + '</button>').join('')
+    '<button class="ios-app" type="button">' + appArt(a) + esc(a.name) + '</button>').join('')
   const dock = document.querySelector('[data-ios-dock]')
   if (dock) dock.innerHTML = ['finder', 'safari', 'terminal', 'contact'].map((id) =>
     '<img src="' + ICON(id) + '" alt="' + esc(APPS.find((a) => a.id === id).name) + '">').join('')
@@ -1222,7 +1408,10 @@ function fitStages() {
   })
 }
 
+renderWalls()
 stampChrome()
+renderPicker()
+renderClocks()
 wireFinder()
 wireSafari()
 wirePhotos()
