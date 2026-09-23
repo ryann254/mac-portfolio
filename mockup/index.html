@@ -430,8 +430,19 @@ body {
 @keyframes fill { from { width: 0; } to { width: 100%; } }
 @media (prefers-reduced-motion: reduce) {
   .state[data-active] .boot .bar i { animation: none; width: 100%; }
-  .dock-item, .lp-app img { transition: none; }
   .term .caret, .sp-field .caret2 { animation: none; }
+  /* Written at the same specificity as the :hover rules they answer, because
+     a shorter selector inside a media query still loses to a longer one
+     outside it. The dock's own magnification is off already; the script
+     checks the same query before it touches a transform. */
+  .dock-item,
+  .dock-item .dock-label,
+  .dock-item:hover .dock-label,
+  .lp-app img, .lp-app .drawn,
+  .lp-app:hover img, .lp-app:hover .drawn {
+    transition: none;
+    transform: none;
+  }
 }
 
 /* ---------- mobile ---------- */
