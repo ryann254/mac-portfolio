@@ -842,7 +842,7 @@ body {
 
 <!-- 15 ----------------------------------------------------------------- -->
 <section class="state" data-title="Control Center">
-  <p class="note"><strong>The wallpaper picker is live.</strong> Click a gradient and every tab changes, so you can judge all three against the real windows. Appearance and wallpaper save to <code>localStorage</code> so a second visit opens the way you left it. Brightness dims the wallpaper only, never the text.</p>
+  <p class="note"><strong>The wallpaper picker is live.</strong> Click a gradient and every tab changes, so you can judge all three against real windows. Your pick is remembered here too, when the browser lets a local file use storage. On the site both it and the light or dark setting are saved. Brightness dims the wallpaper only, never the text.</p>
   <div class="screen">
     <div data-chrome="wall"></div>
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
@@ -1133,6 +1133,23 @@ const DESKTOP_FOLDERS = [
 
 /** Wallpapers the picker may change. A state that named one keeps it. */
 const CHOOSABLE = ['monterey', 'bigsur', 'coral']
+const STORE_KEY = 'mac-portfolio-wallpaper'
+
+const remembered = () => {
+  try {
+    const key = localStorage.getItem(STORE_KEY)
+    return CHOOSABLE.includes(key) ? key : DEFAULT_WALL
+  } catch {
+    return DEFAULT_WALL
+  }
+}
+const remember = (key) => {
+  try {
+    localStorage.setItem(STORE_KEY, key)
+  } catch {
+    /* Chrome refuses storage to file:// pages. The picker still works. */
+  }
+}
 
 function paint(wall, key) {
   const paper = WALLPAPERS[key]
@@ -1140,6 +1157,7 @@ function paint(wall, key) {
 }
 
 function setWallpaper(key) {
+  remember(key)
   $$('.wall:not([data-fixed])').forEach((wall) => paint(wall, key))
   $$('[data-wallpicker] button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wall === key)))
 }
@@ -1150,7 +1168,7 @@ function renderWalls() {
     const wall = document.createElement('div')
     wall.className = 'wall'
     if (slot.dataset.wall) wall.setAttribute('data-fixed', '')
-    paint(wall, slot.dataset.wall || DEFAULT_WALL)
+    paint(wall, slot.dataset.wall || remembered())
     slot.replaceWith(wall)
     if (onPhone) return
     const folders = document.createElement('div')
@@ -1185,8 +1203,9 @@ function tick() {
 function renderPicker() {
   const picker = document.querySelector('[data-wallpicker]')
   if (!picker) return
+  const chosen = remembered()
   picker.innerHTML = CHOOSABLE.map((key) =>
-    '<button type="button" data-wall="' + key + '" aria-pressed="' + (key === DEFAULT_WALL) + '" title="' + esc(WALLPAPERS[key].label) + '">'
+    '<button type="button" data-wall="' + key + '" aria-pressed="' + (key === chosen) + '" title="' + esc(WALLPAPERS[key].label) + '">'
     + '<span class="sw">' + uniqueIds(WALLPAPERS[key].svg, WALLPAPERS[key].ns) + '</span></button>').join('')
   picker.addEventListener('click', (e) => {
     const b = e.target.closest('[data-wall]')
