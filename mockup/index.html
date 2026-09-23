@@ -238,6 +238,7 @@ body {
   display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 13px; font-weight: 500;
   background: var(--accent); color: #fff; border: 0; border-radius: 7px; padding: 6px 13px; cursor: pointer;
 }
+.btn { text-decoration: none; }
 .btn.ghost { background: var(--field); color: var(--ink); }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -733,7 +734,7 @@ body {
       <div class="win-body"><div class="pane">
         <h2 class="h">Get in touch</h2>
         <p class="sub">I read email every day and I reply. Nairobi time, so if you are in the US expect me in your morning.</p>
-        <ul class="rows">
+        <ul class="rows" role="list">
           <li><a href="mailto:ryannjoroge45@gmail.com"><img src="../public/icons/mail.webp" alt=""><span><span class="lbl">Email</span><br><span class="val">ryannjoroge45@gmail.com</span></span><span class="go">&rarr;</span></a></li>
           <li><a href="https://github.com/ryann254"><img src="../public/icons/github.png" alt=""><span><span class="lbl">GitHub</span><br><span class="val">github.com/ryann254</span></span><span class="go">&nearr;</span></a></li>
           <li><a href="https://linkedin.com/in/ryan-w-3a81a9198"><img src="../public/icons/linkedin.png" alt=""><span><span class="lbl">LinkedIn</span><br><span class="val">linkedin.com/in/ryan-w-3a81a9198</span></span><span class="go">&nearr;</span></a></li>
@@ -745,7 +746,7 @@ body {
 </section>
 <!-- 13 ----------------------------------------------------------------- -->
 <section class="state" data-title="Launchpad">
-  <p class="note">Every app on one page, over a blurred wallpaper. Eight apps fit on one page at five across, so there is one dot. Typing filters the grid.</p>
+  <p class="note">Every app on one page, over a blurred wallpaper. Eight apps fit on one page at five across, so there is one dot. The search field is here for the look; phase 8 builds the filtering.</p>
   <div class="screen">
     <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
     <div data-chrome="menubar" data-app="Finder" data-menus="File Edit View Go Window Help"></div>
@@ -844,7 +845,7 @@ body {
         <div class="pane" style="padding-top:0"><div class="sf-cols">
           <div>
             <img class="hero" src="../public/projects/surveva.png" alt="The Surveva homepage">
-            <ul class="chips"><li>Flutter</li><li>Node.js</li><li>REST APIs</li><li>CI/CD</li></ul>
+            <ul class="chips" role="list"><li>Flutter</li><li>Node.js</li><li>REST APIs</li><li>CI/CD</li></ul>
           </div>
           <div>
             <h2 class="h">Surveva</h2>
@@ -854,7 +855,7 @@ body {
               <p>The lazy-loading algorithm I wrote cut survey load times 25%, which people felt most on the longer surveys.</p>
             </div>
             <p class="sub">Senior Mobile Engineer, Surveva &middot; 2024 to 2025</p>
-            <p style="margin-top:14px"><button class="btn" type="button">Open surveva.com &nearr;</button></p>
+            <p style="margin-top:14px"><a class="btn" href="https://surveva.com/" target="_blank" rel="noopener noreferrer">Open surveva.com &nearr;</a></p>
           </div>
         </div></div>
       </div>
@@ -904,8 +905,8 @@ body {
               <p>My own project. You put in what you earn and what you spend, and it works out what actually reaches you after tax and the monthly bills.</p>
               <p>It also places your salary against the market, projects it ten years out, and shows the gap between the two.</p>
             </div>
-            <ul class="chips"><li>React</li><li>TypeScript</li><li>Tailwind</li><li>Convex</li><li>Clerk</li><li>Recharts</li></ul>
-            <p style="margin-top:14px"><button class="btn">Open kazinbudget.netlify.app &nearr;</button></p>
+            <ul class="chips" role="list"><li>React</li><li>TypeScript</li><li>Tailwind</li><li>Convex</li><li>Clerk</li><li>Recharts</li></ul>
+            <p style="margin-top:14px"><a class="btn" href="https://kazinbudget.netlify.app/" target="_blank" rel="noopener noreferrer">Open kazinbudget.netlify.app &nearr;</a></p>
           </div>
         </div>
       </div>
@@ -1102,13 +1103,13 @@ function renderSafari(root, slug) {
   root.querySelector('[data-sf-body]').innerHTML =
     '<div class="sf-cols"><div>'
     + '<img class="hero" src="' + SHOT(p.slug) + '" alt="The ' + esc(p.name) + ' homepage">'
-    + '<ul class="chips">' + p.stack.map((s) => '<li>' + esc(s) + '</li>').join('') + '</ul>'
+    + '<ul class="chips" role="list">' + p.stack.map((s) => '<li>' + esc(s) + '</li>').join('') + '</ul>'
     + '</div><div>'
     + '<h2 class="h">' + esc(p.name) + '</h2>'
     + '<p class="sub">' + esc(p.tagline) + '</p>'
     + '<div class="body-txt" style="margin-top:12px">' + p.did.map((d) => '<p>' + esc(d) + '</p>').join('') + '</div>'
     + '<p class="sub">' + esc(p.under) + ' &middot; ' + esc(p.period) + '</p>'
-    + '<p style="margin-top:14px"><button class="btn" type="button">Open ' + esc(p.host) + ' &nearr;</button></p>'
+    + '<p style="margin-top:14px"><a class="btn" href="' + p.url + '" target="_blank" rel="noopener noreferrer">Open ' + esc(p.host) + ' &nearr;</a></p>'
     + '</div></div>'
 }
 function wireSafari() {
