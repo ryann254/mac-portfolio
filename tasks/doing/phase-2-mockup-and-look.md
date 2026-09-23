@@ -1,7 +1,7 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: agent:claude-962984cc
+files: [mockup/index.html, tasks/doing/phase-2-mockup-and-look.md]
 pr:
 ---
 Problem: Phases 3 to 9 build fourteen screens. Settling how they look after the code exists means building them twice.
