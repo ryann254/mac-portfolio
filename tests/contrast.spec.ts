@@ -52,3 +52,10 @@ test('the job title stays readable over the wallpaper', async ({ page }) => {
   const behind = await lightestPixelBehind(page, 'main p')
   expect(contrastRatio(behind, WHITE)).toBeGreaterThanOrEqual(requiredRatio(false))
 })
+
+test('the section links stay readable over the wallpaper', async ({ page }) => {
+  await page.goto('/')
+
+  const behind = await lightestPixelBehind(page, 'nav[aria-label="Sections"]')
+  expect(contrastRatio(behind, WHITE)).toBeGreaterThanOrEqual(requiredRatio(false))
+})
