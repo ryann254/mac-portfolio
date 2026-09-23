@@ -354,6 +354,8 @@ body {
 .rows .lbl { font-size: 13px; font-weight: 500; }
 .rows .val { font-size: 12.5px; color: var(--ink-2); }
 .rows .go { margin-left: auto; color: var(--ink-3); }
+.broken { display: inline-grid; place-items: center; padding: 4px 8px; border-radius: 6px; font-size: 10px;
+  background: #b3261e; color: #fff; font-family: var(--mono); word-break: break-all; }
 
 /* ---------- launchpad ---------- */
 .lp { position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0 0;
@@ -788,11 +790,7 @@ body {
       <div class="win-body"><div class="pane">
         <h2 class="h">Get in touch</h2>
         <p class="sub">I read email every day and I reply. Nairobi time, so if you are in the US expect me in your morning.</p>
-        <ul class="rows" role="list">
-          <li><a href="mailto:ryannjoroge45@gmail.com"><img src="../public/icons/mail.webp" alt=""><span><span class="lbl">Email</span><br><span class="val">ryannjoroge45@gmail.com</span></span><span class="go">&rarr;</span></a></li>
-          <li><a href="https://github.com/ryann254"><img src="../public/icons/github.png" alt=""><span><span class="lbl">GitHub</span><br><span class="val">github.com/ryann254</span></span><span class="go">&nearr;</span></a></li>
-          <li><a href="https://linkedin.com/in/ryan-w-3a81a9198"><img src="../public/icons/linkedin.png" alt=""><span><span class="lbl">LinkedIn</span><br><span class="val">linkedin.com/in/ryan-w-3a81a9198</span></span><span class="go">&nearr;</span></a></li>
-        </ul>
+        <ul class="rows" role="list" data-contact></ul>
       </div></div>
     </div>
     <div data-chrome="dock" data-running="contact"></div>
@@ -1257,6 +1255,39 @@ function stampChrome() {
   })
 }
 
+/* ---- contact ---- */
+const CONTACT = [
+  { app: 'contact', label: 'Email', value: 'ryannjoroge45@gmail.com', href: 'mailto:ryannjoroge45@gmail.com', arrow: '&rarr;' },
+  { app: 'github', label: 'GitHub', value: 'github.com/ryann254', href: 'https://github.com/ryann254', arrow: '&nearr;' },
+  { app: 'linkedin', label: 'LinkedIn', value: 'linkedin.com/in/ryan-w-3a81a9198', href: 'https://linkedin.com/in/ryan-w-3a81a9198', arrow: '&nearr;' },
+]
+
+function renderContact() {
+  const rows = document.querySelector('[data-contact]')
+  if (!rows) return
+  rows.innerHTML = CONTACT.map((row) =>
+    '<li><a href="' + row.href + '"' + (row.href.startsWith('http') ? ' target="_blank" rel="noopener noreferrer"' : '') + '>'
+    + '<img src="' + ICON(row.app) + '" alt="">'
+    + '<span><span class="lbl">' + esc(row.label) + '</span><br><span class="val">' + esc(row.value) + '</span></span>'
+    + '<span class="go">' + row.arrow + '</span></a></li>').join('')
+}
+
+/* A missing asset used to show as a blank gap you could scroll straight past.
+   Now it shouts, because a mockup reviewed with a hole in it is worse than
+   one that refuses to hide the hole. */
+function flagBrokenImages() {
+  $$('img').forEach((img) => {
+    const fail = () => {
+      img.replaceWith(Object.assign(document.createElement('span'), {
+        className: 'broken',
+        textContent: 'missing: ' + img.getAttribute('src'),
+      }))
+    }
+    if (img.complete && img.naturalWidth === 0) fail()
+    else img.addEventListener('error', fail)
+  })
+}
+
 /* ---- dock magnification ---- */
 const DOCK_GROWTH = 0.5   // how much bigger the icon under the pointer gets
 const DOCK_REACH = 2.7    // how many icons either side the wave touches
@@ -1496,12 +1527,14 @@ function fitStages() {
 renderWalls()
 stampChrome()
 renderPicker()
+renderContact()
 renderClocks()
 wireFinder()
 wireSafari()
 wirePhotos()
 renderGrids()
 buildTabs()
+flagBrokenImages()
 window.addEventListener('resize', fitStages)
 </script>
 </body>
