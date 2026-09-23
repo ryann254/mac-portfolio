@@ -447,7 +447,7 @@ body {
 
 <!-- 1 ------------------------------------------------------------------ -->
 <section class="state" data-title="Boot">
-  <p class="note">The whole boot is <strong>1.4 seconds</strong> and it only runs once per browser session. Any key skips it, and <code>prefers-reduced-motion</code> fills the bar instantly. Click this tab again to replay it.</p>
+  <p class="note">On the real site this runs for <strong>1.4 seconds</strong>, once per browser session, and any key skips it. <code>prefers-reduced-motion</code> fills the bar with no animation at all. Here it stays on screen so you can look at it; click this tab again to replay the fill.</p>
   <div class="screen">
     <img class="wall" src="../public/wallpapers/wallpaper-day.jpg" alt="">
     <div class="boot">
@@ -1174,7 +1174,9 @@ function buildTabs() {
   })
   const buttons = $$('.tabbar button')
   function show(i) {
-    states.forEach((s, j) => { if (j === i) s.setAttribute('data-active', ''); else s.removeAttribute('data-active') })
+    states.forEach((s) => s.removeAttribute('data-active'))
+    void states[i].offsetWidth
+    states[i].setAttribute('data-active', '')
     buttons.forEach((b, j) => b.setAttribute('aria-current', String(j === i)))
     location.hash = String(i + 1)
     fitStages()
@@ -1211,8 +1213,9 @@ function fitStages() {
     const canvas = stage.firstElementChild
     const note = stage.previousElementSibling
     const chrome = barHeight + (note ? note.offsetHeight + 14 : 0) + 52
-    const fits = Math.min(1, stage.clientWidth / canvas.offsetWidth, (window.innerHeight - chrome) / canvas.offsetHeight)
-    const scale = Math.max(0.66, fits)
+    const byWidth = stage.clientWidth / canvas.offsetWidth
+    const byHeight = (window.innerHeight - chrome) / canvas.offsetHeight
+    const scale = Math.min(1, byWidth, Math.max(0.66, byHeight))
     canvas.style.transform = 'scale(' + scale + ')'
     stage.style.height = Math.round(canvas.offsetHeight * scale) + 'px'
   })
