@@ -1,7 +1,7 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: agent:claude-962984cc
+files: [src/desktop/**, src/app/page.tsx, src/app/layout.tsx, src/app/globals.css, src/content/profile.ts, src/content/types.ts, public/icons/**, tests/**, lighthouserc.json, PLAN.md]
 pr:
 ---
 Problem: The site loads into nothing. With no boot screen, desktop, menu bar, or dock, no app has anywhere to open.
