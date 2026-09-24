@@ -3,6 +3,8 @@ import type { Profile } from './types'
 export const profile: Profile = {
   name: 'Ryan Waweru',
   headline: 'Senior Frontend Engineer',
+  tagline:
+    '6+ years of React, Next.js, and TypeScript building large scale projects in the education, real estate and many other sectors...',
   summary: [
     "I'm a frontend engineer with six years of experience, most of it in React and TypeScript. The work I enjoy most is the kind where data keeps arriving while you are looking at it and the page still has to feel quick.",
     'At Streamlyne I built a real-time messaging product with voice that helps university researchers draft documents and ask questions about policy. Research submissions went up 29%. I also rebuilt parts of a long-running Java application in React and Node, which cut load times by 44%.',

@@ -1,55 +1,37 @@
-import Link from 'next/link'
+import { profile } from '@/content'
 
 /**
- * The one piece of content on the desktop itself. It is also what gives the
- * page a largest contentful paint, which Lighthouse needs before it will score
- * performance at all. Phase 3 places and animates it properly.
+ * The only content on the desktop itself, and the element Lighthouse measures
+ * as the largest contentful paint. The scrim behind it is not decoration: white
+ * text has to clear 4.5:1 over whatever wallpaper is behind it, and the reader
+ * gets to change the wallpaper from phase 8 on. `tests/contrast.spec.ts` reads
+ * the rendered pixels to prove it.
  *
- * The scrim is not decoration. White text has to stay readable over whatever
- * wallpaper is behind it, and phase 1 swaps this one for Apple's, whose colours
- * we do not pick. At 60% it clears 4.5:1 even over a pure white wallpaper, so
- * the guarantee belongs to the text rather than to any particular background.
- *
- * The links are scaffolding. Until the dock exists in phase 3, they are the
- * only way into the content, and a page nobody can reach cannot be reviewed.
+ * It sits lower on a phone, where the desktop folders reach further down the
+ * screen and the two used to print on top of each other.
  */
-const sections = [
-  { href: '/about', label: 'About' },
-  { href: '/experience', label: 'Experience' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/skills', label: 'Skills' },
-  { href: '/contact', label: 'Contact' },
-]
-
 export function Welcome() {
   return (
-    <div className="absolute inset-x-0 top-[34%] flex justify-center px-6">
-      <div className="relative flex flex-col items-center gap-2 px-16 py-10 text-center">
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(closest-side,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.6)_58%,transparent_100%)]"
-        />
-        <h1 className="relative text-4xl font-semibold tracking-tight text-white sm:text-6xl">
-          Ryan Waweru
-        </h1>
-        <p className="relative text-base font-medium text-white sm:text-lg">
-          Senior Frontend Engineer
-        </p>
-        <nav className="relative mt-4" aria-label="Sections">
-          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2" role="list">
-            {sections.map((section) => (
-              <li key={section.href}>
-                <Link
-                  href={section.href}
-                  className="rounded-sm text-sm text-white underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4"
-                >
-                  {section.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
+    <div className="pointer-events-none absolute inset-x-0 top-[46%] z-10 sm:top-[24%] flex flex-col items-center px-6 text-center text-white">
+      <div
+        aria-hidden
+        className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 h-[620px] w-[1240px] bg-[radial-gradient(closest-side,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.36)_32%,rgba(0,0,0,0.16)_66%,transparent_100%)]"
+      />
+      <h1 className="relative font-semibold text-4xl tracking-tight [text-shadow:0_1px_3px_rgba(0,0,0,0.4),0_2px_22px_rgba(0,0,0,0.35)] sm:text-5xl lg:text-6xl">
+        {profile.name}
+      </h1>
+      <p
+        data-testid="welcome-role"
+        className="relative mt-1.5 font-medium text-base [text-shadow:0_1px_3px_rgba(0,0,0,0.4)] sm:text-lg"
+      >
+        {profile.headline}
+      </p>
+      <p
+        data-testid="welcome-tagline"
+        className="relative mt-3.5 max-w-[54ch] text-sm/relaxed opacity-95 [text-shadow:0_1px_3px_rgba(0,0,0,0.45)] sm:text-[15px]"
+      >
+        {profile.tagline}
+      </p>
     </div>
   )
 }
