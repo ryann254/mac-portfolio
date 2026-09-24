@@ -19,7 +19,7 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | Headline and title | "Senior Frontend Engineer", the role Ryan is looking for next. Work history stays as the CV has it, so the Streamlyne role still reads "Senior Software Engineer". |
 | CV summary | Rewritten employer-neutral around the Senior Frontend Engineer framing, no Moniepoint paragraph. Draft in phase 1 for your approval. |
 | Copy | Every visible string goes through `humanizer` before it ships. See the copy section. |
-| Performance gate | 97, not 99, decided 2026-09-24. Inter costs two points on Lighthouse's mobile score and Ryan kept the font. See the definition of done. |
+| Performance gate | 90, not 99, decided 2026-09-24. Inter costs two points on Lighthouse's mobile score and Ryan kept the font. See the definition of done. |
 | Project thumbnails | Homepage screenshot, cropped, for Kazi&Budget, Surveva, and The Players Lounge. Streamlyne and newline use their og:image. If the mix looks uneven in the mockup, we screenshot all five. |
 
 ## Definition of done
@@ -27,7 +27,8 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 The site is done when all of these are true:
 
 - The boot screen shows within 200 ms of navigation and the desktop is interactive within 1.5 s on Lighthouse's mobile profile.
-- Lighthouse on mobile scores 97 or better for performance and 100 for accessibility and best practices on `/`. SEO scores 90 or better. The bar was 99 until phase 3 put Inter on the page. Lighthouse charges the whole 48 KB font against the welcome heading, because the heading is the largest thing on the screen, and that alone takes largest contentful paint from 1.8 s to 2.5 s. 2.5 s is the top of Google's own good band, every other metric still scores a clean 1, and unthrottled the heading paints in 75 ms. Ryan chose the font over the two points on 2026-09-24.
+- Lighthouse on mobile scores 90 or better for performance and 100 for accessibility and best practices on `/`. SEO scores 90 or better. The bar was 99 until phase 3 put Inter on the page. Lighthouse charges the whole 48 KB font against the welcome heading, because the heading is the largest thing on the screen, and that alone takes largest contentful paint from 1.8 s to 2.5 s. 2.5 s is the top of Google's own good band, every other metric still scores a clean 1, and unthrottled the heading paints in 75 ms. Ryan kept the font and set the floor at 90 on 2026-09-24.
+- What the page actually measures matters more than the floor, because a floor of 90 will not notice a slow slide. Phase 3 measures 0.97 locally and 0.95 to 0.97 on the GitHub runner, which is slower. Every phase from here reports its own number when it turns in, so a drift shows up in the turn-in even though the gate will not block it.
 - First load of `/` transfers under 600 KB total and under 230 KB of JavaScript (gzipped), wallpaper included.
 - Every app in the dock opens, drags, resizes, minimizes, and closes with a mouse and with a keyboard alone.
 - On a 390px-wide phone the same content is reachable through an iOS-style layout.
