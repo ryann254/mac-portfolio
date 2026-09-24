@@ -12,6 +12,14 @@ import {
 } from './boot-state'
 
 /**
+ * True once the curtain has been up in this loaded page. A client-side return to
+ * the desktop remounts the component without reloading, and `sessionStorage`
+ * says the same thing but only an effect can read it, which is a paint too late
+ * to stop a black flash.
+ */
+let bootedThisPage = false
+
+/**
  * The Apple boot, over the desktop rather than instead of it, so the desktop's
  * own markup is in the server response and paints underneath while this covers
  * it. That is what lets the reader land on a finished desktop the moment the
@@ -26,14 +34,6 @@ import {
  * Any key or click skips it, and the session remembers, so a reload goes
  * straight to the desktop.
  */
-/**
- * True once the curtain has been up in this loaded page. A client-side return to
- * the desktop remounts the component without reloading, and `sessionStorage`
- * says the same thing but only an effect can read it, which is a paint too late
- * to stop a black flash.
- */
-let bootedThisPage = false
-
 export function BootScreen() {
   const [state, setState] = useState<SystemState>(() => (bootedThisPage ? 'desktop' : 'booting'))
   const bar = useRef<HTMLSpanElement>(null)
