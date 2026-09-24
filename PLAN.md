@@ -139,11 +139,11 @@ The wallpapers are drawn as SVG gradients rather than shipped as photographs. Ry
 
 | Dock icon | Shows | Content source |
 | --- | --- | --- |
-| Finder | Sidebar with About, Projects, Experience, Skills. About holds `about.txt` and `photo.jpg`. Projects holds a folder per project with `readme.txt` and the thumbnail. Experience holds one `.txt` per role. Skills holds `skills.txt`. Double-click opens the Text or Image window. | derived from `content/` |
+| Finder | Sidebar with About, Projects, Experience, Skills. About holds `about.txt` and `photo.jpg`, which is a drawn stand-in rather than a photograph: Ryan asked on 2026-09-24 not to put his own picture on the site. Projects holds a folder per project with `readme.txt` and the thumbnail. Experience holds one `.txt` per role. Skills holds `skills.txt`. Double-click opens the Text or Image window. | derived from `content/` |
 | Safari | One project at a time: URL bar with the real URL, thumbnail, description, Ryan's role, stack tags, an open-in-new-tab button, and a tab strip to switch projects. No iframe, several of the five sites block framing. | `content/projects.ts` |
 | Terminal | Skills as a neofetch-style card, then `cat skills.txt`. Stretch: typed commands `help`, `about`, `projects`, `open streamlyne`, `contact`. | `content/profile.ts` |
 | Photos | Gallery of the five project thumbnails, click to enlarge. | `content/projects.ts` |
-| Resume | The resume PDF in the browser's own viewer with a Download button. | `public/resume.pdf` |
+| Resume | The resume PDF in the browser's own viewer with a Download button. | generated from `content/` by `pnpm resume` |
 | Contact | Mail-style window. Email, LinkedIn, GitHub as rows. No form in v1. | `content/profile.ts` |
 | Text, Image | Generic file windows Finder opens. Not in the dock. | Finder |
 | GitHub, LinkedIn | External links in the dock, open in a new tab. | `content/profile.ts` |
@@ -255,7 +255,8 @@ Mac-Portfolio/
   public/
     icons/                     Apple's app icons
     fonts/                     inter-latin.woff2
-    resume.pdf  favicon.ico
+    about/avatar.svg           a drawn stand-in, not a photograph
+    resume.pdf  favicon.ico    resume.pdf is generated, never hand-edited
 ```
 
 ## Phases

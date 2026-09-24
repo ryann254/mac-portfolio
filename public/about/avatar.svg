@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="A drawn stand-in for a photograph">
+  <defs>
+    <linearGradient id="avatar-plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f96a3"/>
+      <stop offset="1" stop-color="#6b727f"/>
+    </linearGradient>
+    <clipPath id="avatar-edge">
+      <circle cx="256" cy="256" r="256"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#avatar-edge)">
+    <rect width="512" height="512" fill="url(#avatar-plate)"/>
+    <circle cx="256" cy="204" r="86" fill="#eceef2"/>
+    <path d="M256 318c-88 0-160 60-174 142h348c-14-82-86-142-174-142z" fill="#eceef2"/>
+  </g>
+</svg>
