@@ -102,6 +102,9 @@ body {
 [data-boot][data-done] {
   opacity: 0;
   visibility: hidden;
+  /* Without this the curtain goes on swallowing clicks for the whole fade,
+     while the desktop is already there to be clicked. */
+  pointer-events: none;
 }
 
 /* Set by the inline script in the layout before the first paint, when this

@@ -26,19 +26,28 @@ import {
  * Any key or click skips it, and the session remembers, so a reload goes
  * straight to the desktop.
  */
+/**
+ * True once the curtain has been up in this loaded page. A client-side return to
+ * the desktop remounts the component without reloading, and `sessionStorage`
+ * says the same thing but only an effect can read it, which is a paint too late
+ * to stop a black flash.
+ */
+let bootedThisPage = false
+
 export function BootScreen() {
-  const [state, setState] = useState<SystemState>('booting')
+  const [state, setState] = useState<SystemState>(() => (bootedThisPage ? 'desktop' : 'booting'))
   const bar = useRef<HTMLSpanElement>(null)
   const booting = isBooting(state)
 
   const finish = useCallback(() => {
+    bootedThisPage = true
     rememberBoot(sessionMemory())
     setState((current) => next(current, 'booted'))
   }, [])
 
   useEffect(() => {
     if (hasBootedAlready(sessionMemory())) {
-      setState((current) => next(current, 'booted'))
+      finish()
       return
     }
     const running = bar.current?.getAnimations() ?? []

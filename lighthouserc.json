@@ -2,9 +2,7 @@
   "ci": {
     "collect": {
       "startServerCommand": "pnpm start --port 3016",
-      "url": [
-        "http://127.0.0.1:3016/"
-      ],
+      "url": ["http://127.0.0.1:3016/"],
       "numberOfRuns": 3
     },
     "assert": {
