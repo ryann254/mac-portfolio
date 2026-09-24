@@ -4,9 +4,13 @@ import { flipDate, flipDigits } from './clock'
 import { useClock } from './use-clock'
 
 /**
- * The flip clock in the bottom right corner. Hidden on a phone, where the dock
- * runs across the bottom and there is nowhere for it to sit; phase 9 gives the
- * mobile layout its own status bar.
+ * The flip clock in the bottom right corner.
+ *
+ * It needs a wide desktop to sit in. The dock is centred on the bottom edge and
+ * the clock is 323 px wide, so under about 1280 px the dock runs into it and,
+ * being the higher layer, covers the bottom of the digits. 1360 leaves real
+ * clearance rather than the one pixel the arithmetic allows. Narrower than that
+ * the menu bar clock is the one that tells the time.
  */
 export function DeskClock() {
   const now = useClock()
@@ -15,7 +19,7 @@ export function DeskClock() {
   return (
     <div
       data-testid="desk-clock"
-      className="absolute right-11 bottom-[30px] z-10 hidden text-center text-white sm:block"
+      className="absolute right-11 bottom-[30px] z-10 hidden text-center text-white min-[1360px]:block"
     >
       <p className="mb-3 font-semibold text-sm tracking-[0.16em] [text-shadow:0_1px_3px_rgba(0,0,0,0.55),0_0_14px_rgba(0,0,0,0.4)]">
         {flipDate(now)}
