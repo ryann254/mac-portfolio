@@ -1,6 +1,12 @@
 'use client'
 
-import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from 'react'
+import {
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { appById } from './apps'
 import { PlaceholderApp } from './placeholder-app'
 import {
@@ -60,11 +66,14 @@ export function WindowFrame({
   const [live, setLive] = useState<Bounds | undefined>(undefined)
   const bounds = live ?? state.bounds
 
-  // Opening a window puts the keyboard in it, which is the whole of the
-  // keyboard path: tab to the dock, press Enter, and you are inside.
+  /* The keyboard follows the front window. Opening one puts the keyboard in it,
+     which is the whole of the keyboard path: tab to the dock, press Enter, and
+     you are inside. Closing or minimising the front window hands the front to
+     the one underneath, and without this the keyboard would be left on a
+     control that no longer exists, where Escape closes nothing. */
   useEffect(() => {
-    root.current?.focus()
-  }, [])
+    if (focused) root.current?.focus()
+  }, [focused])
 
   const begin = (event: ReactPointerEvent, handle?: Handle) => {
     if (state.maximized) return
@@ -189,7 +198,7 @@ export function WindowFrame({
  * one stays mounted, because an app that has loaded a document should not have
  * to load it again to come back from the dock.
  */
-const frameBox = (state: WindowState, bounds: Bounds) => {
+const frameBox = (state: WindowState, bounds: Bounds): CSSProperties => {
   if (state.minimized) return { display: 'none' }
   if (state.maximized) return { top: MENU_BAR, right: 0, bottom: 0, left: 0 }
   return { top: bounds.y, left: bounds.x, width: bounds.width, height: bounds.height }

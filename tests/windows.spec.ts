@@ -193,6 +193,30 @@ test('the keyboard alone opens a window, lands in it, and closes it', async ({ p
   await expect(finder).toHaveCount(0)
 })
 
+test('closing the front window hands the keyboard to the one underneath', async ({ page }) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+  const safari = await openWindow(page, 'Safari')
+  await expect(safari).toBeFocused()
+
+  await page.getByRole('button', { name: 'Close Safari' }).click()
+
+  await expect(finder).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(finder).toHaveCount(0)
+})
+
+test('minimising the front window hands the keyboard down too', async ({ page }) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+  const safari = await openWindow(page, 'Safari')
+
+  await page.getByRole('button', { name: 'Minimise Safari' }).click()
+
+  await expect(finder).toBeFocused()
+  await expect(safari).toBeHidden()
+})
+
 test.describe('on a tablet, with a finger', () => {
   test.use({ viewport: { width: 1024, height: 768 }, hasTouch: true })
 
