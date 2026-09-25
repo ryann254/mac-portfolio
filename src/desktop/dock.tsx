@@ -1,8 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { type ReactNode, useEffect, useRef } from 'react'
-import { type App, offsiteApps, siteApps } from './apps'
+import { type App, offsiteApps, opensAWindow, siteApps } from './apps'
+import { isOpen } from './window-state'
+import { useWindows } from './window-store'
 
 /** How much bigger the icon under the pointer gets. */
 const GROWTH = 0.5
@@ -104,11 +105,14 @@ export function Dock() {
 }
 
 function DockItem({ app }: { app: App }) {
+  const open = useWindows((store) => isOpen(store.stack, app.id))
+  const show = useWindows((store) => store.open)
+
   const art = (
     <>
       <Label>
         {app.name}
-        {app.offsite ? ' ↗' : ''}
+        {app.offsite ? ' \u2197' : ''}
       </Label>
       {/* Low priority and lazy on purpose: the boot screen covers the dock for
           the first second and a half, and React would otherwise preload all
@@ -126,28 +130,19 @@ function DockItem({ app }: { app: App }) {
         fetchPriority="low"
         className="block size-9 rounded-[11px] sm:size-[50px]"
       />
-      <span className="mt-[3px] size-1 rounded-full bg-black/60 opacity-0 dark:bg-white/75" />
+      <span
+        data-testid={`running-${app.id}`}
+        className={`mt-[3px] size-1 rounded-full bg-black/60 dark:bg-white/75 ${open ? 'opacity-100' : 'opacity-0'}`}
+      />
     </>
   )
 
   const shared =
     'group relative flex w-9 flex-col items-center rounded-xl focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-[3px] sm:w-[50px]'
 
-  if (!app.href) {
-    /* Launchpad and Resume have nothing behind them until phases 8 and 7, so
-       they are drawn rather than made into buttons that do nothing. */
+  if (app.offsite) {
     return (
       <li>
-        <span data-dock-item="" className={shared}>
-          {art}
-        </span>
-      </li>
-    )
-  }
-
-  return (
-    <li>
-      {app.offsite ? (
         <a
           data-dock-item=""
           href={app.href}
@@ -158,11 +153,33 @@ function DockItem({ app }: { app: App }) {
         >
           {art}
         </a>
-      ) : (
-        <Link data-dock-item="" href={app.href} className={shared} aria-label={app.name}>
+      </li>
+    )
+  }
+
+  if (opensAWindow(app)) {
+    return (
+      <li>
+        <button
+          type="button"
+          data-dock-item=""
+          className={shared}
+          aria-label={app.name}
+          onClick={() => show(app)}
+        >
           {art}
-        </Link>
-      )}
+        </button>
+      </li>
+    )
+  }
+
+  /* Launchpad is a full-screen overlay rather than a window, and phase 8 builds
+     it, so it is drawn rather than made into a button that does nothing. */
+  return (
+    <li>
+      <span data-dock-item="" className={shared}>
+        {art}
+      </span>
     </li>
   )
 }
