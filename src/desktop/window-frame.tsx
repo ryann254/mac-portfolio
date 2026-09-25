@@ -49,6 +49,9 @@ type Gesture = {
   readonly handle?: Handle
 }
 
+/** macOS drains the colour out of the three buttons on a window that is not in front. */
+const DIMMED = 'bg-black/20 dark:bg-white/25'
+
 /** Where each handle sits on the frame, and the cursor that says what it does. */
 const HANDLE_STYLE: Record<Handle, string> = {
   n: 'top-0 inset-x-3 h-1.5 cursor-ns-resize',
@@ -174,17 +177,17 @@ export function WindowFrame({
         <div className="relative flex items-center gap-2 pl-3">
           <Light
             label={`Close ${app.name}`}
-            colour="bg-[#ff5f57]"
+            colour={focused ? 'bg-[#ff5f57]' : DIMMED}
             onClick={() => close(state.id)}
           />
           <Light
             label={`Minimise ${app.name}`}
-            colour="bg-[#febc2e]"
+            colour={focused ? 'bg-[#febc2e]' : DIMMED}
             onClick={() => minimize(state.id)}
           />
           <Light
             label={state.maximized ? `Restore ${app.name}` : `Maximise ${app.name}`}
-            colour="bg-[#28c840]"
+            colour={focused ? 'bg-[#28c840]' : DIMMED}
             onClick={() => toggleMaximized(state.id)}
           />
         </div>

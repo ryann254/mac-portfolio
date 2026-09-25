@@ -7,7 +7,7 @@ import type { App } from './apps'
  */
 export function PlaceholderApp({ app }: { app: App }) {
   return (
-    <div className="flex h-full flex-col justify-center gap-3 px-8 py-7 text-[13px]/relaxed text-zinc-700 dark:text-zinc-300">
+    <div className="flex flex-col gap-3 px-8 py-7 text-[13px]/relaxed text-zinc-700 dark:text-zinc-300">
       <h2 className="font-semibold text-[15px] text-zinc-900 dark:text-zinc-50">
         {app.name} opens here once it is built
       </h2>
