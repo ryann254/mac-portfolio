@@ -1,7 +1,7 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: agent:claude-962984cc
+files: [src/desktop/**, src/app/page.tsx, src/app/globals.css, tests/**, package.json, AGENTS.md, PLAN.md]
 pr:
 ---
 Problem: The dock is there but nothing opens. Building the window manager alongside real apps hides drag and focus bugs behind content bugs.
