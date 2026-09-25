@@ -24,6 +24,8 @@ export type Achievement = {
 export type Profile = {
   readonly name: string
   readonly headline: string
+  /** The one line under the headline on the desktop. Ryan's own words. */
+  readonly tagline: string
   readonly summary: readonly string[]
   readonly location: string
   readonly email: string

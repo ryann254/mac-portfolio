@@ -1,18 +1,72 @@
 @import "tailwindcss";
 
 @theme static {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter Fallback", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
-
-  --color-desk-sky: #3f7fd4;
-  --color-desk-haze: #7aa7dd;
-  --color-desk-sand: #e0b98c;
-  --color-desk-dusk: #1c2d52;
-  --color-desk-night: #060b1a;
 }
 
+/**
+ * The wallpaper's palette. Plain custom properties rather than theme tokens,
+ * because nothing needs a `bg-wall-*` utility and Tailwind would emit one for
+ * every colour here. Day and night share one set of paths, so switching the
+ * wallpaper is switching these twenty-six values.
+ */
 :root {
   color-scheme: light dark;
+
+  --wall-base-1: #7a24e8;
+  --wall-base-2: #9b31d8;
+  --wall-base-3: #c866c9;
+  --wall-base-4: #e7b6dc;
+  --wall-left-1: #7c26ea;
+  --wall-left-2: #8527d6;
+  --wall-left-3: #a838c8;
+  --wall-left-4: #c85fc0;
+  --wall-ridge-1: #6215e0;
+  --wall-ridge-2: #7a20c4;
+  --wall-ridge-3: #9c36b4;
+  --wall-right-1: #f2cfe4;
+  --wall-right-2: #dd94c8;
+  --wall-right-3: #bb5ec4;
+  --wall-right-4: #9634c4;
+  --wall-haze-1: #f6e0ef;
+  --wall-haze-2: #eccbe4;
+  --wall-haze-3: #d9a4cf;
+  --wall-haze-4: #c886c4;
+  --wall-mist-1: #fbeef5;
+  --wall-mist-2: #f0d9ea;
+  --wall-mist-3: #e0b8dc;
+  --wall-glow: #7a2bf7;
+
+  --boot-duration: 1200ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wall-base-1: #1c0552;
+    --wall-base-2: #250860;
+    --wall-base-3: #341070;
+    --wall-base-4: #43207e;
+    --wall-left-1: #1b0556;
+    --wall-left-2: #1d0752;
+    --wall-left-3: #260b5e;
+    --wall-left-4: #33136c;
+    --wall-ridge-1: #0f0238;
+    --wall-ridge-2: #150440;
+    --wall-ridge-3: #1e084e;
+    --wall-right-1: #4a2f7e;
+    --wall-right-2: #3b2168;
+    --wall-right-3: #2c1652;
+    --wall-right-4: #1e0e3e;
+    --wall-haze-1: #6b53a4;
+    --wall-haze-2: #583f90;
+    --wall-haze-3: #452e78;
+    --wall-haze-4: #341f60;
+    --wall-mist-1: #7d64b6;
+    --wall-mist-2: #63499c;
+    --wall-mist-3: #4a3480;
+    --wall-glow: #3a10a0;
+  }
 }
 
 html,
@@ -23,4 +77,94 @@ body {
 body {
   font-family: var(--font-sans);
   overscroll-behavior: none;
+}
+
+/**
+ * The boot screen.
+ *
+ * CSS owns how long the boot lasts, and the progress bar's `animationend` is
+ * what tells React it is over, so there is one duration rather than a constant
+ * here and another in a timer. Reduced motion swaps the fill for a bar that is
+ * already full and holds, which keeps the event without moving anything.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --boot-duration: 300ms;
+  }
+}
+
+[data-boot] {
+  transition:
+    opacity 450ms ease,
+    visibility 0s linear 450ms;
+}
+
+[data-boot][data-done] {
+  opacity: 0;
+  visibility: hidden;
+  /* Without this the curtain goes on swallowing clicks for the whole fade,
+     while the desktop is already there to be clicked. */
+  pointer-events: none;
+}
+
+/* Set by the inline script in the layout before the first paint, when this
+   browser session has already watched the boot. */
+:root[data-booted] [data-boot] {
+  display: none;
+}
+
+[data-boot-bar] {
+  animation: boot-fill var(--boot-duration) cubic-bezier(0.4, 0.05, 0.2, 1) forwards;
+}
+
+@keyframes boot-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes boot-hold {
+  from,
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-boot] {
+    transition: none;
+  }
+
+  [data-boot-bar] {
+    animation-name: boot-hold;
+  }
+}
+
+/**
+ * The dock.
+ *
+ * Magnification is driven from JavaScript because it scales every icon by how
+ * far it sits from the pointer, and CSS `:hover` only knows which one is under
+ * it, which pops between sizes instead of flowing. Reduced motion turns the
+ * whole thing off, in the script and here.
+ */
+[data-dock-item] {
+  transform-origin: bottom center;
+  transition: transform 160ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* While the pointer drives the scale there is nothing to ease towards, so the
+   transition only runs on the way back to rest. */
+[data-dock][data-live] [data-dock-item] {
+  transition: none;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-dock-item] {
+    transition: none;
+  }
 }

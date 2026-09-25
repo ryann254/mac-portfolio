@@ -1,34 +1,31 @@
 import { expect, test } from '@playwright/test'
+import { gotoDesktop } from './desktop'
 
 test('the desktop paints its wallpaper', async ({ page }) => {
-  await page.goto('/')
+  await gotoDesktop(page)
 
   const wallpaper = page.getByTestId('wallpaper')
   await expect(wallpaper).toBeVisible()
-  await expect(wallpaper).toHaveAccessibleName(/wallpaper/i)
+  const box = await wallpaper.boundingBox()
+  expect(box?.width).toBeGreaterThan(300)
 })
 
-test('the desktop names who it belongs to', async ({ page }) => {
-  await page.goto('/')
+test('the wallpaper turns to its night palette in dark mode', async ({ page }) => {
+  await gotoDesktop(page)
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ryan Waweru')
-  await expect(page.getByText('Senior Frontend Engineer')).toBeVisible()
-})
+  const dayBase = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--wall-base-1').trim(),
+  )
+  await page.emulateMedia({ colorScheme: 'dark' })
+  const nightBase = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--wall-base-1').trim(),
+  )
 
-test('the desktop leads to every section', async ({ page }) => {
-  await page.goto('/')
-
-  for (const label of ['About', 'Experience', 'Projects', 'Skills', 'Contact']) {
-    await expect(page.getByRole('link', { name: label })).toBeVisible()
-  }
-
-  await page.getByRole('link', { name: 'Projects' }).click()
-  await expect(page).toHaveURL(/\/projects$/)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Projects')
+  expect(dayBase).not.toBe(nightBase)
 })
 
 test('the page fills the viewport without scrolling', async ({ page }) => {
-  await page.goto('/')
+  await gotoDesktop(page)
 
   const overflows = await page.evaluate(
     () =>
