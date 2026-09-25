@@ -21,6 +21,7 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, GSAP with Draggable
 | Browser tests | `pnpm test:e2e` |
 | Production build | `pnpm build` |
 | Bundle size check | `pnpm size` |
+| Rebuild the resume PDF | `pnpm resume` |
 | Everything the fast tier runs | `pnpm check` |
 
 ## Rules that bite here
@@ -28,6 +29,7 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, GSAP with Draggable
 - The app registry in `src/desktop/apps.ts` is the single source for the dock, Launchpad, Spotlight, and the routes. Adding an app means adding one entry, never a branch somewhere else.
 - Every app component loads with `next/dynamic` on first open. The first load carries the shell only. `pnpm size` fails the build if that slips.
 - Copy goes through the `humanizer` skill before it ships. See the copy section in `PLAN.md`.
+- `public/resume.pdf` is generated from `src/content` by `pnpm resume`, never edited by hand. It is what a recruiter downloads, so it names no employer and `src/lib/resume.test.ts` keeps it that way. Editing content and forgetting to rerun leaves the two out of step.
 - Window drag and resize use pointer events, never mouse events, so touch works.
 - Every animation is gated on `prefers-reduced-motion`.
 - Lists styled with `list-none` keep an explicit `role="list"`. Safari drops list semantics for VoiceOver once list styling is removed, so the role is doing real work. Biome's `noRedundantRoles` does not know that and is turned off. A list that keeps its `list-disc` marker does not need the role.
