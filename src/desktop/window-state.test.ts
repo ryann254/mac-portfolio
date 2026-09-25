@@ -11,6 +11,7 @@ import {
   minimize,
   open,
   place,
+  refit,
   toggleMaximized,
 } from './window-state'
 
@@ -115,6 +116,29 @@ describe('maximising a window', () => {
   it('brings the window to the front on the way', () => {
     const desktop = toggleMaximized(openAll('finder', 'safari'), 'finder')
     expect(focused(desktop)).toBe('finder')
+  })
+})
+
+describe('a desktop that changes size', () => {
+  const wide: Size = { width: 1440, height: 900 }
+  const narrow: Size = { width: 1024, height: 700 }
+
+  it('pulls a window back on screen when the browser narrows', () => {
+    const far = place(openAll('finder'), 'finder', { x: 1350, y: 200, width: 600, height: 400 })
+    const back = refit(far, narrow)
+    const bounds = find(back, 'finder')?.bounds
+    expect(bounds?.x).toBeLessThan(narrow.width)
+    expect((bounds?.x ?? 0) + (bounds?.width ?? 0)).toBeGreaterThan(0)
+  })
+
+  it('leaves the size alone, because a display change is not a resize', () => {
+    const far = place(openAll('finder'), 'finder', { x: 1350, y: 200, width: 600, height: 400 })
+    expect(find(refit(far, narrow), 'finder')?.bounds.width).toBe(600)
+  })
+
+  it('hands back the same desktop when every window is already on it', () => {
+    const desktop = openAll('finder', 'safari')
+    expect(refit(desktop, wide)).toBe(desktop)
   })
 })
 

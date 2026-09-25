@@ -63,11 +63,12 @@ const HANDLE_STYLE: Record<Handle, string> = {
 
 export function WindowFrame({
   state,
-  index,
+  z,
   focused,
 }: {
   state: WindowState
-  index: number
+  /** How far up the stack this window is. The layer works it out. */
+  z: number
   focused: boolean
 }) {
   const app = appById(state.id)
@@ -153,7 +154,7 @@ export function WindowFrame({
       onKeyDown={(event) => {
         if (event.key === 'Escape') close(state.id)
       }}
-      style={{ ...frameBox(state, bounds), zIndex: index + 1 }}
+      style={{ ...frameBox(state, bounds), zIndex: z }}
       className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-[10px] border-[0.5px] border-black/25 bg-white/85 shadow-[0_18px_50px_rgba(0,0,0,0.3)] outline-none backdrop-blur-2xl backdrop-saturate-150 focus-visible:ring-2 focus-visible:ring-sky-500/70 data-[focused]:shadow-[0_26px_70px_rgba(0,0,0,0.42)] dark:border-white/15 dark:bg-zinc-800/85"
     >
       <header

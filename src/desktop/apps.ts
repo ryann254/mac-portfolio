@@ -111,6 +111,9 @@ export const opensAWindow = (app: App): app is WindowedApp => app.window !== und
 /** Apps the dock, and later Spotlight and the router, can open on the desktop. */
 export const windowedApps: readonly WindowedApp[] = apps.filter(opensAWindow)
 
+/** Where an app sits in this list. Windows draw in this order, whatever is in front. */
+export const appOrder = (id: AppId): number => apps.findIndex((app) => app.id === id)
+
 export const appById = (id: AppId): App => {
   const app = apps.find((entry) => entry.id === id)
   if (!app) throw new Error(`No app called ${id} is in the registry`)

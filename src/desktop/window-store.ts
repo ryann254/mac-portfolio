@@ -22,6 +22,7 @@ export type WindowStore = {
   readonly minimize: (id: AppId) => void
   readonly toggleMaximized: (id: AppId) => void
   readonly place: (id: AppId, bounds: Bounds) => void
+  readonly refit: (screen: Size) => void
 }
 
 /** The desktop covers the viewport, so the viewport is the screen to clamp against. */
@@ -39,4 +40,5 @@ export const useWindows = create<WindowStore>((set) => ({
   minimize: (id) => set((state) => ({ stack: windows.minimize(state.stack, id) })),
   toggleMaximized: (id) => set((state) => ({ stack: windows.toggleMaximized(state.stack, id) })),
   place: (id, bounds) => set((state) => ({ stack: windows.place(state.stack, id, bounds) })),
+  refit: (screen) => set((state) => ({ stack: windows.refit(state.stack, screen) })),
 }))

@@ -260,6 +260,42 @@ test('pressing the dock icon of a window behind brings it up with the keyboard',
   await expect(finder).toHaveAttribute('data-focused', '')
 })
 
+test('the first drag of a window behind both raises it and moves it', async ({ page }) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+  const contact = await openWindow(page, 'Contact')
+  const before = await boxOf(finder)
+  const front = await boxOf(contact)
+
+  // Below Finder's top resize edge, above the window now in front of it.
+  const grab = { x: before.x + 200, y: before.y + 18 }
+  expect(grab.y).toBeLessThan(front.y)
+
+  await page.mouse.move(grab.x, grab.y)
+  await page.mouse.down()
+  await page.mouse.move(grab.x - 90, grab.y + 140, { steps: 10 })
+  await page.mouse.up()
+
+  const after = await boxOf(finder)
+  expect(after.x - before.x).toBeCloseTo(-90, 0)
+  expect(after.y - before.y).toBeCloseTo(140, 0)
+  await expect(finder).toHaveAttribute('data-focused', '')
+})
+
+test('a narrower browser pulls a window back into reach', async ({ page }) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+
+  await dragMouse(page, finder.getByTestId('title-bar'), 900, 0)
+  expect((await boxOf(finder)).x).toBeGreaterThan(800)
+
+  await page.setViewportSize({ width: 1024, height: 700 })
+
+  const after = await boxOf(finder)
+  expect(after.x).toBeLessThan(1024 - 80)
+  await expect(finder.getByTestId('title-bar')).toBeVisible()
+})
+
 test.describe('on a tablet, with a finger', () => {
   test.use({ viewport: { width: 1024, height: 768 }, hasTouch: true })
 

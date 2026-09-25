@@ -1,5 +1,5 @@
 import type { AppId } from './apps'
-import { type Bounds, openingBounds, type Size } from './window-bounds'
+import { type Bounds, clampPosition, openingBounds, type Size } from './window-bounds'
 
 /**
  * Which windows are up and which one is in front. Pure, so every rule a reader
@@ -73,6 +73,23 @@ export const toggleMaximized = (desktop: Desktop, id: AppId): Desktop =>
     change(desktop, id, (window) => ({ ...window, maximized: !window.maximized })),
     id,
   )
+
+/**
+ * Pulls every window back onto a desktop that has just changed size. Without it
+ * a window dragged to the right edge of a wide screen is still out there after
+ * the browser narrows, off screen with nothing left to grab.
+ *
+ * Windows that were already in bounds come back as the same objects, and the
+ * whole desktop as the same array, because a browser resize fires this on every
+ * frame the reader drags the edge.
+ */
+export function refit(desktop: Desktop, screen: Size): Desktop {
+  const next = desktop.map((entry) => {
+    const bounds = clampPosition(entry.bounds, screen)
+    return bounds.x === entry.bounds.x && bounds.y === entry.bounds.y ? entry : { ...entry, bounds }
+  })
+  return next.every((entry, index) => entry === desktop[index]) ? desktop : next
+}
 
 /** Where a drag or a resize leaves the window. The gesture has already clamped it. */
 export const place = (desktop: Desktop, id: AppId, bounds: Bounds): Desktop =>
