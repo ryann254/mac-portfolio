@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { appById } from './apps'
+import { type AppId, appById } from './apps'
 import { PlaceholderApp } from './placeholder-app'
 import {
   type Bounds,
@@ -30,6 +30,17 @@ import { useWindows, viewport } from './window-store'
  * than in the store. That keeps a drag to one re-render a frame, and it means
  * the store only ever sees rectangles a reader stopped on.
  */
+/**
+ * Moves the keyboard into an open window. The dock calls it after opening an
+ * app, for the one case the effect above cannot see: pressing the icon of the
+ * window that is already in front changes nothing, so nothing re-renders and
+ * the keyboard would be left on the icon. The selector and the attribute it
+ * reads live in the same file on purpose.
+ */
+export const putKeyboardIn = (id: AppId): void => {
+  document.querySelector<HTMLElement>(`[data-window="${id}"]`)?.focus()
+}
+
 type Gesture = {
   readonly pointerId: number
   readonly from: { readonly x: number; readonly y: number }
@@ -95,21 +106,28 @@ export function WindowFrame({
     })
   }
 
-  const track = (event: ReactPointerEvent) => {
-    if (!gesture || event.pointerId !== gesture.pointerId) return
-    const dx = event.clientX - gesture.from.x
-    const dy = event.clientY - gesture.from.y
+  /**
+   * Where the gesture has got to. Read from the event rather than from state,
+   * so letting go in the same frame as the last move still commits the
+   * rectangle the pointer is actually on rather than the one before it.
+   */
+  const reach = (event: ReactPointerEvent, at: Gesture): Bounds => {
+    const dx = event.clientX - at.from.x
+    const dy = event.clientY - at.from.y
     const screen = viewport()
-    setLive(
-      gesture.handle
-        ? resizeBy(gesture.handle, gesture.start, dx, dy, screen)
-        : moveBy(gesture.start, dx, dy, screen),
-    )
+    return at.handle
+      ? resizeBy(at.handle, at.start, dx, dy, screen)
+      : moveBy(at.start, dx, dy, screen)
   }
 
-  const settle = () => {
-    if (!gesture) return
-    if (live) place(state.id, live)
+  const track = (event: ReactPointerEvent) => {
+    if (!gesture || event.pointerId !== gesture.pointerId) return
+    setLive(reach(event, gesture))
+  }
+
+  const settle = (event: ReactPointerEvent) => {
+    if (!gesture || event.pointerId !== gesture.pointerId) return
+    place(state.id, reach(event, gesture))
     setGesture(undefined)
     setLive(undefined)
   }

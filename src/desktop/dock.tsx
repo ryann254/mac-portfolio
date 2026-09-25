@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useRef } from 'react'
 import { type App, offsiteApps, opensAWindow, siteApps } from './apps'
+import { putKeyboardIn } from './window-frame'
 import { isOpen } from './window-state'
 import { useWindows } from './window-store'
 
@@ -165,7 +166,10 @@ function DockItem({ app }: { app: App }) {
           data-dock-item=""
           className={shared}
           aria-label={app.name}
-          onClick={() => show(app)}
+          onClick={() => {
+            show(app)
+            putKeyboardIn(app.id)
+          }}
         >
           {art}
         </button>

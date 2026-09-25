@@ -81,6 +81,23 @@ test('dragging the title bar moves the window by the distance the pointer went',
   expect(after.height).toBeCloseTo(before.height, 0)
 })
 
+test('a flick of the title bar still lands where the pointer let go', async ({ page }) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+  const before = await boxOf(finder)
+  const bar = await boxOf(finder.getByTestId('title-bar'))
+
+  // One move and straight up, with no frame in between for React to render in.
+  await page.mouse.move(bar.x + 200, bar.y + 15)
+  await page.mouse.down()
+  await page.mouse.move(bar.x + 260, bar.y + 55)
+  await page.mouse.up()
+
+  const after = await boxOf(finder)
+  expect(after.x - before.x).toBeCloseTo(60, 0)
+  expect(after.y - before.y).toBeCloseTo(40, 0)
+})
+
 test('each of the eight handles resizes on its own axis', async ({ page }) => {
   await gotoDesktop(page)
   const finder = await openWindow(page, 'Finder')
@@ -215,6 +232,32 @@ test('minimising the front window hands the keyboard down too', async ({ page })
 
   await expect(finder).toBeFocused()
   await expect(safari).toBeHidden()
+})
+
+test('pressing the dock icon of the window already in front puts the keyboard in it', async ({
+  page,
+}) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+
+  await dockIcon(page, 'Finder').click()
+  await expect(finder).toBeFocused()
+
+  await page.keyboard.press('Escape')
+  await expect(finder).toHaveCount(0)
+})
+
+test('pressing the dock icon of a window behind brings it up with the keyboard', async ({
+  page,
+}) => {
+  await gotoDesktop(page)
+  const finder = await openWindow(page, 'Finder')
+  await openWindow(page, 'Safari')
+
+  await dockIcon(page, 'Finder').click()
+
+  await expect(finder).toBeFocused()
+  await expect(finder).toHaveAttribute('data-focused', '')
 })
 
 test.describe('on a tablet, with a finger', () => {
