@@ -89,6 +89,25 @@ test('the address follows the window in front', async ({ page }) => {
   await expect(page).toHaveURL(/:\d+\/$/)
 })
 
+test('back leaves the window where the address it lands on says', async ({ page }) => {
+  await gotoDesktop(page)
+  await openWindow(page, 'Finder')
+  await openWindow(page, 'Safari')
+
+  // The folder sends Finder somewhere without opening a window, so it replaces
+  // the address rather than pushing one.
+  await page.getByRole('navigation', { name: 'Desktop' }).getByText('Projects').click()
+  await expect(page).toHaveURL(/\/finder\/projects$/)
+
+  await page.goBack()
+
+  await expect(page).toHaveURL(/\/finder$/)
+  await expect(windowNamed(page, 'Finder')).toBeVisible()
+
+  await page.goBack()
+  await expect(page).toHaveURL(/:\d+\/$/)
+})
+
 test('a folder address titles the window after the folder', async ({ page }) => {
   await gotoDesktop(page, '/finder/projects')
 
@@ -107,6 +126,17 @@ test('an address nothing answers to opens the 404 window and keeps the address',
   await expect(pane.getByRole('heading')).toHaveText('Nothing answers to that address')
   await expect(pane.getByRole('link', { name: 'Back to the desktop' })).toHaveAttribute('href', '/')
   await expect(page).toHaveURL(/\/finder\/nowhere$/)
+})
+
+test('going back to an address nothing answers to gets the 404 window again', async ({ page }) => {
+  await gotoDesktop(page, '/finder/nowhere')
+  await openWindow(page, 'Terminal')
+  await expect(page).toHaveURL(/\/terminal$/)
+
+  await page.goBack()
+
+  await expect(page).toHaveURL(/\/finder\/nowhere$/)
+  await expect(windowNamed(page, 'File not found')).toBeVisible()
 })
 
 test('an app the dock does not open a window for has no address', async ({ page }) => {

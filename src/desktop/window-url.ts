@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { routeOf, targetAt } from './routes'
+import { MISSING, routeOf, targetAt } from './routes'
 import { frontTarget } from './window-state'
 import { useWindows } from './window-store'
 
@@ -26,13 +26,18 @@ export function useWindowUrl(): void {
     })
 
     /* Back and forward hand us an address and nothing else, so the desktop is
-       built from it: the window it names comes to the front, and `/` is the
-       desktop with nothing on it, which is what makes back undo an open. */
+       built from exactly what it says: the window it names comes to the front,
+       in the folder it names and no other, and `/` is the desktop with nothing
+       on it, which is what makes back undo an open. Anything else is an address
+       the server would have missed on, so going back to one gets the 404 window
+       rather than a desktop swept bare. */
     const onPop = () => {
-      const { open, clear } = useWindows.getState()
-      const target = targetAt(globalThis.location.pathname)
-      if (target) open(target)
-      else clear()
+      const { show, clear } = useWindows.getState()
+      const path = globalThis.location.pathname
+      const target = targetAt(path)
+      if (target) show(target)
+      else if (path === '/') clear()
+      else show(MISSING)
     }
 
     globalThis.addEventListener('popstate', onPop)

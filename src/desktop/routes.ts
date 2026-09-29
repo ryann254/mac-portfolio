@@ -19,6 +19,9 @@ export type Target = {
 /** What the 404 window is on. It is Finder, at an address nothing answers to. */
 export const NOT_FOUND = 'not-found'
 
+/** The window an address nothing answers to opens, wherever that is noticed. */
+export const MISSING: Target = { app: 'finder', showing: NOT_FOUND }
+
 type Showing = { readonly slug: string; readonly name: string }
 
 /**

@@ -13,6 +13,7 @@ import {
   open,
   place,
   refit,
+  show,
   toggleMaximized,
 } from './window-state'
 
@@ -185,5 +186,28 @@ describe('what the address bar names', () => {
       app: 'finder',
       showing: 'skills',
     })
+  })
+})
+
+describe('the window an address names', () => {
+  it('takes the window to the folder the address names', () => {
+    const at = open([], { app: 'finder', showing: 'projects' }, size, screen)
+    expect(frontTarget(show(at, { app: 'finder', showing: 'skills' }, size, screen))).toEqual({
+      app: 'finder',
+      showing: 'skills',
+    })
+  })
+
+  it('takes it out of one the address does not name, which `open` would keep', () => {
+    const at = open([], { app: 'finder', showing: 'projects' }, size, screen)
+    expect(frontTarget(show(at, { app: 'finder' }, size, screen))).toEqual({
+      app: 'finder',
+      showing: undefined,
+    })
+  })
+
+  it('opens the window when it is not up, the way a shared link arrives', () => {
+    const desktop = show([], { app: 'safari', showing: 'newline' }, size, screen)
+    expect(frontTarget(desktop)).toEqual({ app: 'safari', showing: 'newline' })
   })
 })

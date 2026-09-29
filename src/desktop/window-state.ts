@@ -73,6 +73,16 @@ export function open(desktop: Desktop, target: Target, size: Size, screen: Size)
   ]
 }
 
+/**
+ * The window an address names, exactly as it names it. `open` is the dock's
+ * verb and keeps the folder a window is already in; this is the address bar's,
+ * and an address that names no folder means the window is in none.
+ */
+export function show(desktop: Desktop, target: Target, size: Size, screen: Size): Desktop {
+  const shown = open(desktop, target, size, screen)
+  return change(shown, target.app, (window) => ({ ...window, showing: target.showing }))
+}
+
 export const close = (desktop: Desktop, id: AppId): Desktop =>
   desktop.filter((entry) => entry.id !== id)
 

@@ -18,6 +18,8 @@ import * as windows from './window-state'
 export type WindowStore = {
   readonly stack: windows.Desktop
   readonly open: (target: Target) => void
+  /** What an address asks for, which overrides the folder a window is already in. */
+  readonly show: (target: Target) => void
   readonly focus: (id: AppId) => void
   readonly close: (id: AppId) => void
   readonly minimize: (id: AppId) => void
@@ -39,6 +41,10 @@ export const useWindows = create<WindowStore>((set) => ({
   open: (target) =>
     set((state) => ({
       stack: windows.open(state.stack, target, windowedApp(target.app).window, viewport()),
+    })),
+  show: (target) =>
+    set((state) => ({
+      stack: windows.show(state.stack, target, windowedApp(target.app).window, viewport()),
     })),
   focus: (id) => set((state) => ({ stack: windows.focus(state.stack, id) })),
   close: (id) => set((state) => ({ stack: windows.close(state.stack, id) })),
