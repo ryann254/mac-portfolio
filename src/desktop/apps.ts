@@ -10,9 +10,8 @@ import type { Size } from './window-bounds'
  * thing one at a time. Launchpad has no window because it is a full-screen
  * overlay, which phase 8 builds.
  *
- * `href` is no longer where the dock sends you. It is the address the window
- * will answer to once phase 5 puts the router behind it, and until then it is
- * still a page a reader can reach from the desktop folders.
+ * An app's address is its id: Finder is at `/finder`. `routes.ts` reads that
+ * out of here, so `href` is left to the two apps that leave the site.
  */
 export type AppId =
   | 'finder'
@@ -32,7 +31,7 @@ export type App = {
   readonly icon: string
   /** How big this app's window opens. Apps without one do not open a window. */
   readonly window?: Size
-  /** The page holding this app's content, and from phase 5 the window's route. */
+  /** Where this app goes when it leaves the site. The dock marks it and opens a tab. */
   readonly href?: string
   /** Set when `href` leaves the site, which the dock marks and opens in a tab. */
   readonly offsite?: true
@@ -46,7 +45,6 @@ export const apps: readonly App[] = [
     id: 'finder',
     name: 'Finder',
     icon: '/icons/finder.webp',
-    href: '/about',
     window: { width: 860, height: 560 },
   },
   { id: 'launchpad', name: 'Launchpad', icon: '/icons/launchpad.webp' },
@@ -54,21 +52,18 @@ export const apps: readonly App[] = [
     id: 'safari',
     name: 'Safari',
     icon: '/icons/safari.webp',
-    href: '/projects',
     window: { width: 940, height: 620 },
   },
   {
     id: 'terminal',
     name: 'Terminal',
     icon: '/icons/terminal.webp',
-    href: '/skills',
     window: { width: 720, height: 450 },
   },
   {
     id: 'photos',
     name: 'Photos',
     icon: '/icons/photos.webp',
-    href: '/projects',
     window: { width: 900, height: 600 },
   },
   {
@@ -81,7 +76,6 @@ export const apps: readonly App[] = [
     id: 'contact',
     name: 'Contact',
     icon: '/icons/mail.webp',
-    href: '/contact',
     window: { width: 600, height: 480 },
   },
   {
@@ -113,6 +107,13 @@ export const windowedApps: readonly WindowedApp[] = apps.filter(opensAWindow)
 
 /** Where an app sits in this list. Windows draw in this order, whatever is in front. */
 export const appOrder = (id: AppId): number => apps.findIndex((app) => app.id === id)
+
+/** The app behind a window. Throws rather than opening one for an app that has none. */
+export const windowedApp = (id: AppId): WindowedApp => {
+  const app = appById(id)
+  if (!opensAWindow(app)) throw new Error(`${app.name} does not open a window`)
+  return app
+}
 
 export const appById = (id: AppId): App => {
   const app = apps.find((entry) => entry.id === id)

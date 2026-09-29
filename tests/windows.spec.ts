@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 import { handles, MENU_BAR } from '../src/desktop/window-bounds'
-import { gotoDesktop } from './desktop'
+import { dockIcon, gotoDesktop, openWindow, settled, windowNamed } from './desktop'
 
 test.skip(
   ({ isMobile }) => Boolean(isMobile),
@@ -11,29 +11,6 @@ const boxOf = async (item: Locator) => {
   const box = await item.boundingBox()
   if (!box) throw new Error('that window is not on screen to be measured')
   return box
-}
-
-const dockIcon = (page: Page, name: string) =>
-  page.getByTestId('dock').getByRole('button', { name, exact: true })
-
-const windowNamed = (page: Page, name: string) => page.getByRole('region', { name, exact: true })
-
-/**
- * Waits out the open animation. It scales the window up from 94%, so anything
- * measured while it runs is a few pixels short of where the window ends up.
- */
-const settled = async (pane: Locator) => {
-  await pane.evaluate(async (node) => {
-    await Promise.all(node.getAnimations().map((animation) => animation.finished))
-  })
-}
-
-const openWindow = async (page: Page, name: string) => {
-  await dockIcon(page, name).click()
-  const pane = windowNamed(page, name)
-  await expect(pane).toBeVisible()
-  await settled(pane)
-  return pane
 }
 
 /** Presses at a point, walks to another, and lets go. */
@@ -291,8 +268,9 @@ test('a narrower browser pulls a window back into reach', async ({ page }) => {
 
   await page.setViewportSize({ width: 1024, height: 700 })
 
-  const after = await boxOf(finder)
-  expect(after.x).toBeLessThan(1024 - 80)
+  /* The browser delivers the resize after `setViewportSize` has already come
+     back, so the window is still out of reach for a frame or two. */
+  await expect.poll(async () => (await boxOf(finder)).x).toBeLessThan(1024 - 80)
   await expect(finder.getByTestId('title-bar')).toBeVisible()
 })
 

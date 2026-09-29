@@ -7,6 +7,7 @@ import {
   find,
   focus,
   focused,
+  frontTarget,
   isOpen,
   minimize,
   open,
@@ -19,7 +20,7 @@ const screen: Size = { width: 1440, height: 900 }
 const size: Size = { width: 600, height: 400 }
 
 const openAll = (...ids: readonly AppId[]): Desktop =>
-  ids.reduce<Desktop>((desktop, id) => open(desktop, id, size, screen), [])
+  ids.reduce<Desktop>((desktop, id) => open(desktop, { app: id }, size, screen), [])
 
 const order = (desktop: Desktop): readonly AppId[] => desktop.map((entry) => entry.id)
 
@@ -38,13 +39,13 @@ describe('opening a window', () => {
   })
 
   it('focuses the one already up instead of opening a second', () => {
-    const desktop = open(openAll('finder', 'safari'), 'finder', size, screen)
+    const desktop = open(openAll('finder', 'safari'), { app: 'finder' }, size, screen)
     expect(order(desktop)).toEqual(['safari', 'finder'])
     expect(focused(desktop)).toBe('finder')
   })
 
   it('brings a minimised window back from the dock', () => {
-    const desktop = open(minimize(openAll('finder'), 'finder'), 'finder', size, screen)
+    const desktop = open(minimize(openAll('finder'), 'finder'), { app: 'finder' }, size, screen)
     expect(find(desktop, 'finder')?.minimized).toBe(false)
     expect(focused(desktop)).toBe('finder')
   })
@@ -152,5 +153,37 @@ describe('placing a window', () => {
     const before = openAll('finder', 'safari')
     const after = place(before, 'finder', { x: 0, y: 28, width: 400, height: 300 })
     expect(find(after, 'safari')).toEqual(find(before, 'safari'))
+  })
+})
+
+describe('what the address bar names', () => {
+  it('is the window in front, and the folder it is in', () => {
+    const desktop = open(openAll('finder'), { app: 'safari', showing: 'surveva' }, size, screen)
+    expect(frontTarget(desktop)).toEqual({ app: 'safari', showing: 'surveva' })
+  })
+
+  it('is nothing on an empty desktop', () => {
+    expect(frontTarget([])).toBeUndefined()
+  })
+
+  it('is the window underneath once the front one is minimised', () => {
+    const desktop = minimize(openAll('finder', 'safari'), 'safari')
+    expect(frontTarget(desktop)).toEqual({ app: 'finder', showing: undefined })
+  })
+
+  it('keeps the folder a window is in when it is opened again from the dock', () => {
+    const at = open([], { app: 'finder', showing: 'projects' }, size, screen)
+    expect(frontTarget(open(at, { app: 'finder' }, size, screen))).toEqual({
+      app: 'finder',
+      showing: 'projects',
+    })
+  })
+
+  it('follows a window that is sent to a new folder', () => {
+    const at = open([], { app: 'finder', showing: 'projects' }, size, screen)
+    expect(frontTarget(open(at, { app: 'finder', showing: 'skills' }, size, screen))).toEqual({
+      app: 'finder',
+      showing: 'skills',
+    })
   })
 })

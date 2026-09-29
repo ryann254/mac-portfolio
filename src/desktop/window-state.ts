@@ -1,4 +1,5 @@
 import type { AppId } from './apps'
+import type { Target } from './routes'
 import { type Bounds, clampPosition, openingBounds, type Size } from './window-bounds'
 
 /**
@@ -12,6 +13,8 @@ import { type Bounds, clampPosition, openingBounds, type Size } from './window-b
 export type WindowState = {
   readonly id: AppId
   readonly bounds: Bounds
+  /** The folder this window is in, or the project it is on. Its address carries it. */
+  readonly showing?: string
   /** Hidden, but still in the stack and still the size the reader left it. */
   readonly minimized: boolean
   /** Drawn against the desktop's edges instead of `bounds`, so restoring is exact. */
@@ -45,13 +48,24 @@ export function focus(desktop: Desktop, id: AppId): Desktop {
   return [...desktop.filter((entry) => entry.id !== id), { ...window, minimized: false }]
 }
 
-/** Opening an app that is already up focuses it, the way clicking its dock icon does. */
-export function open(desktop: Desktop, id: AppId, size: Size, screen: Size): Desktop {
-  if (isOpen(desktop, id)) return focus(desktop, id)
+/**
+ * Opening an app that is already up focuses it, the way clicking its dock icon
+ * does. A dock icon names no folder, so a window that is already open keeps the
+ * one it is in rather than being sent back to the start.
+ */
+export function open(desktop: Desktop, target: Target, size: Size, screen: Size): Desktop {
+  if (isOpen(desktop, target.app)) {
+    const moved = change(desktop, target.app, (window) => ({
+      ...window,
+      showing: target.showing ?? window.showing,
+    }))
+    return focus(moved, target.app)
+  }
   return [
     ...desktop,
     {
-      id,
+      id: target.app,
+      showing: target.showing,
       bounds: openingBounds(size, screen, desktop.length),
       minimized: false,
       maximized: false,
@@ -94,3 +108,10 @@ export function refit(desktop: Desktop, screen: Size): Desktop {
 /** Where a drag or a resize leaves the window. The gesture has already clamped it. */
 export const place = (desktop: Desktop, id: AppId, bounds: Bounds): Desktop =>
   change(desktop, id, (window) => ({ ...window, bounds }))
+
+/** The window the address bar names: the one in front, if there is one. */
+export function frontTarget(desktop: Desktop): Target | undefined {
+  const front = focused(desktop)
+  const window = front === undefined ? undefined : find(desktop, front)
+  return window ? { app: window.id, showing: window.showing } : undefined
+}

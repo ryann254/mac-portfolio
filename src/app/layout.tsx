@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import type { ReactNode } from 'react'
 import { BOOTED_KEY } from '@/desktop/boot-state'
+import { Desktop } from '@/desktop/desktop'
 import './globals.css'
 
 /**
@@ -46,7 +47,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             with no input in it, and it has to run before the first paint. */}
         <script dangerouslySetInnerHTML={{ __html: skipBootScript }} />
       </head>
-      <body className="h-full overflow-hidden">{children}</body>
+      <body className="h-full overflow-hidden">
+        <Desktop>{children}</Desktop>
+      </body>
     </html>
   )
 }
