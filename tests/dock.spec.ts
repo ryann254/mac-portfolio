@@ -24,8 +24,8 @@ test('the dock holds every app in the registry', async ({ page }) => {
 test('the icon under the pointer grows, and the ones beside it less so', async ({ page }) => {
   await gotoDesktop(page)
 
-  const safari = page.getByTestId('dock').getByRole('link', { name: 'Safari' })
-  const terminal = page.getByTestId('dock').getByRole('link', { name: 'Terminal' })
+  const safari = page.getByTestId('dock').getByRole('button', { name: 'Safari' })
+  const terminal = page.getByTestId('dock').getByRole('button', { name: 'Terminal' })
   const resting = await widthOf(safari)
 
   await hoverCentre(safari)
@@ -39,7 +39,7 @@ test('the icon under the pointer grows, and the ones beside it less so', async (
 test('the dock rests again when the pointer leaves', async ({ page }) => {
   await gotoDesktop(page)
 
-  const safari = page.getByTestId('dock').getByRole('link', { name: 'Safari' })
+  const safari = page.getByTestId('dock').getByRole('button', { name: 'Safari' })
   const resting = await widthOf(safari)
 
   await hoverCentre(safari)
@@ -52,7 +52,7 @@ test('the dock rests again when the pointer leaves', async ({ page }) => {
 test('the dock shows what an icon is on hover', async ({ page }) => {
   await gotoDesktop(page)
 
-  const safari = page.getByTestId('dock').getByRole('link', { name: 'Safari' })
+  const safari = page.getByTestId('dock').getByRole('button', { name: 'Safari' })
   await hoverCentre(safari)
 
   await expect(safari.getByText('Safari')).toBeVisible()
@@ -69,7 +69,7 @@ test('the keyboard reaches the dock and opens an app', async ({ page }) => {
   await expect(focused.getByText('Finder')).toBeVisible()
 
   await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(/\/about$/)
+  await expect(page.getByRole('region', { name: 'Finder' })).toBeVisible()
 })
 
 test('the offsite apps say they leave the site', async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe('with reduced motion', () => {
   test('the icons stay the size they were', async ({ page }) => {
     await gotoDesktop(page)
 
-    const safari = page.getByTestId('dock').getByRole('link', { name: 'Safari' })
+    const safari = page.getByTestId('dock').getByRole('button', { name: 'Safari' })
     const resting = await widthOf(safari)
 
     await hoverCentre(safari)

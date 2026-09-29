@@ -20,6 +20,7 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | CV summary | Rewritten employer-neutral around the Senior Frontend Engineer framing, no Moniepoint paragraph. Draft in phase 1 for your approval. |
 | Copy | Every visible string goes through `humanizer` before it ships. See the copy section. |
 | Performance gate | 90, not 99, decided 2026-09-24. Inter costs two points on Lighthouse's mobile score and Ryan kept the font. See the definition of done. |
+| Animation library | None, decided 2026-09-25. GSAP core and Draggable gzip to 41.8 kB, past the 40 kB line this plan set for them, and phase 4 wanted them for one scale tween. The window manager is CSS and pointer events and cost 2.7 kB. See the motion section. |
 | Project thumbnails | Homepage screenshot, cropped, for Kazi&Budget, Surveva, and The Players Lounge. Streamlyne and newline use their og:image. If the mix looks uneven in the mockup, we screenshot all five. |
 
 ## Definition of done
@@ -86,7 +87,7 @@ Judged on the three things you named:
 - Package support. Any React package works in Next.js. Astro islands are each their own React root, so packages that expect one provider at the top need extra care.
 - Load times. Astro wins by 30 to 40 KB of JavaScript, which is 100 to 200 ms on 4G. Next.js prerenders every page at build, and the boot screen covers hydration. Both hit Lighthouse 100 with discipline.
 
-So: the current stable Next.js with the App Router, React 19, TypeScript strict, Tailwind 4, GSAP 3 with `@gsap/react` and Draggable (GSAP and its plugins are free since 2025), zustand, next-themes. Deployed to Vercel on the free Hobby plan. No `output: 'export'`, because Vercel prerenders static pages by default and keeps `next/image` optimisation working, which the export mode disables.
+So: the current stable Next.js with the App Router, React 19, TypeScript strict, Tailwind 4, zustand, next-themes. GSAP was in this list until phase 4 measured it. See the motion section. Deployed to Vercel on the free Hobby plan. No `output: 'export'`, because Vercel prerenders static pages by default and keeps `next/image` optimisation working, which the export mode disables.
 
 The Vite SPA the JSM video uses was considered and set aside. With no prerendered HTML the desktop is blank until the JavaScript arrives, and you asked for SSG.
 
@@ -111,11 +112,23 @@ Inside the desktop, opening a window calls `window.history.pushState`, which the
 
 ### State: one typed window store
 
-zustand, no immer. `windows: Record<AppId, WindowState>` where `WindowState` is `{ status: 'closed' | 'open' | 'minimized', position, size, zIndex }` plus `focused: AppId | null` and `nextZ`. Actions: `open`, `close`, `focus`, `minimize`, `move`, `resize`, `maximize`. A second small store for Finder's location, as JSM does. The app registry, `apps.ts`, is one typed array of `{ id, title, icon, route, defaultSize, component }`. The dock, Launchpad, Spotlight, and the router all read that one array. No app-specific branches anywhere else.
+zustand, no immer. Phase 4 built it as two pieces: `window-state.ts` holds the rules as pure functions over an array, and `window-store.ts` is the zustand store that keeps the current array and reads the viewport.
 
-### Motion: GSAP
+The array is in stacking order, front last, which turns three rules into no code at all. The front window is the last one. Closing hands the front to whatever was under it. Focusing is a move to the end, so there is no z-index counter to keep in step. z-index is the array index at render. Maximised windows are drawn against the desktop's own edges instead of a stored rectangle, so restoring one is exact and a browser resize cannot strand it. Actions: `open`, `focus`, `close`, `minimize`, `toggleMaximized`, `place`.
 
-Window open and close, minimize to the dock, dock magnification, Launchpad and Spotlight overlays, the boot progress bar. Draggable for window drag with the desktop as bounds. All gated on `prefers-reduced-motion`. Resize uses pointer events, not mouse events, so a tablet works.
+Drag and resize do not go through the store while the pointer is down. The frame holds the live rectangle in its own state and commits it with `place` on release, so a gesture re-renders one window instead of the desktop. `window-bounds.ts` holds the arithmetic: an eight-entry table of which edges each handle moves, the clamp that keeps a title bar out from under the menu bar, and where a new window cascades to.
+
+The app registry, `apps.ts`, is one typed array. An app with a `window` size opens on the desktop; Launchpad has none because it is a full-screen overlay. The dock, Launchpad, Spotlight, and the router all read that one array. No app-specific branches anywhere else.
+
+### Motion: CSS, and a library only when something earns it
+
+The plan was GSAP with Draggable. Phase 4 measured them before importing them: 28.3 kB gzipped for the core and 13.5 kB for Draggable, 41.8 kB together, past the 40 kB line this plan drew for exactly this moment. What phase 4 wanted from them was one scale tween on window open, and the eight resize handles need their own pointer arithmetic either way, so Draggable would have been carried without being used.
+
+So: CSS keyframes for the window open, and pointer events for drag and resize, the same pair that already drives the boot bar and the dock. The whole window manager, zustand included, added 2.7 kB gzipped. Everything is still gated on `prefers-reduced-motion`, and resize still uses pointer events so a tablet works.
+
+Motion stays the swap if something later genuinely needs a tween engine. The minimise-to-dock genie in phase 10 is the likeliest candidate, and it is a phase 10 decision with a phase 10 measurement behind it, not a dependency carried from here.
+
+Windows are also where the browser stops us. `Cmd+W` closes the tab and `Cmd+M` minimises the browser, and a page cannot take either back, so the window keyboard path is Escape plus the three buttons, which are real buttons in the tab order.
 
 ### Boot screen: Apple boot, fast
 
@@ -204,14 +217,14 @@ It runs twice. Once in phase 1, when the copy is first drafted, so we're not pol
 
 Phase 0 measured the floor instead of guessing it. A page with one heading on it costs 135.5 KB of gzipped JavaScript, which is React 19 and the Next.js App Router runtime and nothing of ours. That is the number every later phase builds on top of.
 
-From there, all gzipped: GSAP core and Draggable about 30 KB, zustand 1 KB, next-themes 2 KB, and the shell we write, meaning the window manager, dock, menu bar, and boot screen, about 30 KB. That lands near 200 KB, so the JavaScript budget is 230 KB and the total transfer budget stays at 600 KB. Add app icons at 60 KB and Inter at 48 KB, with the wallpaper drawn inline for about 8 KB, and a cold load sits around 350 KB.
+From there, all gzipped: zustand 1 KB, next-themes 2 KB, and the shell we write, meaning the window manager, dock, menu bar, and boot screen, about 30 KB. The budget also held 30 KB for GSAP, which phase 4 did not spend. That lands near 200 KB, so the JavaScript budget is 230 KB and the total transfer budget stays at 600 KB. Add app icons at 60 KB and Inter at 48 KB, with the wallpaper drawn inline for about 8 KB, and a cold load sits around 350 KB.
 
 The first estimate here said 160 KB of JavaScript, written before anything had been built. It was wrong by the width of the Next.js runtime, and phase 4 would have breached it before a single window opened. Measure first, then budget.
 
 Rules that keep us under it:
 
 - Every app component loads with `next/dynamic` when first opened. The first load carries the desktop, dock, menu bar, and boot screen only.
-- GSAP is imported piecemeal. If `pnpm size` shows more than 40 KB from it, Motion is the swap.
+- No animation library until one earns its size against a measurement. Phase 4's window manager, zustand included, cost 2.7 KB.
 - One webfont, Inter, self hosted as a 48 KB variable Latin subset. No icon font. No analytics heavier than 2 KB.
 - `pnpm size` loads the production build in a real browser and adds up what it downloads, listing the biggest resources so a phase can see what grew. It runs in CI and fails the build when it goes over.
 
@@ -305,9 +318,9 @@ Done when: those tests pass and the JavaScript budget check passes with the shel
 
 ### Phase 4: window manager
 
-Build: the window store, `apps.ts`, `WindowWrapper` with the GSAP open animation and Draggable, eight-handle resize, traffic lights, maximize under the menu bar, z-order. One placeholder app to exercise it.
+Build: the window store, `apps.ts`, a window frame with a CSS open animation and a pointer drag, eight-handle resize, traffic lights, maximize under the menu bar, z-order. One placeholder app to exercise it.
 
-Tests, unit: the store's rules. Opening focuses and takes the top z-index, focusing an already open window raises it, closing moves focus to the next highest, minimizing hides but keeps position and size, maximize and restore round-trip, a move can't push the title bar under the menu bar. Tests, browser: drag changes the bounding box by the pointer delta, each of the eight handles resizes on the right axis, red closes, yellow minimizes, green maximizes, clicking a window behind brings it to the front. Keyboard: Tab reaches the dock, Enter opens, focus lands inside the window, Escape and Cmd+W close, Cmd+M minimizes. A webm of the drag and resize run.
+Tests, unit: the store's rules. Opening focuses and takes the top z-index, focusing an already open window raises it, closing moves focus to the next highest, minimizing hides but keeps position and size, maximize and restore round-trip, a move can't push the title bar under the menu bar. Tests, browser: drag changes the bounding box by the pointer delta, each of the eight handles resizes on the right axis, red closes, yellow minimizes, green maximizes, clicking a window behind brings it to the front. Keyboard: Tab reaches the dock, Enter opens, focus lands inside the window, Escape closes. `Cmd+W` and `Cmd+M` are the browser's and the OS's, and a page cannot take them back, so the buttons carry that job. A webm of the drag and resize run.
 
 Done when: those tests pass on desktop and the touch-pointer variant of the drag test passes at tablet width.
 

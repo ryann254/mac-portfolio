@@ -5,6 +5,7 @@ import { Dock } from '@/desktop/dock'
 import { MenuBar } from '@/desktop/menu-bar'
 import { Wallpaper } from '@/desktop/wallpaper'
 import { Welcome } from '@/desktop/welcome'
+import { WindowLayer } from '@/desktop/window-layer'
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <DeskFolders />
       <Welcome />
       <DeskClock />
+      <WindowLayer />
       <Dock />
       <BootScreen />
     </main>

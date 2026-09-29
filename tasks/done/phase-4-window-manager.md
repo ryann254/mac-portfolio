@@ -1,8 +1,8 @@
 ---
-status: open
-owner:
-files: []
-pr:
+status: done
+owner: agent:claude-962984cc
+files: [src/desktop/**, src/app/page.tsx, src/app/globals.css, tests/**, package.json, AGENTS.md, PLAN.md]
+pr: https://github.com/ryann254/mac-portfolio/pull/6
 ---
 Problem: The dock is there but nothing opens. Building the window manager alongside real apps hides drag and focus bugs behind content bugs.
 Fix: Build the window store, the app registry, and a wrapper with a GSAP open animation and pointer drag. Add eight-handle resize, traffic lights, maximize, and z-order, exercised by a placeholder app.

@@ -168,3 +168,38 @@ body {
     transition: none;
   }
 }
+
+/**
+ * Windows.
+ *
+ * The open is a scale from just under full size, which is the one macOS gesture
+ * the frame needs and the one CSS already does in six lines. Position and size
+ * are left, top, width, and height because a drag rewrites them every frame and
+ * a transform would fight the resize handles for the same property.
+ */
+[data-window] {
+  animation: window-open 190ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* A pointer drag over the window body would otherwise select the text under it. */
+[data-window][data-dragging] {
+  user-select: none;
+}
+
+@keyframes window-open {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-window] {
+    animation: none;
+  }
+}
