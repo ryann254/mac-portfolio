@@ -20,8 +20,12 @@ export type Size = { readonly width: number; readonly height: number }
 /** The menu bar, `h-7` in `menu-bar.tsx`. No title bar is allowed under it. */
 export const MENU_BAR = 28
 
-/** The title bar a window is dragged by, and the last thing allowed off screen. */
-export const TITLE_BAR = 30
+/**
+ * The title bar a window is dragged by, and the last thing allowed off screen.
+ * Tall enough for the controls Finder and Safari put in theirs, which is the
+ * height every window has in the mockup.
+ */
+export const TITLE_BAR = 38
 
 /** How much of a window has to stay on screen sideways to be draggable back. */
 export const KEEP_ON_SCREEN = 90

@@ -1,5 +1,6 @@
 'use client'
 
+import { FOLDER_ICON } from './file-icon'
 import type { Target } from './routes'
 import { putKeyboardIn } from './window-frame'
 import { useWindows } from './window-store'
@@ -20,21 +21,6 @@ const folders: readonly { readonly label: string; readonly target: Target }[] = 
   { label: 'Contacts', target: { app: 'contact' } },
 ]
 
-export function FolderIcon() {
-  return (
-    <svg viewBox="0 0 64 52" aria-hidden="true" className="h-[47px] w-[58px] drop-shadow-sm">
-      <path
-        d="M2 9a6 6 0 0 1 6-6h13l6 6h29a6 6 0 0 1 6 6v29a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6z"
-        fill="#3aa7ea"
-      />
-      <path
-        d="M2 15a6 6 0 0 1 6-6h48a6 6 0 0 1 6 6v29a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6z"
-        fill="#69c6f7"
-      />
-    </svg>
-  )
-}
-
 export function DeskFolders() {
   const open = useWindows((store) => store.open)
 
@@ -51,7 +37,16 @@ export function DeskFolders() {
               }}
               className="flex w-[124px] flex-col items-center gap-1 rounded-[9px] px-1 pt-2 pb-1.5 text-[12.5px] text-white hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-[-2px]"
             >
-              <FolderIcon />
+              {/* biome-ignore lint/performance/noImgElement: one drawn file at
+                  one fixed size, shared with the folders inside Finder, and the
+                  optimiser refuses SVG without dangerouslyAllowSVG. */}
+              <img
+                src={FOLDER_ICON}
+                alt=""
+                width={58}
+                height={47}
+                className="h-[47px] w-[58px] drop-shadow-sm"
+              />
               <span
                 data-testid="folder-label"
                 className="rounded bg-black/35 px-1.5 [text-shadow:0_1px_4px_rgba(0,0,0,0.55)]"

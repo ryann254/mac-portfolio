@@ -7,10 +7,9 @@ import {
   useRef,
   useState,
 } from 'react'
-import { type AppId, appById } from './apps'
-import { MissingFile } from './missing-file'
-import { PlaceholderApp } from './placeholder-app'
-import { NOT_FOUND, windowTitle } from './routes'
+import { AppBody, AppChrome } from './app-window'
+import type { AppId } from './apps'
+import { windowTitle } from './routes'
 import {
   type Bounds,
   type Handle,
@@ -76,10 +75,10 @@ export function WindowFrame({
   z: number
   focused: boolean
 }) {
-  const app = appById(state.id)
   /* macOS titles a Finder window after the folder it is in rather than after
      Finder, and Safari after the page rather than after Safari. */
-  const title = windowTitle({ app: state.id, showing: state.showing })
+  const target = { app: state.id, showing: state.showing }
+  const title = windowTitle(target)
   const { focus, close, minimize, toggleMaximized, place } = useWindows.getState()
   const root = useRef<HTMLElement>(null)
   const [gesture, setGesture] = useState<Gesture | undefined>(undefined)
@@ -196,13 +195,11 @@ export function WindowFrame({
             onClick={() => toggleMaximized(state.id)}
           />
         </div>
-        <span className="-translate-x-1/2 pointer-events-none absolute left-1/2 font-medium text-[13px] text-zinc-700 dark:text-zinc-200">
-          {title}
-        </span>
+        <AppChrome target={target} title={title} />
       </header>
 
-      <div className="min-h-0 flex-1 overflow-auto">
-        {state.showing === NOT_FOUND ? <MissingFile /> : <PlaceholderApp app={app} />}
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <AppBody target={target} />
       </div>
 
       {!state.maximized &&

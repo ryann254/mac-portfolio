@@ -1,5 +1,6 @@
 import { projects } from '@/content'
-import { type AppId, appById, windowedApps } from './apps'
+import { type AppId, addressedApps, appById } from './apps'
+import { nameAt } from './file-tree'
 import { locations } from './locations'
 
 /**
@@ -16,8 +17,11 @@ export type Target = {
   readonly showing?: string
 }
 
-/** What the 404 window is on. It is Finder, at an address nothing answers to. */
+/** What the 404 window is on. It is Finder, at a folder the tree does not have. */
 export const NOT_FOUND = 'not-found'
+
+/** What a window on a folder or a file that is not there calls itself. */
+export const MISSING_TITLE = 'File not found'
 
 /** The window an address nothing answers to opens, wherever that is noticed. */
 export const MISSING: Target = { app: 'finder', showing: NOT_FOUND }
@@ -37,20 +41,26 @@ const showings: Partial<Record<AppId, readonly Showing[]>> = {
 export const showingsOf = (app: AppId): readonly Showing[] => showings[app] ?? []
 
 /**
- * Where the address bar points with this window in front. Undefined for the 404
- * window, which stands in for an address nothing answers to and so leaves the
- * one the reader typed alone.
+ * Where the address bar points with this window in front, and undefined when
+ * nothing points at it. Three windows have no address and they all fail the same
+ * check rather than each getting a rule: the text and image windows, because
+ * only a file names one of those and an address carries no file; a folder deeper
+ * in Finder than the sidebar goes; and the 404, which is Finder at a folder that
+ * is not there and so leaves the address the reader typed alone.
  */
 export function routeOf(target: Target | undefined): string | undefined {
   if (!target) return '/'
-  if (target.showing === NOT_FOUND) return undefined
-  return target.showing ? `/${target.app}/${target.showing}` : `/${target.app}`
+  if (!addressedApps.some((app) => app.id === target.app)) return undefined
+  if (target.showing === undefined) return `/${target.app}`
+  return showingsOf(target.app).some((entry) => entry.slug === target.showing)
+    ? `/${target.app}/${target.showing}`
+    : undefined
 }
 
 /** The window an address asks for. Undefined for `/` and for anything ungenerated. */
 export function targetAt(path: string): Target | undefined {
   const [app, showing, ...rest] = path.split('/').filter(Boolean)
-  const found = windowedApps.find((entry) => entry.id === app)
+  const found = addressedApps.find((entry) => entry.id === app)
   if (!found || rest.length > 0) return undefined
   if (showing === undefined) return { app: found.id }
   return showingsOf(found.id).some((entry) => entry.slug === showing)
@@ -61,15 +71,20 @@ export function targetAt(path: string): Target | undefined {
 /** Every address the site answers to, which is what the build has to prerender. */
 export const routes: readonly string[] = [
   '/',
-  ...windowedApps.flatMap((app) => [
+  ...addressedApps.flatMap((app) => [
     `/${app.id}`,
     ...showingsOf(app.id).map((entry) => `/${app.id}/${entry.slug}`),
   ]),
 ]
 
-/** Finder is titled by the folder it is in, Safari by the project it is on. */
+/**
+ * Finder is titled by the folder it is in, Safari by the project it is on, and
+ * the text and image windows by the file they are on. Whatever a window is
+ * showing is looked up first against what has an address, then against the file
+ * tree, and a window on something neither of them knows is on a miss.
+ */
 export function windowTitle(target: Target): string {
-  if (target.showing === NOT_FOUND) return 'File not found'
-  const showing = showingsOf(target.app).find((entry) => entry.slug === target.showing)
-  return showing?.name ?? appById(target.app).name
+  if (target.showing === undefined) return appById(target.app).name
+  const listed = showingsOf(target.app).find((entry) => entry.slug === target.showing)
+  return listed?.name ?? nameAt(target.showing) ?? MISSING_TITLE
 }

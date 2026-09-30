@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 import { handles, MENU_BAR } from '../src/desktop/window-bounds'
-import { dockIcon, gotoDesktop, openWindow, settled, windowNamed } from './desktop'
+import { dockIcon, FINDER, gotoDesktop, openWindow, settled, windowNamed } from './desktop'
 
 test.skip(
   ({ isMobile }) => Boolean(isMobile),
@@ -46,7 +46,7 @@ test('dragging the title bar moves the window by the distance the pointer went',
   page,
 }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const before = await boxOf(finder)
 
   await dragMouse(page, finder.getByTestId('title-bar'), 140, 90)
@@ -60,7 +60,7 @@ test('dragging the title bar moves the window by the distance the pointer went',
 
 test('a flick of the title bar still lands where the pointer let go', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const before = await boxOf(finder)
   const bar = await boxOf(finder.getByTestId('title-bar'))
 
@@ -75,11 +75,16 @@ test('a flick of the title bar still lands where the pointer let go', async ({ p
   expect(after.y - before.y).toBeCloseTo(40, 0)
 })
 
+/**
+ * A window each, rather than eight pulls on one. Stacked up they walk the top
+ * edge into the menu bar, which clamps it, and then the test is measuring the
+ * clamp instead of the handle.
+ */
 test('each of the eight handles resizes on its own axis', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
 
   for (const handle of handles) {
+    const finder = await openWindow(page, 'Finder', FINDER)
     const before = await boxOf(finder)
     const dx = handle.includes('e') ? 30 : handle.includes('w') ? -30 : 0
     const dy = handle.includes('n') ? -30 : handle.includes('s') ? 30 : 0
@@ -89,15 +94,18 @@ test('each of the eight handles resizes on its own axis', async ({ page }) => {
     const after = await boxOf(finder)
     expect.soft(Math.round(after.width - before.width), `${handle} width`).toBe(Math.abs(dx))
     expect.soft(Math.round(after.height - before.height), `${handle} height`).toBe(Math.abs(dy))
+
+    await finder.getByRole('button', { name: `Close ${FINDER}` }).click()
+    await expect(finder).toHaveCount(0)
   }
 })
 
 test('the red button closes, the yellow one sends the window to the dock', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const placed = await boxOf(finder)
 
-  await page.getByRole('button', { name: 'Minimise Finder' }).click()
+  await page.getByRole('button', { name: `Minimise ${FINDER}` }).click()
   await expect(finder).toBeHidden()
   await expect(page.getByTestId('running-finder')).toHaveCSS('opacity', '1')
 
@@ -108,7 +116,7 @@ test('the red button closes, the yellow one sends the window to the dock', async
   await settled(finder)
   expect(await boxOf(finder)).toEqual(placed)
 
-  await page.getByRole('button', { name: 'Close Finder' }).click()
+  await page.getByRole('button', { name: `Close ${FINDER}` }).click()
   await expect(finder).toHaveCount(0)
   await expect(page.getByTestId('running-finder')).toHaveCSS('opacity', '0')
 })
@@ -117,24 +125,24 @@ test('the green button fills the desktop under the menu bar, and gives it back',
   page,
 }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const before = await boxOf(finder)
   const screen = page.viewportSize()
   if (!screen) throw new Error('the test needs a viewport to measure against')
 
-  await page.getByRole('button', { name: 'Maximise Finder' }).click()
+  await page.getByRole('button', { name: `Maximise ${FINDER}` }).click()
 
   const full = await boxOf(finder)
   expect(full).toMatchObject({ x: 0, y: MENU_BAR, width: screen.width })
   expect(full.height).toBe(screen.height - MENU_BAR)
 
-  await page.getByRole('button', { name: 'Restore Finder' }).click()
+  await page.getByRole('button', { name: `Restore ${FINDER}` }).click()
   expect(await boxOf(finder)).toEqual(before)
 })
 
 test('a double click on the title bar zooms the window and puts it back', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const before = await boxOf(finder)
   const bar = finder.getByTestId('title-bar')
 
@@ -147,7 +155,7 @@ test('a double click on the title bar zooms the window and puts it back', async 
 
 test('clicking a window behind brings it to the front', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const safari = await openWindow(page, 'Safari')
 
   const inFront = (pane: Locator) => pane.evaluate((node) => Number(getComputedStyle(node).zIndex))
@@ -176,12 +184,12 @@ test('the keyboard alone opens a window, lands in it, and closes it', async ({ p
   await expect(page.locator(':focus')).toHaveAttribute('aria-label', 'Finder')
 
   await page.keyboard.press('Enter')
-  const finder = windowNamed(page, 'Finder')
+  const finder = windowNamed(page, FINDER)
   await expect(finder).toBeVisible()
   await expect(finder).toBeFocused()
 
   await page.keyboard.press('Tab')
-  await expect(page.locator(':focus')).toHaveAttribute('aria-label', 'Close Finder')
+  await expect(page.locator(':focus')).toHaveAttribute('aria-label', `Close ${FINDER}`)
 
   await page.keyboard.press('Escape')
   await expect(finder).toHaveCount(0)
@@ -189,7 +197,7 @@ test('the keyboard alone opens a window, lands in it, and closes it', async ({ p
 
 test('closing the front window hands the keyboard to the one underneath', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const safari = await openWindow(page, 'Safari')
   await expect(safari).toBeFocused()
 
@@ -202,7 +210,7 @@ test('closing the front window hands the keyboard to the one underneath', async 
 
 test('minimising the front window hands the keyboard down too', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const safari = await openWindow(page, 'Safari')
 
   await page.getByRole('button', { name: 'Minimise Safari' }).click()
@@ -215,7 +223,7 @@ test('pressing the dock icon of the window already in front puts the keyboard in
   page,
 }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
 
   await dockIcon(page, 'Finder').click()
   await expect(finder).toBeFocused()
@@ -228,7 +236,7 @@ test('pressing the dock icon of a window behind brings it up with the keyboard',
   page,
 }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   await openWindow(page, 'Safari')
 
   await dockIcon(page, 'Finder').click()
@@ -239,7 +247,7 @@ test('pressing the dock icon of a window behind brings it up with the keyboard',
 
 test('the first drag of a window behind both raises it and moves it', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
   const contact = await openWindow(page, 'Contact')
   const before = await boxOf(finder)
   const front = await boxOf(contact)
@@ -261,7 +269,7 @@ test('the first drag of a window behind both raises it and moves it', async ({ p
 
 test('a narrower browser pulls a window back into reach', async ({ page }) => {
   await gotoDesktop(page)
-  const finder = await openWindow(page, 'Finder')
+  const finder = await openWindow(page, 'Finder', FINDER)
 
   await dragMouse(page, finder.getByTestId('title-bar'), 900, 0)
   expect((await boxOf(finder)).x).toBeGreaterThan(800)
@@ -279,7 +287,7 @@ test.describe('on a tablet, with a finger', () => {
 
   test('the same drag moves the window', async ({ page }) => {
     await gotoDesktop(page)
-    const finder = await openWindow(page, 'Finder')
+    const finder = await openWindow(page, 'Finder', FINDER)
     const before = await boxOf(finder)
     const bar = await boxOf(finder.getByTestId('title-bar'))
     const from = { x: bar.x + bar.width / 2, y: bar.y + bar.height / 2 }
@@ -308,7 +316,7 @@ test.describe('with reduced motion', () => {
 
   test('the window is at full size the moment it opens', async ({ page }) => {
     await gotoDesktop(page)
-    const finder = await openWindow(page, 'Finder')
+    const finder = await openWindow(page, 'Finder', FINDER)
 
     const running = await finder.evaluate((node) => node.getAnimations().length)
     expect(running).toBe(0)

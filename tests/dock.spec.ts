@@ -1,5 +1,5 @@
 import { expect, type Locator, test } from '@playwright/test'
-import { apps } from '../src/desktop/apps'
+import { dockApps, offsiteApps } from '../src/desktop/apps'
 import { gotoDesktop } from './desktop'
 
 const widthOf = async (item: Locator): Promise<number> => {
@@ -14,11 +14,13 @@ const hoverCentre = async (item: Locator): Promise<void> => {
   await item.page().mouse.move(box.x + box.width / 2, box.y + box.height / 2)
 }
 
-test('the dock holds every app in the registry', async ({ page }) => {
+test('the dock holds every app a reader can start from it', async ({ page }) => {
   await gotoDesktop(page)
 
+  /* Not every app in the registry: the text and image windows are opened by
+     Finder on a file, and a dock icon carries no file to open one on. */
   const items = page.getByTestId('dock').locator('[data-dock-item]')
-  await expect(items).toHaveCount(apps.length)
+  await expect(items).toHaveCount(dockApps.length + offsiteApps.length)
 })
 
 test('the icon under the pointer grows, and the ones beside it less so', async ({ page }) => {
@@ -69,7 +71,8 @@ test('the keyboard reaches the dock and opens an app', async ({ page }) => {
   await expect(focused.getByText('Finder')).toBeVisible()
 
   await page.keyboard.press('Enter')
-  await expect(page.getByRole('region', { name: 'Finder' })).toBeVisible()
+  /* Finder is titled by the folder it opens in, which is the first in its sidebar. */
+  await expect(page.getByRole('region', { name: 'Intro' })).toBeVisible()
 })
 
 test('the offsite apps say they leave the site', async ({ page }) => {

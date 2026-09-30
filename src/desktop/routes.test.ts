@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { projects } from '@/content'
-import { windowedApps } from './apps'
+import { addressedApps, fileApps } from './apps'
 import { locations } from './locations'
 import { NOT_FOUND, routeOf, routes, showingsOf, targetAt, windowTitle } from './routes'
 
-const everyTarget = windowedApps.flatMap((app) => [
+const everyTarget = addressedApps.flatMap((app) => [
   { app: app.id },
   ...showingsOf(app.id).map((showing) => ({ app: app.id, showing: showing.slug })),
 ])
@@ -44,8 +44,13 @@ describe('the addresses and the windows', () => {
     expect(targetAt('/finder/projects/deeper')).toBeUndefined()
   })
 
-  it('leaves the address alone for the window that stands in for a miss', () => {
+  it('leaves the address alone for every window nothing points at', () => {
     expect(routeOf({ app: 'finder', showing: NOT_FOUND })).toBeUndefined()
+    expect(routeOf({ app: 'finder', showing: 'projects/streamlyne' })).toBeUndefined()
+    for (const app of fileApps) {
+      expect(routeOf({ app: app.id, showing: 'about/about.txt' }), app.id).toBeUndefined()
+      expect(routeOf({ app: app.id }), app.id).toBeUndefined()
+    }
   })
 })
 
@@ -60,7 +65,14 @@ describe('what a title bar says', () => {
     expect(windowTitle({ app: 'safari', showing: 'streamlyne' })).toBe('Streamlyne')
   })
 
-  it('is the miss itself on the 404 window', () => {
+  it('is the folder or the file for anything Finder opened', () => {
+    expect(windowTitle({ app: 'finder', showing: 'projects/streamlyne' })).toBe('Streamlyne')
+    expect(windowTitle({ app: 'text', showing: 'about/about.txt' })).toBe('about.txt')
+    expect(windowTitle({ app: 'image', showing: 'about/avatar.svg' })).toBe('avatar.svg')
+  })
+
+  it('is the miss itself on a window with nothing behind it', () => {
     expect(windowTitle({ app: 'finder', showing: NOT_FOUND })).toBe('File not found')
+    expect(windowTitle({ app: 'text', showing: 'about/nothing.txt' })).toBe('File not found')
   })
 })

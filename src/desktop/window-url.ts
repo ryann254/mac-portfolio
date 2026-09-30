@@ -18,10 +18,18 @@ import { useWindows } from './window-store'
 export function useWindowUrl(): void {
   useEffect(() => {
     const stop = useWindows.subscribe((state, before) => {
-      const route = routeOf(frontTarget(state.stack))
+      const front = frontTarget(state.stack)
+      const route = routeOf(front)
       if (route === undefined || route === globalThis.location.pathname) return
-      const opened = state.stack.length > before.stack.length
-      if (opened) globalThis.history.pushState(null, '', route)
+
+      /* An address that already names the window in front is being finished
+         rather than left behind, so it is replaced even though a window just
+         opened. `/finder` names no folder and Finder always has one, so the
+         address grows a second segment the moment the window is up, and
+         pushing that would cost the reader a back press that goes nowhere. */
+      const finishing = targetAt(globalThis.location.pathname)?.app === front?.app
+      const arrived = state.stack.length > before.stack.length
+      if (arrived && !finishing) globalThis.history.pushState(null, '', route)
       else globalThis.history.replaceState(null, '', route)
     })
 

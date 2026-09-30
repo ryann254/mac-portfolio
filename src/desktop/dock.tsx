@@ -1,7 +1,7 @@
 'use client'
 
 import { type ReactNode, useEffect, useRef } from 'react'
-import { type App, offsiteApps, opensAWindow, siteApps } from './apps'
+import { type App, dockApps, offsiteApps, opensAWindow } from './apps'
 import { putKeyboardIn } from './window-frame'
 import { isOpen } from './window-state'
 import { useWindows } from './window-store'
@@ -93,7 +93,7 @@ export function Dock() {
       className="-translate-x-1/2 absolute bottom-2.5 left-1/2 z-[76] rounded-[20px] border-[0.5px] border-white/35 bg-white/25 p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-xl backdrop-saturate-[1.7] dark:border-white/15 dark:bg-zinc-700/40"
     >
       <ul role="list" aria-label="Dock" className="flex items-end gap-[5px] sm:gap-[7px]">
-        {siteApps.map((app) => (
+        {dockApps.map((app) => (
           <DockItem key={app.id} app={app} />
         ))}
         <li aria-hidden="true" className="my-1 mx-[3px] w-px self-stretch bg-white/35" />
@@ -113,7 +113,7 @@ function DockItem({ app }: { app: App }) {
     <>
       <Label>
         {app.name}
-        {app.offsite ? ' \u2197' : ''}
+        {app.reach === 'offsite' ? ' \u2197' : ''}
       </Label>
       {/* Low priority and lazy on purpose: the boot screen covers the dock for
           the first second and a half, and React would otherwise preload all
@@ -141,7 +141,7 @@ function DockItem({ app }: { app: App }) {
   const shared =
     'group relative flex w-9 flex-col items-center rounded-xl focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-[3px] sm:w-[50px]'
 
-  if (app.offsite) {
+  if (app.reach === 'offsite') {
     return (
       <li>
         <a
