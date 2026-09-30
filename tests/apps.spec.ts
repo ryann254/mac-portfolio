@@ -79,7 +79,10 @@ test('Photos shows every screenshot and enlarges the one that is clicked', async
   await expect(photos.getByRole('img')).toHaveAttribute('alt', `The ${projects[1].name} homepage`)
   await expect(photos.getByText(projects[1].name, { exact: false })).toBeVisible()
 
-  await photos.getByRole('img').click()
+  // The whole enlarged view is the way back, and it says so at the top of it.
+  const back = photos.getByRole('button', { name: /All photos/ })
+  await expect(back).toBeVisible()
+  await back.click()
   await expect(grid).toHaveCount(projects.length)
 })
 
