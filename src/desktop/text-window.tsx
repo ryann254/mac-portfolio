@@ -13,8 +13,9 @@ export function TextWindow({ target }: { target: Target }) {
 
   return (
     <div className="h-full space-y-4 overflow-auto px-[22px] py-[18px] font-mono text-[12.5px]/[1.7] text-zinc-700 dark:text-zinc-300">
-      {file.text.map((paragraph) => (
-        <p key={paragraph} className="whitespace-pre-line">
+      {file.text.map((paragraph, at) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: a file's paragraphs never reorder, and two of them are allowed to read the same.
+        <p key={`${file.path}-${at}`} className="whitespace-pre-line">
           {paragraph}
         </p>
       ))}
