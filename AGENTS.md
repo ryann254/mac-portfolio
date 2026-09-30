@@ -21,6 +21,7 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, zustand, next-theme
 | Browser tests | `pnpm test:e2e` |
 | Production build | `pnpm build` |
 | Bundle size check | `pnpm size` |
+| Route check, after a build | `pnpm routes` |
 | Rebuild the resume PDF | `pnpm resume` |
 | Everything the fast tier runs | `pnpm check` |
 
@@ -28,6 +29,8 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, zustand, next-theme
 
 - The app registry in `src/desktop/apps.ts` is the single source for the dock, Launchpad, Spotlight, and the routes. Adding an app means adding one entry, never a branch somewhere else. An entry with a `window` size opens on the desktop; one without is drawn but not opened.
 - Every rule about which windows are up and which is in front lives in `src/desktop/window-state.ts`, and every rule about where a window sits lives in `src/desktop/window-bounds.ts`. Both are pure. `window-store.ts` is the zustand store around them and the only place that reads the viewport. A rule that ends up in a component is a rule no unit test can reach.
+- Every address on this site is generated from the registry by `src/desktop/routes.ts`, which maps a route to a window and back. A page under `src/app` renders no UI: the desktop is the root layout, and a page only says which window its address opens. `pnpm routes` fails after a build if an address the registry promises is not prerendered.
+- `src/desktop/window-url.ts` is the only place that writes browser history. The address is whichever window is in front: opening one pushes, everything else replaces, and neither happens when the address is already right, which is what stops back from pushing the entry it just left.
 - The window stack is an array in stacking order, front last. There is no z-index counter. Raising a window is a move to the end.
 - Every app component loads with `next/dynamic` on first open. The first load carries the shell only. `pnpm size` fails the build if that slips.
 - Copy goes through the `humanizer` skill before it ships. See the copy section in `PLAN.md`.

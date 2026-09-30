@@ -5,6 +5,7 @@ import { appOrder } from './apps'
 import { WindowFrame } from './window-frame'
 import { focused } from './window-state'
 import { useWindows, viewport } from './window-store'
+import { useWindowUrl } from './window-url'
 
 /**
  * Every open window. The layer itself takes no pointer events, so the desktop
@@ -20,6 +21,8 @@ import { useWindows, viewport } from './window-store'
 export function WindowLayer() {
   const stack = useWindows((store) => store.stack)
   const front = focused(stack)
+
+  useWindowUrl()
 
   /* A window dragged to the right edge of a wide screen would otherwise still
      be out there after the browser narrows, off screen with nothing to grab. */

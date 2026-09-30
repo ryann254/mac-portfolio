@@ -21,6 +21,7 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | Copy | Every visible string goes through `humanizer` before it ships. See the copy section. |
 | Performance gate | 90, not 99, decided 2026-09-24. Inter costs two points on Lighthouse's mobile score and Ryan kept the font. See the definition of done. |
 | Animation library | None, decided 2026-09-25. GSAP core and Draggable gzip to 41.8 kB, past the 40 kB line this plan set for them, and phase 4 wanted them for one scale tween. The window manager is CSS and pointer events and cost 2.7 kB. See the motion section. |
+| Plain routes | Retired in phase 5, decided 2026-09-29. `/about`, `/experience`, `/projects`, `/skills`, and `/contact` were phase 1 scaffolding so the content could be read before there was a desktop. The registry owns the URL space now, and `/contact` cannot belong to both. The content comes back inside windows in phases 6 and 7. |
 | Project thumbnails | Homepage screenshot, cropped, for Kazi&Budget, Surveva, and The Players Lounge. Streamlyne and newline use their og:image. If the mix looks uneven in the mockup, we screenshot all five. |
 
 ## Definition of done
@@ -98,13 +99,17 @@ Indexing is not a priority, but shareable links cost almost nothing in Next.js, 
 | Route | Window open on load |
 | --- | --- |
 | `/` | none, desktop with the welcome text |
-| `/finder` | Finder at About |
-| `/finder/projects`, `/finder/experience`, `/finder/skills` | Finder at that location |
-| `/safari` | Safari on the first project |
+| `/finder` | Finder |
+| `/finder/about`, `/finder/projects`, `/finder/experience`, `/finder/skills` | Finder at that folder |
+| `/safari` | Safari |
 | `/safari/[slug]` | Safari on that project |
 | `/terminal`, `/photos`, `/resume`, `/contact` | that app |
 
-Inside the desktop, opening a window calls `window.history.pushState`, which the Next.js router picks up natively. Back closes or refocuses. A refresh lands on a page that renders with that one window open. All routes come from `generateStaticParams` over the app registry, so adding an app adds its route.
+The desktop is the root layout, so all of these are the same screen and a page says only which window opens on it. `routes.ts` holds the map both ways, `generateStaticParams` walks it, and `pnpm routes` fails the build if an address the registry promises did not come out of it as a file. An app gets its route by being added to `apps.ts` and nowhere else.
+
+The address is whichever window is in front. Opening one calls `history.pushState`, which the Next.js router picks up natively, and focusing, closing, and minimising call `replaceState`, because bringing a window forward is not somewhere new to go back from. Back and forward hand the desktop an address and it rebuilds from it: the window that address names comes to the front, and `/` is the desktop with nothing on it, which is what makes back undo an open. A URL carries one window, so a second one left open behind it is not in the link a reader shares.
+
+`not-found.tsx` opens the Finder window a missing file would, over the desktop, and leaves the address alone, because no window has that address to hand back.
 
 ### Content: typed constants, like JSM, in TypeScript
 
@@ -250,17 +255,20 @@ Mac-Portfolio/
   next.config.ts
   src/
     app/
-      layout.tsx  page.tsx     boot screen and desktop
-      [app]/page.tsx           one static route per app, generateStaticParams
+      layout.tsx               the font, the boot script, and the desktop
+      page.tsx                 the bare desktop, and every page below says only
+      [app]/page.tsx           which window opens: one static route per app
       safari/[slug]/page.tsx
       finder/[location]/page.tsx
-      not-found.tsx
+      not-found.tsx            the Finder window a missing file opens
       opengraph-image.tsx  sitemap.ts  robots.ts
     content/
       profile.ts  projects.ts  experience.ts
     desktop/
-      Desktop.tsx  BootScreen.tsx  MenuBar.tsx  Dock.tsx  Welcome.tsx
-      Window.tsx  WindowWrapper.tsx
+      desktop.tsx  boot-screen.tsx  menu-bar.tsx  dock.tsx  welcome.tsx
+      window-frame.tsx  window-layer.tsx
+      routes.ts  window-url.ts     the URL space, and the one place history is written
+      locations.ts                 the four places Finder goes
       Launchpad.tsx  Spotlight.tsx  ControlCenter.tsx
       store/window.ts  store/location.ts
       apps.ts                  the app registry
@@ -326,9 +334,9 @@ Done when: those tests pass on desktop and the touch-pointer variant of the drag
 
 ### Phase 5: routing
 
-Build: a static route per app from `generateStaticParams` over the registry, `safari/[slug]` and `finder/[location]`, `pushState` on open, back and forward, `not-found.tsx` as a Finder window.
+Build: a static route per app from `generateStaticParams` over the registry, `safari/[slug]` and `finder/[location]`, `pushState` on open, back and forward, `not-found.tsx` as a Finder window. The desktop moves into the root layout, and phase 1's plain routes retire, because the registry owns the URL space now. The desktop folders open Finder at a folder instead of loading a page.
 
-Tests, unit: the route-to-app and app-to-route mapping is a bijection over the registry. Tests, browser: opening an app changes the URL without a reload, back closes it, forward reopens it, a direct load of `/safari/streamlyne` renders with that window open and focused, an unknown URL renders the 404 Finder window. Build: the `next build` route list contains every registry route.
+Tests, unit: the route-to-app and app-to-route mapping is a bijection over the registry. Tests, browser: opening an app changes the URL without a reload, back closes it, forward reopens it, a direct load of `/safari/streamlyne` renders with that window open and focused, every registry address opens the window it names, an unknown URL renders the 404 Finder window and keeps the address. Build: `pnpm routes` reads the prerender manifest and fails on an address the registry promises that the build did not write out as a file.
 
 Done when: those tests pass and the build output lists every route as static.
 

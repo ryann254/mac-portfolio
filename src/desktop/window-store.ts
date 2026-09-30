@@ -1,7 +1,8 @@
 'use client'
 
 import { create } from 'zustand'
-import type { AppId, WindowedApp } from './apps'
+import { type AppId, windowedApp } from './apps'
+import type { Target } from './routes'
 import type { Bounds, Size } from './window-bounds'
 import * as windows from './window-state'
 
@@ -16,13 +17,17 @@ import * as windows from './window-state'
  */
 export type WindowStore = {
   readonly stack: windows.Desktop
-  readonly open: (app: WindowedApp) => void
+  readonly open: (target: Target) => void
+  /** What an address asks for, which overrides the folder a window is already in. */
+  readonly show: (target: Target) => void
   readonly focus: (id: AppId) => void
   readonly close: (id: AppId) => void
   readonly minimize: (id: AppId) => void
   readonly toggleMaximized: (id: AppId) => void
   readonly place: (id: AppId, bounds: Bounds) => void
   readonly refit: (screen: Size) => void
+  /** The empty desktop, which is what the address `/` describes. */
+  readonly clear: () => void
 }
 
 /** The desktop covers the viewport, so the viewport is the screen to clamp against. */
@@ -33,12 +38,19 @@ export const viewport = (): Size => ({
 
 export const useWindows = create<WindowStore>((set) => ({
   stack: [],
-  open: (app) =>
-    set((state) => ({ stack: windows.open(state.stack, app.id, app.window, viewport()) })),
+  open: (target) =>
+    set((state) => ({
+      stack: windows.open(state.stack, target, windowedApp(target.app).window, viewport()),
+    })),
+  show: (target) =>
+    set((state) => ({
+      stack: windows.show(state.stack, target, windowedApp(target.app).window, viewport()),
+    })),
   focus: (id) => set((state) => ({ stack: windows.focus(state.stack, id) })),
   close: (id) => set((state) => ({ stack: windows.close(state.stack, id) })),
   minimize: (id) => set((state) => ({ stack: windows.minimize(state.stack, id) })),
   toggleMaximized: (id) => set((state) => ({ stack: windows.toggleMaximized(state.stack, id) })),
   place: (id, bounds) => set((state) => ({ stack: windows.place(state.stack, id, bounds) })),
   refit: (screen) => set((state) => ({ stack: windows.refit(state.stack, screen) })),
+  clear: () => set({ stack: [] }),
 }))

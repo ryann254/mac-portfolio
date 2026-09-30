@@ -8,7 +8,9 @@ import {
   useState,
 } from 'react'
 import { type AppId, appById } from './apps'
+import { MissingFile } from './missing-file'
 import { PlaceholderApp } from './placeholder-app'
+import { NOT_FOUND, windowTitle } from './routes'
 import {
   type Bounds,
   type Handle,
@@ -75,6 +77,9 @@ export function WindowFrame({
   focused: boolean
 }) {
   const app = appById(state.id)
+  /* macOS titles a Finder window after the folder it is in rather than after
+     Finder, and Safari after the page rather than after Safari. */
+  const title = windowTitle({ app: state.id, showing: state.showing })
   const { focus, close, minimize, toggleMaximized, place } = useWindows.getState()
   const root = useRef<HTMLElement>(null)
   const [gesture, setGesture] = useState<Gesture | undefined>(undefined)
@@ -148,7 +153,7 @@ export function WindowFrame({
     <section
       ref={root}
       tabIndex={-1}
-      aria-label={app.name}
+      aria-label={title}
       data-window={state.id}
       data-testid="window"
       data-focused={focused ? '' : undefined}
@@ -176,28 +181,28 @@ export function WindowFrame({
         />
         <div className="relative flex items-center gap-2 pl-3">
           <Light
-            label={`Close ${app.name}`}
+            label={`Close ${title}`}
             colour={focused ? 'bg-[#ff5f57]' : DIMMED}
             onClick={() => close(state.id)}
           />
           <Light
-            label={`Minimise ${app.name}`}
+            label={`Minimise ${title}`}
             colour={focused ? 'bg-[#febc2e]' : DIMMED}
             onClick={() => minimize(state.id)}
           />
           <Light
-            label={state.maximized ? `Restore ${app.name}` : `Maximise ${app.name}`}
+            label={state.maximized ? `Restore ${title}` : `Maximise ${title}`}
             colour={focused ? 'bg-[#28c840]' : DIMMED}
             onClick={() => toggleMaximized(state.id)}
           />
         </div>
         <span className="-translate-x-1/2 pointer-events-none absolute left-1/2 font-medium text-[13px] text-zinc-700 dark:text-zinc-200">
-          {app.name}
+          {title}
         </span>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        <PlaceholderApp app={app} />
+        {state.showing === NOT_FOUND ? <MissingFile /> : <PlaceholderApp app={app} />}
       </div>
 
       {!state.maximized &&

@@ -167,7 +167,7 @@ function DockItem({ app }: { app: App }) {
           className={shared}
           aria-label={app.name}
           onClick={() => {
-            show(app)
+            show({ app: app.id })
             putKeyboardIn(app.id)
           }}
         >

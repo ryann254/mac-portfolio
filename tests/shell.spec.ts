@@ -30,15 +30,16 @@ test('the menu bar keeps up with the minute turning over', async ({ page }) => {
   await expect(page.getByTestId('menu-clock')).toHaveText('Thu 24 Sep 6:42 PM')
 })
 
-test('the desktop folders lead to the content', async ({ page }) => {
+test('the desktop folders open Finder where they point', async ({ page }) => {
   await gotoDesktop(page)
 
-  const folders = page.getByRole('navigation', { name: 'Desktop' }).getByRole('link')
+  const folders = page.getByRole('navigation', { name: 'Desktop' }).getByRole('button')
   await expect(folders).toHaveText(['Intro', 'Projects', 'Work Experience', 'Contacts'])
 
   await folders.filter({ hasText: 'Work Experience' }).click()
-  await expect(page).toHaveURL(/\/experience$/)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
+
+  await expect(page.getByRole('region', { name: 'Experience' })).toBeVisible()
+  await expect(page).toHaveURL(/\/finder\/experience$/)
 })
 
 test('the desktop names who it belongs to', async ({ page }) => {
