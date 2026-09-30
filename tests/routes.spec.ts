@@ -52,6 +52,22 @@ test('back closes the window that was opened, and forward opens it again', async
   await expect(windowNamed(page, FINDER)).toBeVisible()
 })
 
+/**
+ * `/finder` grows a second segment the moment the window is up, because Finder
+ * is always in a folder. Pushing that instead of replacing it leaves a history
+ * entry that settles straight back, and back then goes nowhere.
+ */
+test('a direct load of `/finder` leaves one entry behind, not two', async ({ page }) => {
+  await skipBoot(page)
+  await page.goto('/')
+  await page.goto('/finder')
+  await expect(page).toHaveURL(AT_HOME)
+
+  await page.goBack()
+  await expect(page).toHaveURL(/:\d+\/$/)
+  await expect(openWindows(page)).toHaveCount(0)
+})
+
 test('back with two windows up brings the one underneath to the front', async ({ page }) => {
   await gotoDesktop(page)
   await openWindow(page, 'Finder', FINDER)

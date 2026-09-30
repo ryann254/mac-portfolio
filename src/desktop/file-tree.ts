@@ -43,7 +43,7 @@ export type ImageFile = {
 
 export type Node = Folder | TextFile | ImageFile
 
-/** Which window a file opens in. A folder opens in the Finder window it is in. */
+/** Anything in a folder that is not another folder, which is what opens a window. */
 export type FileNode = TextFile | ImageFile
 
 /** `2025-07` reads as `July 2025`, which is how a sentence says it. */

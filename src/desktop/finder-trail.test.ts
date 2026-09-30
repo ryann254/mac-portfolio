@@ -93,6 +93,17 @@ describe('the trail and the window it belongs to', () => {
     expect(where(trailAfter(trail, finderAt(undefined)))).toBe('projects')
   })
 
+  /**
+   * The 404 is a Finder window at a folder that is not there. In the trail it
+   * would send the dock's Finder icon straight back to the miss, with no
+   * sidebar in that window to get out of it.
+   */
+  it('never records a folder that is not there', () => {
+    const trail = walk('projects')
+    expect(trailAfter(trail, finderAt('not-found'))).toBe(trail)
+    expect(trailAfter(trail, finderAt('hobbies'))).toBe(trail)
+  })
+
   it('hands the window rules the folder it is pointing at', () => {
     expect(trailTarget(walk('skills'))).toEqual({ app: 'finder', showing: 'skills' })
   })

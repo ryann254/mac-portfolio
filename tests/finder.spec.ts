@@ -3,6 +3,7 @@ import { experience, profile, projects } from '../src/content'
 import { contentsOf } from '../src/desktop/file-tree'
 import {
   dockIcon,
+  FINDER,
   finderItem,
   finderPlace,
   gotoDesktop,
@@ -140,6 +141,24 @@ test('the address nothing answers to opens a Finder window that names it', async
   await missing.getByRole('link', { name: 'Back to the desktop' }).click()
   await expect(openWindows(page)).toHaveCount(0)
   expect(new URL(page.url()).pathname).toBe('/')
+})
+
+/**
+ * The 404 is a Finder window on a folder that is not there. If that folder went
+ * into the trail, the dock would hand the reader the same miss again, in a
+ * window with no sidebar to get out of it.
+ */
+test('the dock never reopens Finder on the address that missed', async ({ page }) => {
+  await gotoDesktop(page, '/finder/hobbies')
+
+  const missing = windowNamed(page, 'File not found')
+  await expect(missing).toBeVisible()
+  await missing.getByRole('link', { name: 'Back to the desktop' }).click()
+  await expect(openWindows(page)).toHaveCount(0)
+
+  await dockIcon(page, 'Finder').click()
+  await expect(windowNamed(page, FINDER)).toBeVisible()
+  await expect(windowNamed(page, 'File not found')).toHaveCount(0)
 })
 
 test('Finder opens again in the folder it was left in', async ({ page }) => {

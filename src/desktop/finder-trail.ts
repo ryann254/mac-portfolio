@@ -1,4 +1,4 @@
-import { HOME, parentOf } from './file-tree'
+import { folderAt, HOME, parentOf } from './file-tree'
 import type { Target } from './routes'
 import type { Desktop } from './window-state'
 import { find } from './window-state'
@@ -60,10 +60,15 @@ export const goUp = (trail: Trail): Trail => {
  * The trail after the windows moved. The folder the Finder window is in is the
  * truth and this only records it, so the address bar, the dock, and the folders
  * on the desktop all end up in the trail without any of them knowing about it.
+ *
+ * A folder that is not there never goes in. The 404 is a Finder window at one,
+ * and recording it would leave the trail pointing somewhere nothing answers to:
+ * the dock would reopen Finder on the miss, with no sidebar to get out of it,
+ * and Finder's own back would walk into it from a real folder.
  */
 export const trailAfter = (trail: Trail, desktop: Desktop): Trail => {
   const at = find(desktop, 'finder')?.showing
-  return at === undefined ? trail : goTo(trail, at)
+  return at === undefined || folderAt(at) === undefined ? trail : goTo(trail, at)
 }
 
 /** Where the trail says Finder is, in the shape the window rules take. */
