@@ -7,9 +7,10 @@ import { useWindows } from './window-store'
 
 /**
  * Safari. A tab per project and the project itself under it. The tabs look like
- * Safari's and are plain links between windows rather than the ARIA tab
- * pattern, which would take every project off Tab and put it behind an arrow
- * key for nothing: there is one panel and switching it changes the address.
+ * Safari's but are plain buttons marking the one in front, rather than the ARIA
+ * tab pattern, which would take every project off Tab and put it behind an
+ * arrow key for nothing: there is one panel and switching it moves the address
+ * and the window's name with it.
  *
  * There is no iframe. Three of the five sites refuse to be framed, so the window
  * shows the screenshot we took and the button goes to the real thing.
@@ -21,7 +22,7 @@ export function Safari({ target }: { target: Target }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <nav
-        aria-label="Open projects"
+        aria-label="Project tabs"
         className="flex shrink-0 gap-1.5 overflow-x-auto border-black/10 border-b-[0.5px] bg-zinc-100/70 px-3 pt-1.5 dark:border-white/10 dark:bg-zinc-900/60"
       >
         {pages.map((tab) => (
