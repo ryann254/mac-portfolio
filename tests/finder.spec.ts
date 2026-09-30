@@ -127,6 +127,12 @@ test('searching cuts the folder down and marks what matched', async ({ page }) =
   await finderPlace(page, 'skills').click()
   await expect(box).toHaveValue('')
   await expect(page.locator('[data-file]')).toHaveCount(contentsOf('skills').length)
+
+  /* And of one window, so closing Finder is the end of it too. */
+  await box.fill('nothing here either')
+  await windowNamed(page, 'Skills').getByRole('button', { name: 'Close Skills' }).click()
+  await dockIcon(page, 'Finder').click()
+  await expect(page.getByRole('searchbox', { name: 'Search this folder' })).toHaveValue('')
 })
 
 test('the address nothing answers to opens a Finder window that names it', async ({ page }) => {

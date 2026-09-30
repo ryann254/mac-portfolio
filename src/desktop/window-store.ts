@@ -31,7 +31,7 @@ export type WindowStore = {
   readonly stack: windows.Desktop
   /** Where Finder has been. Its back and forward read it, and it outlives the window. */
   readonly trail: Trail
-  /** What is typed in Finder's search box. Walking into another folder clears it. */
+  /** What is typed in Finder's search box. It holds while Finder stands still. */
   readonly finding: string
   readonly open: (target: Target) => void
   /** What an address asks for, which overrides the folder a window is already in. */
@@ -65,10 +65,14 @@ type Moved = Pick<WindowStore, 'stack' | 'trail' | 'finding'>
  * Every change to the windows comes through here, so the trail cannot fall
  * behind the folder the Finder window is actually in. There is no path that
  * moves a window and forgets to record it, because there is no other path.
+ *
+ * A search is of one folder in one window, so it survives exactly as long as
+ * Finder is open and standing still.
  */
 const moved = (was: WindowStore, stack: windows.Desktop): Moved => {
   const trail = trailAfter(was.trail, stack)
-  return { stack, trail, finding: trail === was.trail ? was.finding : '' }
+  const stillThere = trail === was.trail && windows.isOpen(stack, 'finder')
+  return { stack, trail, finding: stillThere ? was.finding : '' }
 }
 
 /** The other direction: the trail moved, so the window goes where it now points. */
@@ -98,7 +102,7 @@ export const useWindows = create<WindowStore>((set) => ({
   toggleMaximized: (id) => set((was) => moved(was, windows.toggleMaximized(was.stack, id))),
   place: (id, bounds) => set((was) => moved(was, windows.place(was.stack, id, bounds))),
   refit: (screen) => set((was) => moved(was, windows.refit(was.stack, screen))),
-  clear: () => set({ stack: [] }),
+  clear: () => set((was) => moved(was, [])),
   goTo: (path) => set((was) => walked(was, goTo(was.trail, path))),
   goBack: () => set((was) => walked(was, goBack(was.trail))),
   goForward: () => set((was) => walked(was, goForward(was.trail))),
