@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { apps, offsiteApps, siteApps, windowedApps } from './apps'
+import { addressedApps, apps, dockApps, fileApps, offsiteApps, windowedApps } from './apps'
 import { MIN_SIZE } from './window-bounds'
 
 describe('the app registry', () => {
@@ -18,19 +18,31 @@ describe('the app registry', () => {
     expect(new Set(apps.map((app) => app.id)).size).toBe(apps.length)
   })
 
-  it('splits into the apps that live here and the ones that leave', () => {
-    expect([...siteApps, ...offsiteApps]).toHaveLength(apps.length)
+  it('sorts every app into one of the three ways a reader reaches it', () => {
+    expect([...dockApps, ...offsiteApps, ...fileApps]).toHaveLength(apps.length)
     expect(offsiteApps.map((app) => app.id)).toEqual(['github', 'linkedin'])
+    expect(fileApps.map((app) => app.id)).toEqual(['text', 'image'])
   })
 
   it('sends the reader off site over https and stays relative at home', () => {
     expect(offsiteApps.every((app) => app.href?.startsWith('https://'))).toBe(true)
-    expect(siteApps.every((app) => app.href === undefined || app.href.startsWith('/'))).toBe(true)
+    expect([...dockApps, ...fileApps].every((app) => app.href === undefined)).toBe(true)
   })
 
-  it('opens every app that lives here in a window, except the Launchpad overlay', () => {
-    expect(windowedApps.map((app) => app.id)).toEqual(
-      siteApps.filter((app) => app.id !== 'launchpad').map((app) => app.id),
+  it('gives an address to every app in the dock, except the Launchpad overlay', () => {
+    expect(addressedApps.map((app) => app.id)).toEqual(
+      dockApps.filter((app) => app.id !== 'launchpad').map((app) => app.id),
+    )
+  })
+
+  /**
+   * A dock icon and a bare address both name no file, so an app that needs one
+   * can have neither. Finder is the only way into these two.
+   */
+  it('opens a window for the apps Finder opens on a file, and gives them no address', () => {
+    expect(fileApps.every((app) => app.window !== undefined)).toBe(true)
+    expect(windowedApps.filter((app) => !addressedApps.includes(app)).map((app) => app.id)).toEqual(
+      fileApps.map((app) => app.id),
     )
   })
 
@@ -42,7 +54,7 @@ describe('the app registry', () => {
   })
 
   it('lists the offsite apps last, so the dock can rule them off', () => {
-    const firstOffsite = apps.findIndex((app) => app.offsite)
-    expect(apps.slice(firstOffsite).every((app) => app.offsite)).toBe(true)
+    const firstOffsite = apps.findIndex((app) => app.reach === 'offsite')
+    expect(apps.slice(firstOffsite).every((app) => app.reach === 'offsite')).toBe(true)
   })
 })

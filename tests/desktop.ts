@@ -1,5 +1,13 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { BOOTED_KEY } from '../src/desktop/boot-state'
+import { HOME, nameAt } from '../src/desktop/file-tree'
+
+/**
+ * What the dock's Finder icon opens. A window is titled by whatever it is on,
+ * and Finder is always in a folder, so its window is named after the folder it
+ * lands in rather than after the app.
+ */
+export const FINDER = nameAt(HOME) ?? 'Finder'
 
 /**
  * Lands on the desktop with the boot already out of the way, the same as the
@@ -37,10 +45,21 @@ export const settled = async (pane: Locator) => {
   })
 }
 
-export const openWindow = async (page: Page, name: string) => {
+export const openWindow = async (page: Page, name: string, titled = name) => {
   await dockIcon(page, name).click()
-  const pane = windowNamed(page, name)
+  const pane = windowNamed(page, titled)
   await expect(pane).toBeVisible()
   await settled(pane)
   return pane
+}
+
+/** One thing in Finder's file grid, by where it is in the tree. */
+export const finderItem = (page: Page, path: string) => page.locator(`[data-file="${path}"]`)
+
+/** One of the four folders in Finder's sidebar. */
+export const finderPlace = (page: Page, slug: string) => page.locator(`[data-place="${slug}"]`)
+
+/** Opens a file or walks into a folder, the way a reader with a mouse does. */
+export const openItem = async (page: Page, path: string) => {
+  await finderItem(page, path).dblclick()
 }

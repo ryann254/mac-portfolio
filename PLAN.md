@@ -22,6 +22,8 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | Performance gate | 90, not 99, decided 2026-09-24. Inter costs two points on Lighthouse's mobile score and Ryan kept the font. See the definition of done. |
 | Animation library | None, decided 2026-09-25. GSAP core and Draggable gzip to 41.8 kB, past the 40 kB line this plan set for them, and phase 4 wanted them for one scale tween. The window manager is CSS and pointer events and cost 2.7 kB. See the motion section. |
 | Plain routes | Retired in phase 5, decided 2026-09-29. `/about`, `/experience`, `/projects`, `/skills`, and `/contact` were phase 1 scaffolding so the content could be read before there was a desktop. The registry owns the URL space now, and `/contact` cannot belong to both. The content comes back inside windows in phases 6 and 7. |
+| How an app is reached | One field on each registry entry, decided 2026-09-30. Phase 6 needs two windows with no dock icon and no address, because Finder opens them on a file and neither a dock icon nor a bare address carries one. `reach` says `desktop`, `offsite`, or `file`, and the dock, the routes, and the window manager each read it instead of a flag apiece. |
+| Finder's address | `/finder` settles to the folder it opens in, decided 2026-09-30. A Finder window is always in a folder, so `/finder` names one only until the window is up, and then the address says which folder it is. Every folder in the sidebar keeps its own address; a folder inside one does not, because Safari already has the shareable link to a project. |
 | Project thumbnails | Homepage screenshot, cropped, for Kazi&Budget, Surveva, and The Players Lounge. Streamlyne and newline use their og:image. If the mix looks uneven in the mockup, we screenshot all five. |
 
 ## Definition of done
@@ -99,7 +101,7 @@ Indexing is not a priority, but shareable links cost almost nothing in Next.js, 
 | Route | Window open on load |
 | --- | --- |
 | `/` | none, desktop with the welcome text |
-| `/finder` | Finder |
+| `/finder` | Finder, in the folder it was last in, and the address settles to that folder |
 | `/finder/about`, `/finder/projects`, `/finder/experience`, `/finder/skills` | Finder at that folder |
 | `/safari` | Safari |
 | `/safari/[slug]` | Safari on that project |
@@ -109,7 +111,7 @@ The desktop is the root layout, so all of these are the same screen and a page s
 
 The address is whichever window is in front. Opening one calls `history.pushState`, which the Next.js router picks up natively, and focusing, closing, and minimising call `replaceState`, because bringing a window forward is not somewhere new to go back from. Back and forward hand the desktop an address and it rebuilds from it: the window that address names comes to the front, and `/` is the desktop with nothing on it, which is what makes back undo an open. A URL carries one window, so a second one left open behind it is not in the link a reader shares.
 
-`not-found.tsx` opens the Finder window a missing file would, over the desktop, and leaves the address alone, because no window has that address to hand back.
+A window with nothing pointing at it leaves the address alone, and there are three of them: the text and image windows, because only a file names one and an address carries no file; a folder deeper in Finder than the sidebar goes; and the 404, which is Finder at a folder that is not there. All three fail the same check rather than each getting a rule, and `not-found.tsx` opens the last of them over the desktop.
 
 ### Content: typed constants, like JSM, in TypeScript
 
@@ -159,18 +161,18 @@ The wallpapers are drawn as SVG gradients rather than shipped as photographs. Ry
 
 | Dock icon | Shows | Content source |
 | --- | --- | --- |
-| Finder | Sidebar with About, Projects, Experience, Skills. About holds `about.txt` and `photo.jpg`, which is a drawn stand-in rather than a photograph: Ryan asked on 2026-09-24 not to put his own picture on the site. Projects holds a folder per project with `readme.txt` and the thumbnail. Experience holds one `.txt` per role. Skills holds `skills.txt`. Double-click opens the Text or Image window. | derived from `content/` |
+| Finder | Sidebar with Intro, Projects, Work Experience, Skills, and back, forward, and a search box in the title bar. Intro holds `about.txt` and `avatar.svg`, which is a drawn stand-in rather than a photograph: Ryan asked on 2026-09-24 not to put his own picture on the site. Projects holds a folder per project with `readme.txt` and the thumbnail. Work Experience holds one `.txt` per role. Skills holds `skills.txt`. Double-click or Enter opens the Text or Image window. | derived from `content/` |
 | Safari | One project at a time: URL bar with the real URL, thumbnail, description, Ryan's role, stack tags, an open-in-new-tab button, and a tab strip to switch projects. No iframe, several of the five sites block framing. | `content/projects.ts` |
 | Terminal | Skills as a neofetch-style card, then `cat skills.txt`. Stretch: typed commands `help`, `about`, `projects`, `open streamlyne`, `contact`. | `content/profile.ts` |
 | Photos | Gallery of the five project thumbnails, click to enlarge. | `content/projects.ts` |
 | Resume | The resume PDF in the browser's own viewer with a Download button. | generated from `content/` by `pnpm resume` |
 | Contact | Mail-style window. Email, LinkedIn, GitHub as rows. No form in v1. | `content/profile.ts` |
-| Text, Image | Generic file windows Finder opens. Not in the dock. | Finder |
+| Text, Image | Generic file windows Finder opens, on the near-black Preview uses for a picture. Not in the dock and no address, because neither carries a file to open them on. | Finder |
 | GitHub, LinkedIn | External links in the dock, open in a new tab. | `content/profile.ts` |
 | Launchpad | Grid of every app with search. | `apps.ts` |
 | Spotlight | Cmd+K or the menu bar icon. Searches apps, projects, skills, roles. | `content/` |
 | Control Center | Dark mode, brightness, wallpaper. Persisted to `localStorage`. | none |
-| 404 | A Finder window titled "File not found" with a link home. | none |
+| 404 | A Finder window titled "File not found", naming the address that missed, with a button home. | none |
 
 The desktop itself shows the welcome text: name, "Senior Frontend Engineer", one line, as JSM's Welcome component does. The menu bar has the Apple menu (About This Site, Sleep, Lock Screen, Restart, Shut Down), the focused app's name, and the clock. Traffic lights: red closes, yellow minimizes to the dock, green maximizes under the menu bar.
 
@@ -267,12 +269,16 @@ Mac-Portfolio/
     desktop/
       desktop.tsx  boot-screen.tsx  menu-bar.tsx  dock.tsx  welcome.tsx
       window-frame.tsx  window-layer.tsx
+      app-window.tsx           which app fills a window, and its title bar
       routes.ts  window-url.ts     the URL space, and the one place history is written
-      locations.ts                 the four places Finder goes
-      Launchpad.tsx  Spotlight.tsx  ControlCenter.tsx
-      store/window.ts  store/location.ts
+      locations.ts                 the four places Finder starts from
+      file-tree.ts                 every folder and file, derived from content/
+      finder-trail.ts              where Finder has been: back, forward, and up
+      window-state.ts  window-bounds.ts  window-store.ts
       apps.ts                  the app registry
-      apps/                    Finder  Safari  Terminal  Photos  Resume  Contact  Text  Image
+      finder.tsx  text-window.tsx  image-window.tsx  file-icon.tsx
+      safari.tsx  terminal.tsx  photos.tsx  resume.tsx  contact.tsx
+      Launchpad.tsx  Spotlight.tsx  ControlCenter.tsx
       mobile/                  HomeScreen  AppSheet
     styles/globals.css         Tailwind 4 theme tokens, light and dark
   public/
@@ -342,9 +348,9 @@ Done when: those tests pass and the build output lists every route as static.
 
 ### Phase 6: Finder, Text, and Image
 
-Build: Finder with the sidebar and the location store, the file tree derived from `content/`, Text and Image windows.
+Build: Finder with the sidebar, the trail behind back, forward, and up, and a search box over the folder it is in; the file tree derived from `content/`; the Text and Image windows. The registry gains `reach`, because those two windows have no dock icon and no address. Every app body loads with `next/dynamic`, so none of it is on the first load.
 
-Tests, unit: the derived file tree has one folder per project, one file per role, `about.txt` and `skills.txt`, and location navigation (back, forward, up) obeys the same rules as a real Finder. Tests, browser: click each sidebar location, double-click `about.txt` opens a Text window with the summary, double-click a thumbnail opens an Image window, the Finder title shows the current location.
+Tests, unit: the derived file tree has one folder per project, one file per role, `about.txt` and `skills.txt`, and the trail's back, forward, and up each leave Finder where it is at their own boundary. Tests, browser: click each sidebar location, double-click `about.txt` opens a Text window with the summary, double-click a thumbnail opens an Image window, the Finder title shows the current location, search cuts the folder down and clears when Finder leaves it, and a keyboard alone reaches the dock, Finder, and a file inside it.
 
 Done when: those tests pass and the Finder screenshot matches the approved mockup tab.
 
