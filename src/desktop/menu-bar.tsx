@@ -1,23 +1,30 @@
 'use client'
 
 import { AppleLogo } from './apple-logo'
+import { appById } from './apps'
 import { menuBarTime } from './clock'
 import { useClock } from './use-clock'
+import { focused } from './window-state'
+import { useWindows } from './window-store'
 
 /**
- * The bar across the top. The app name is Finder until phase 4 has a focused
- * window to name, and the menus are chrome rather than controls: the Apple menu
- * gets its Sleep, Lock, and Restart items in phase 8.
+ * The bar across the top. It names whichever window is in front, and Finder
+ * when there is none, which is what a Mac with an empty desktop says. The menus
+ * are chrome rather than controls: the Apple menu gets its Sleep, Lock, and
+ * Restart items in phase 8.
  */
 const MENUS = ['File', 'Edit', 'View', 'Go', 'Window', 'Help'] as const
 
 export function MenuBar() {
   const now = useClock()
+  const front = useWindows((store) => focused(store.stack))
 
   return (
     <div className="absolute inset-x-0 top-0 z-[75] flex h-7 items-center gap-4 bg-white/45 px-3 text-[13px] text-zinc-900 backdrop-blur-xl backdrop-saturate-[1.8] dark:bg-zinc-900/45 dark:text-zinc-50">
       <AppleLogo className="h-[15px] w-[15px] fill-current opacity-90" />
-      <span className="font-bold">Finder</span>
+      <span data-testid="menu-bar-app" className="font-bold">
+        {front ? appById(front).name : 'Finder'}
+      </span>
       <span className="hidden gap-[17px] md:flex">
         {MENUS.map((menu) => (
           <span key={menu}>{menu}</span>

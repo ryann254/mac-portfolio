@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { projects } from '@/content'
 import type { AppId } from './apps'
 import type { Size } from './window-bounds'
 import {
@@ -9,6 +10,7 @@ import {
   focused,
   frontTarget,
   isOpen,
+  landed,
   minimize,
   open,
   place,
@@ -209,5 +211,29 @@ describe('the window an address names', () => {
   it('opens the window when it is not up, the way a shared link arrives', () => {
     const desktop = show([], { app: 'safari', showing: 'newline' }, size, screen)
     expect(frontTarget(desktop)).toEqual({ app: 'safari', showing: 'newline' })
+  })
+})
+
+describe('what a window opens on when nothing names anything', () => {
+  it('is the first project for Safari, which is always on one', () => {
+    expect(landed([], { app: 'safari' })).toEqual({ app: 'safari', showing: projects[0].slug })
+  })
+
+  it('is where the window already is, so a dock icon does not send it back', () => {
+    const at = open([], { app: 'safari', showing: 'newline' }, size, screen)
+    expect(landed(at, { app: 'safari' })).toEqual({ app: 'safari', showing: 'newline' })
+  })
+
+  it('is whatever the caller named, when the caller named one', () => {
+    const at = open([], { app: 'safari', showing: 'newline' }, size, screen)
+    expect(landed(at, { app: 'safari', showing: 'surveva' })).toEqual({
+      app: 'safari',
+      showing: 'surveva',
+    })
+  })
+
+  /** Terminal, Photos, Resume, and Contact are one window with one address. */
+  it('is nothing for an app that is never on anything', () => {
+    expect(landed([], { app: 'terminal' })).toEqual({ app: 'terminal', showing: undefined })
   })
 })

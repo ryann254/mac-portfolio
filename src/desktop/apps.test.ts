@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { bodied } from './app-window'
 import { addressedApps, apps, dockApps, fileApps, offsiteApps, windowedApps } from './apps'
 import { MIN_SIZE } from './window-bounds'
 
@@ -51,6 +52,16 @@ describe('the app registry', () => {
       (app) => app.window.width < MIN_SIZE.width || app.window.height < MIN_SIZE.height,
     )
     expect(cramped).toEqual([])
+  })
+
+  /**
+   * Phase 4 filled a window that had no app behind it yet with a placeholder.
+   * Every one of them is built now, so an app that opens a window with nothing
+   * in it is a mistake rather than a stage, and this is where it is caught.
+   */
+  it('has something to put in every window it opens', () => {
+    const empty = windowedApps.filter((app) => !bodied.includes(app.id))
+    expect(empty.map((app) => app.id)).toEqual([])
   })
 
   it('lists the offsite apps last, so the dock can rule them off', () => {

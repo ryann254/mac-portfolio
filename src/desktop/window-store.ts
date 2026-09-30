@@ -88,12 +88,12 @@ export const useWindows = create<WindowStore>((set) => ({
   finding: '',
   open: (target) =>
     set((was) => {
-      const asked = remembered(target, was.trail)
+      const asked = windows.landed(was.stack, remembered(target, was.trail))
       return moved(was, windows.open(was.stack, asked, windowedApp(asked.app).window, viewport()))
     }),
   show: (target) =>
     set((was) => {
-      const asked = remembered(target, was.trail)
+      const asked = windows.landed(was.stack, remembered(target, was.trail))
       return moved(was, windows.show(was.stack, asked, windowedApp(asked.app).window, viewport()))
     }),
   focus: (id) => set((was) => moved(was, windows.focus(was.stack, id))),

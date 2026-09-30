@@ -1,5 +1,5 @@
 import type { AppId } from './apps'
-import type { Target } from './routes'
+import { firstShowing, type Target } from './routes'
 import { type Bounds, clampPosition, openingBounds, type Size } from './window-bounds'
 
 /**
@@ -72,6 +72,19 @@ export function open(desktop: Desktop, target: Target, size: Size, screen: Size)
     },
   ]
 }
+
+/**
+ * What a window opens on when neither the dock icon nor the address names
+ * anything. An app that is always on something opens on what its window is
+ * already on, and one whose window is not up yet on the first thing the app
+ * has, so Safari opens on a project the way a browser opens on a page rather
+ * than on nothing. Finder answers this out of its trail, which outlives its
+ * window, so `remembered` has already answered by the time this runs.
+ */
+export const landed = (desktop: Desktop, target: Target): Target =>
+  target.showing !== undefined
+    ? target
+    : { ...target, showing: find(desktop, target.app)?.showing ?? firstShowing(target.app) }
 
 /**
  * The window an address names, exactly as it names it. `open` is the dock's

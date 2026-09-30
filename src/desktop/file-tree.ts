@@ -2,6 +2,7 @@ import { experience, profile, projects } from '@/content'
 import type { Project, Role, YearMonth } from '@/content/types'
 import type { AppId } from './apps'
 import { locations } from './locations'
+import { altOf, employerOf } from './project-view'
 
 /**
  * What Finder browses. Every folder and every file is derived from
@@ -58,10 +59,6 @@ const said = (value: YearMonth): string => {
 
 const span = (role: Role): string => `${said(role.start)} to ${role.end ? said(role.end) : 'now'}`
 
-/** Where a project was built: the company whose role it sits under, or nobody's. */
-const under = (project: Project): string =>
-  experience.find((role) => role.slug === project.under)?.company ?? 'Personal project'
-
 const folder = (path: string, name: string, parent?: string): Folder => ({
   kind: 'folder',
   path,
@@ -94,7 +91,7 @@ const roleFile = (role: Role): TextFile =>
 
 const readme = (project: Project): TextFile =>
   textFile(`projects/${project.slug}`, 'readme.txt', [
-    [project.name, project.url, project.period, under(project)].join('\n'),
+    [project.name, project.url, project.period, employerOf(project)].join('\n'),
     project.tagline,
     ...project.contribution.map((line) => `- ${line}`),
     `Stack\n${project.stack.join(', ')}`,
@@ -121,12 +118,7 @@ const nodes: readonly Node[] = [
   ...projects.flatMap((project): readonly Node[] => [
     folder(`projects/${project.slug}`, project.name, 'projects'),
     readme(project),
-    imageFile(
-      `projects/${project.slug}`,
-      `${project.slug}.png`,
-      project.thumbnail,
-      `The ${project.name} homepage`,
-    ),
+    imageFile(`projects/${project.slug}`, `${project.slug}.png`, project.thumbnail, altOf(project)),
   ]),
 
   ...experience.map(roleFile),
