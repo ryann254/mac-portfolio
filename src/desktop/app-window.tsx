@@ -5,7 +5,6 @@ import type { ComponentType } from 'react'
 import { type AppId, appById } from './apps'
 import { isMissingFolder } from './file-tree'
 import { MissingFile } from './missing-file'
-import { PlaceholderApp } from './placeholder-app'
 import type { Target } from './routes'
 
 /**
@@ -21,18 +20,28 @@ type Part = ComponentType<{ target: Target }>
 
 const bodies: Partial<Record<AppId, Part>> = {
   finder: dynamic(() => import('./finder').then((module) => module.Finder)),
+  safari: dynamic(() => import('./safari').then((module) => module.Safari)),
+  terminal: dynamic(() => import('./terminal').then((module) => module.Terminal)),
+  photos: dynamic(() => import('./photos').then((module) => module.Photos)),
+  resume: dynamic(() => import('./resume-window').then((module) => module.ResumeWindow)),
+  contact: dynamic(() => import('./contact').then((module) => module.Contact)),
   text: dynamic(() => import('./text-window').then((module) => module.TextWindow)),
   image: dynamic(() => import('./image-window').then((module) => module.ImageWindow)),
 }
 
 const bars: Partial<Record<AppId, Part>> = {
   finder: dynamic(() => import('./finder').then((module) => module.FinderBar)),
+  resume: dynamic(() => import('./resume-window').then((module) => module.ResumeBar)),
 }
+
+/** Which apps have something to put in a window. `apps.test.ts` holds it to every app that opens one. */
+export const bodied: readonly string[] = Object.keys(bodies)
 
 export function AppBody({ target }: { target: Target }) {
   if (isMissingFolder(target)) return <MissingFile />
   const Body = bodies[target.app]
-  return Body ? <Body target={target} /> : <PlaceholderApp app={appById(target.app)} />
+  if (!Body) throw new Error(`${appById(target.app).name} opens a window with nothing in it`)
+  return <Body target={target} />
 }
 
 /**

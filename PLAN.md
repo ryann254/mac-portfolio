@@ -24,6 +24,8 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | Plain routes | Retired in phase 5, decided 2026-09-29. `/about`, `/experience`, `/projects`, `/skills`, and `/contact` were phase 1 scaffolding so the content could be read before there was a desktop. The registry owns the URL space now, and `/contact` cannot belong to both. The content comes back inside windows in phases 6 and 7. |
 | How an app is reached | One field on each registry entry, decided 2026-09-30. Phase 6 needs two windows with no dock icon and no address, because Finder opens them on a file and neither a dock icon nor a bare address carries one. `reach` says `desktop`, `offsite`, or `file`, and the dock, the routes, and the window manager each read it instead of a flag apiece. |
 | Finder's address | `/finder` settles to the folder it opens in, decided 2026-09-30. A Finder window is always in a folder, so `/finder` names one only until the window is up, and then the address says which folder it is. Every folder in the sidebar keeps its own address; a folder inside one does not, because Safari already has the shareable link to a project. |
+| Safari's address | `/safari` settles to the project it opens on, decided 2026-09-30. Safari is always on a project the way Finder is always in a folder, so one rule covers both: a window asked for with nothing opens on what it is already on, and a window that is not up yet on the first thing the app has. |
+| The resume viewer | The browser's own, decided 2026-09-30. Drawing a page rail and a zoom would be a second PDF renderer to keep in step with the file, and worse than the one already in the browser. A browser with no viewer, which is most of them on a phone, gets the file instead of a grey rectangle. |
 | Project thumbnails | Homepage screenshot, cropped, for Kazi&Budget, Surveva, and The Players Lounge. Streamlyne and newline use their og:image. If the mix looks uneven in the mockup, we screenshot all five. |
 
 ## Definition of done
@@ -103,7 +105,7 @@ Indexing is not a priority, but shareable links cost almost nothing in Next.js, 
 | `/` | none, desktop with the welcome text |
 | `/finder` | Finder, in the folder it was last in, and the address settles to that folder |
 | `/finder/about`, `/finder/projects`, `/finder/experience`, `/finder/skills` | Finder at that folder |
-| `/safari` | Safari |
+| `/safari` | Safari, on the project it was last on, and the address settles to that project |
 | `/safari/[slug]` | Safari on that project |
 | `/terminal`, `/photos`, `/resume`, `/contact` | that app |
 
@@ -277,7 +279,9 @@ Mac-Portfolio/
       window-state.ts  window-bounds.ts  window-store.ts
       apps.ts                  the app registry
       finder.tsx  text-window.tsx  image-window.tsx  file-icon.tsx
-      safari.tsx  terminal.tsx  photos.tsx  resume.tsx  contact.tsx
+      project-view.ts              a project's employer, host, and picture
+      safari-tabs.ts  terminal-transcript.ts  contact-rows.ts  resume-file.ts
+      safari.tsx  terminal.tsx  photos.tsx  resume-window.tsx  contact.tsx
       Launchpad.tsx  Spotlight.tsx  ControlCenter.tsx
       mobile/                  HomeScreen  AppSheet
     styles/globals.css         Tailwind 4 theme tokens, light and dark
@@ -356,9 +360,9 @@ Done when: those tests pass and the Finder screenshot matches the approved mocku
 
 ### Phase 7: the content apps
 
-Build: Safari, Terminal (static transcript), Photos, Resume, Contact.
+Build: Safari, Terminal (static transcript), Photos, Resume, Contact. Each one is a pure view model over `content/` with a window around it, and the window is a body and, where the app has controls, a title bar. The two facts a project has that no content file writes down, its employer and its host, move into `project-view.ts` so Finder, Safari, and Photos say them the same way. Every app that opens a window now has something to put in it, so phase 4's placeholder goes and the menu bar names the window in front rather than always saying Finder.
 
-Tests, unit: each app's view model is a pure function of `content/` and is snapshot tested. Tests, browser: Safari shows every project in its tab strip and the open-in-new-tab button has `target="_blank"` and `rel="noopener"`, Terminal lists every skill group, Photos shows five thumbnails and enlarges on click, Resume renders the PDF viewer and the Download button points at `/resume.pdf`, Contact's three rows link to the right places. Screenshots of each app in both themes.
+Tests, unit: each app's view model is derived from `content/` and tested against it rather than against a list, so a project added to the CV turns up as a tab, a picture, and a folder with no other edit. Tests, browser: Safari shows every project in its tab strip and the open-in-new-tab button has `target="_blank"` and `rel="noopener"`, Terminal lists every skill group, Photos shows five thumbnails and enlarges on click, Resume hands the PDF to the browser and the Download button points at `/resume.pdf`, Contact's three rows link where the content says, and the menu bar follows the front window. Screenshots of each app in both themes.
 
 Done when: those tests pass and every app's screenshot matches its mockup tab.
 

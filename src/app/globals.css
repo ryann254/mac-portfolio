@@ -198,6 +198,13 @@ body {
   }
 }
 
+/* The caret at Terminal's prompt, which is the one thing in that window alive. */
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-window] {
     animation: none;

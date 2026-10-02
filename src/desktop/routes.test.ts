@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { projects } from '@/content'
 import { addressedApps, fileApps } from './apps'
 import { locations } from './locations'
-import { NOT_FOUND, routeOf, routes, showingsOf, targetAt, windowTitle } from './routes'
+import {
+  firstShowing,
+  NOT_FOUND,
+  routeOf,
+  routes,
+  showingsOf,
+  targetAt,
+  windowTitle,
+} from './routes'
 
 const everyTarget = addressedApps.flatMap((app) => [
   { app: app.id },
@@ -74,5 +82,17 @@ describe('what a title bar says', () => {
   it('is the miss itself on a window with nothing behind it', () => {
     expect(windowTitle({ app: 'finder', showing: NOT_FOUND })).toBe('File not found')
     expect(windowTitle({ app: 'text', showing: 'about/nothing.txt' })).toBe('File not found')
+  })
+})
+
+describe('what an app is on before anything says', () => {
+  it('is the first thing it answers to, for the two apps that are always on one', () => {
+    expect(firstShowing('finder')).toBe(locations[0].slug)
+    expect(firstShowing('safari')).toBe(projects[0].slug)
+  })
+
+  it('is nothing for an app that is one window with one address', () => {
+    expect(firstShowing('contact')).toBeUndefined()
+    expect(firstShowing('terminal')).toBeUndefined()
   })
 })

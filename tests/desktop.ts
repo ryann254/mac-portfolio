@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { BOOTED_KEY } from '../src/desktop/boot-state'
 import { HOME, nameAt } from '../src/desktop/file-tree'
+import { showingsOf } from '../src/desktop/routes'
 
 /**
  * What the dock's Finder icon opens. A window is titled by whatever it is on,
@@ -8,6 +9,13 @@ import { HOME, nameAt } from '../src/desktop/file-tree'
  * lands in rather than after the app.
  */
 export const FINDER = nameAt(HOME) ?? 'Finder'
+
+/**
+ * What the dock's Safari icon opens. A Safari window is always on a project, so
+ * a dock icon that names none opens on the first one and the window wears its
+ * name.
+ */
+export const SAFARI = showingsOf('safari')[0].name
 
 /**
  * Lands on the desktop with the boot already out of the way, the same as the

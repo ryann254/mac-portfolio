@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 import { handles, MENU_BAR } from '../src/desktop/window-bounds'
-import { dockIcon, FINDER, gotoDesktop, openWindow, settled, windowNamed } from './desktop'
+import { dockIcon, FINDER, gotoDesktop, openWindow, SAFARI, settled, windowNamed } from './desktop'
 
 test.skip(
   ({ isMobile }) => Boolean(isMobile),
@@ -28,15 +28,15 @@ test('a dock icon opens its window', async ({ page }) => {
   await gotoDesktop(page)
   await expect(page.getByTestId('windows').getByRole('region')).toHaveCount(0)
 
-  const safari = await openWindow(page, 'Safari')
+  const safari = await openWindow(page, 'Safari', SAFARI)
 
-  await expect(safari.getByRole('heading')).toHaveText('Safari opens here once it is built')
+  await expect(safari.getByRole('heading', { level: 2 })).toHaveText(SAFARI)
   await expect(page.getByTestId('running-safari')).toHaveCSS('opacity', '1')
 })
 
 test('opening the same app twice leaves one window', async ({ page }) => {
   await gotoDesktop(page)
-  await openWindow(page, 'Safari')
+  await openWindow(page, 'Safari', SAFARI)
   await dockIcon(page, 'Safari').click()
 
   await expect(page.getByTestId('windows').getByRole('region')).toHaveCount(1)
@@ -156,7 +156,7 @@ test('a double click on the title bar zooms the window and puts it back', async 
 test('clicking a window behind brings it to the front', async ({ page }) => {
   await gotoDesktop(page)
   const finder = await openWindow(page, 'Finder', FINDER)
-  const safari = await openWindow(page, 'Safari')
+  const safari = await openWindow(page, 'Safari', SAFARI)
 
   const inFront = (pane: Locator) => pane.evaluate((node) => Number(getComputedStyle(node).zIndex))
 
@@ -198,10 +198,10 @@ test('the keyboard alone opens a window, lands in it, and closes it', async ({ p
 test('closing the front window hands the keyboard to the one underneath', async ({ page }) => {
   await gotoDesktop(page)
   const finder = await openWindow(page, 'Finder', FINDER)
-  const safari = await openWindow(page, 'Safari')
+  const safari = await openWindow(page, 'Safari', SAFARI)
   await expect(safari).toBeFocused()
 
-  await page.getByRole('button', { name: 'Close Safari' }).click()
+  await page.getByRole('button', { name: `Close ${SAFARI}` }).click()
 
   await expect(finder).toBeFocused()
   await page.keyboard.press('Escape')
@@ -211,9 +211,9 @@ test('closing the front window hands the keyboard to the one underneath', async 
 test('minimising the front window hands the keyboard down too', async ({ page }) => {
   await gotoDesktop(page)
   const finder = await openWindow(page, 'Finder', FINDER)
-  const safari = await openWindow(page, 'Safari')
+  const safari = await openWindow(page, 'Safari', SAFARI)
 
-  await page.getByRole('button', { name: 'Minimise Safari' }).click()
+  await page.getByRole('button', { name: `Minimise ${SAFARI}` }).click()
 
   await expect(finder).toBeFocused()
   await expect(safari).toBeHidden()
@@ -237,7 +237,7 @@ test('pressing the dock icon of a window behind brings it up with the keyboard',
 }) => {
   await gotoDesktop(page)
   const finder = await openWindow(page, 'Finder', FINDER)
-  await openWindow(page, 'Safari')
+  await openWindow(page, 'Safari', SAFARI)
 
   await dockIcon(page, 'Finder').click()
 

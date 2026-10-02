@@ -41,6 +41,12 @@ const showings: Partial<Record<AppId, readonly Showing[]>> = {
 export const showingsOf = (app: AppId): readonly Showing[] => showings[app] ?? []
 
 /**
+ * What an app that is always on something opens on when nothing names one, and
+ * undefined for the apps that are one window with one address.
+ */
+export const firstShowing = (app: AppId): string | undefined => showingsOf(app)[0]?.slug
+
+/**
  * Where the address bar points with this window in front, and undefined when
  * nothing points at it. Three windows have no address and they all fail the same
  * check rather than each getting a rule: the text and image windows, because

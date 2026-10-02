@@ -1,4 +1,5 @@
 import { expect, type Locator, test } from '@playwright/test'
+import { projects } from '../src/content'
 import { HOME } from '../src/desktop/file-tree'
 import { routes } from '../src/desktop/routes'
 import {
@@ -7,6 +8,7 @@ import {
   gotoDesktop,
   openWindow,
   openWindows,
+  SAFARI,
   skipBoot,
   windowNamed,
 } from './desktop'
@@ -23,6 +25,9 @@ test.skip(
  */
 const AT_HOME = new RegExp(`/finder/${HOME}$`)
 
+/** The same, for Safari, which is always on a project the way Finder is always in a folder. */
+const ON_FIRST_PROJECT = new RegExp(`/safari/${projects[0].slug}$`)
+
 const boxOf = async (item: Locator) => {
   const box = await item.boundingBox()
   if (!box) throw new Error('that window is not on screen to be measured')
@@ -33,9 +38,9 @@ test('opening an app writes its address without reloading the page', async ({ pa
   await gotoDesktop(page)
   await page.evaluate(() => Object.assign(window, { neverReloaded: true }))
 
-  await openWindow(page, 'Safari')
+  await openWindow(page, 'Safari', SAFARI)
 
-  await expect(page).toHaveURL(/\/safari$/)
+  await expect(page).toHaveURL(ON_FIRST_PROJECT)
   expect(await page.evaluate(() => 'neverReloaded' in window)).toBe(true)
 })
 
@@ -71,8 +76,8 @@ test('a direct load of `/finder` leaves one entry behind, not two', async ({ pag
 test('back with two windows up brings the one underneath to the front', async ({ page }) => {
   await gotoDesktop(page)
   await openWindow(page, 'Finder', FINDER)
-  await openWindow(page, 'Safari')
-  await expect(page).toHaveURL(/\/safari$/)
+  await openWindow(page, 'Safari', SAFARI)
+  await expect(page).toHaveURL(ON_FIRST_PROJECT)
 
   await page.goBack()
 
@@ -124,7 +129,7 @@ test('the address follows the window in front', async ({ page }) => {
 test('back leaves the window where the address it lands on says', async ({ page }) => {
   await gotoDesktop(page)
   await openWindow(page, 'Finder', FINDER)
-  await openWindow(page, 'Safari')
+  await openWindow(page, 'Safari', SAFARI)
 
   // The folder sends Finder somewhere without opening a window, so it replaces
   // the address rather than pushing one.
