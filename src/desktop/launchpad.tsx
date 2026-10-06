@@ -54,6 +54,7 @@ export function Launchpad() {
       ) : (
         <ul
           role="list"
+          aria-label="Apps"
           data-testid="launchpad-apps"
           className="grid grid-cols-3 gap-x-10 gap-y-8 sm:grid-cols-5 lg:grid-cols-7"
         >

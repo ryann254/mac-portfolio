@@ -42,7 +42,7 @@ export function MenuBar() {
         ))}
       </span>
       <span className="ml-auto flex items-center gap-[15px]">
-        <span className="hidden items-center gap-[13px] sm:flex">
+        <span className="hidden items-center gap-[15px] sm:flex">
           <StatusIcon
             title="Wi-Fi"
             path="M12 18.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm0-4.6c1.3 0 2.5.5 3.4 1.4l-1.4 1.4a2.9 2.9 0 0 0-4 0l-1.4-1.4a4.8 4.8 0 0 1 3.4-1.4zm0-4.2c2.4 0 4.6.9 6.3 2.5l-1.4 1.4a7 7 0 0 0-9.8 0l-1.4-1.4A8.9 8.9 0 0 1 12 9.7zm0-4.2c3.5 0 6.7 1.3 9.1 3.5l-1.4 1.4a11.2 11.2 0 0 0-15.4 0L2.9 9A13.1 13.1 0 0 1 12 5.5z"

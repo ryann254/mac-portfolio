@@ -34,7 +34,9 @@ export function SystemCurtain() {
 /**
  * The whole screen is the button, the way the whole machine is while it sleeps.
  * A Mac shows nothing at all here, which on a web page reads as a site that has
- * crashed, so the one line it holds is both the hint and the button's name.
+ * crashed, so the one line it holds is both the hint and the button's name. It
+ * is dim rather than faint: the first draft was white at 35%, which is 2.9:1 on
+ * black, and `tests/system.spec.ts` now holds it to 4.5.
  */
 function DarkScreen({ curtain, onLift }: { curtain: Curtain; onLift: () => void }) {
   const press = useRef<HTMLButtonElement>(null)
@@ -51,7 +53,7 @@ function DarkScreen({ curtain, onLift }: { curtain: Curtain; onLift: () => void 
       type="button"
       data-testid="dark-screen"
       onClick={onLift}
-      className="absolute inset-0 z-[90] cursor-default bg-black text-center text-[13px] text-white/35 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white/40"
+      className="absolute inset-0 z-[90] cursor-default bg-black text-center text-[13px] text-white/55 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white/40"
     >
       {curtain.label}
     </button>

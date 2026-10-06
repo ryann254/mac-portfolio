@@ -21,12 +21,15 @@ export function AppleMenu() {
   ]
 
   return (
-    <nav
-      aria-label="Apple menu"
+    /* A labelled list of buttons rather than a `nav` or an ARIA menu. These are
+       five things to do rather than five places to go, and the ARIA menu
+       pattern would take them all off Tab and behind the arrow keys, which is
+       the same trade Safari's tab strip turned down in phase 7. */
+    <div
       data-testid="apple-menu"
       className="pointer-events-auto absolute top-7 left-1.5 w-[208px] rounded-lg border-[0.5px] border-black/15 bg-white/80 p-1.5 shadow-[0_16px_44px_rgba(0,0,0,0.3)] backdrop-blur-2xl backdrop-saturate-150 motion-safe:animate-[panel-in_120ms_ease-out] dark:border-white/15 dark:bg-zinc-800/80"
     >
-      <ul role="list" className="text-[13px]">
+      <ul role="list" aria-label="Apple menu" className="text-[13px]">
         {items.map((item, index) => (
           <li
             key={item.label}
@@ -48,6 +51,6 @@ export function AppleMenu() {
           </li>
         ))}
       </ul>
-    </nav>
+    </div>
   )
 }
