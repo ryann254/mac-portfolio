@@ -38,7 +38,7 @@ export function AboutThisSite() {
         id="about-this-site"
         className="mt-3.5 font-semibold text-[17px] text-zinc-900 dark:text-zinc-50"
       >
-        {profile.name}, in a desktop
+        {profile.name}'s portfolio
       </h2>
       <p className="mt-1 text-[12.5px] text-zinc-600 dark:text-zinc-400">
         {profile.headline} in {profile.location}
