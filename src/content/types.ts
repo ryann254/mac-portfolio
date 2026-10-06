@@ -49,6 +49,19 @@ export type Role = {
   readonly bullets: readonly string[]
 }
 
+/**
+ * A number the work moved, in the fewest words that still say what it is.
+ * `src/content/content.test.ts` holds every one of these to a number the
+ * project's own sentences already say, so a tile cannot claim something the
+ * write-up does not.
+ */
+export type Result = {
+  /** The number as it is written, per cent sign and all. */
+  readonly value: string
+  /** What it is a number of. A few words, no sentence. */
+  readonly of: string
+}
+
 export type Project = {
   readonly slug: string
   readonly name: string
@@ -60,6 +73,8 @@ export type Project = {
   readonly under: string
   readonly period: string
   readonly stack: readonly string[]
+  /** What it did, in numbers. A project whose work has none shows none. */
+  readonly results: readonly Result[]
   readonly thumbnail: `/projects/${string}`
   readonly thumbnailNote: string
 }

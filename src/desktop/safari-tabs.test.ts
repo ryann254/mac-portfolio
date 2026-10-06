@@ -19,10 +19,22 @@ describe('what Safari has open', () => {
         tagline: project.tagline,
         contribution: project.contribution,
         stack: project.stack,
+        results: project.results,
         employer: employerOf(project),
         period: project.period,
         shot: shots[at],
       })
+    }
+  })
+
+  it('shows the figures a project has and none for a project with none', () => {
+    const withFigures = pages.filter((page) => page.results.length > 0)
+    expect(withFigures.length).toBeGreaterThan(0)
+    expect(withFigures.length).toBeLessThan(pages.length)
+    for (const page of pages) {
+      expect(page.results, page.slug).toEqual(
+        projects.find((project) => project.slug === page.slug)?.results,
+      )
     }
   })
 

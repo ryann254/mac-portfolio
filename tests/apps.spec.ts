@@ -33,6 +33,23 @@ test('a tab takes the window, the title, and the address with it', async ({ page
   await expect(page).toHaveURL(new RegExp(`/safari/${third.slug}$`))
 })
 
+test('a project shows the figures it has, and a project with none shows none', async ({ page }) => {
+  const [withFigures] = projects.filter((project) => project.results.length > 0)
+  const [without] = projects.filter((project) => project.results.length === 0)
+
+  await gotoDesktop(page, `/safari/${withFigures.slug}`)
+  const shown = windowNamed(page, withFigures.name)
+  await expect(shown.locator('[data-result]')).toHaveCount(withFigures.results.length)
+  for (const result of withFigures.results) {
+    await expect(shown.locator(`[data-result="${result.value}"]`)).toContainText(result.of)
+  }
+
+  await page.locator(`[data-tab="${without.slug}"]`).click()
+  const bare = windowNamed(page, without.name)
+  await expect(bare).toBeVisible()
+  await expect(bare.locator('[data-result]')).toHaveCount(0)
+})
+
 /**
  * The window shows our own screenshot rather than the site in a frame, because
  * three of the five refuse to be framed. So the one way to the real thing is

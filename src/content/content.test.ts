@@ -118,3 +118,32 @@ describe('the site is not an application to one employer', () => {
     expect(everything).not.toMatch(/moniepoint/i)
   })
 })
+
+describe('the figures a project claims', () => {
+  it('says what every number is a number of, in a few words', () => {
+    for (const project of projects) {
+      for (const result of project.results) {
+        expect(result.value, project.slug).toMatch(/\d/)
+        expect(result.of.length, `${project.slug}: ${result.of}`).toBeLessThanOrEqual(32)
+        expect(result.of, project.slug).not.toMatch(/\.$/)
+      }
+    }
+  })
+
+  it('claims no number the project does not already say in its own words', () => {
+    for (const project of projects) {
+      const said = project.contribution.join(' ')
+      for (const result of project.results) {
+        expect(said, `${project.slug} says ${result.value}`).toContain(
+          result.value.replace(/[%+]/g, ''),
+        )
+      }
+    }
+  })
+
+  it('shows at most two, because a page of figures has none', () => {
+    for (const project of projects) {
+      expect(project.results.length, project.slug).toBeLessThanOrEqual(2)
+    }
+  })
+})

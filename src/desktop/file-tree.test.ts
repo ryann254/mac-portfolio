@@ -48,19 +48,45 @@ describe('the tree Finder browses', () => {
   it('has the intro and the skills the content has', () => {
     expect(names('about')).toEqual(['about.txt', 'avatar.svg'])
     expect(names('skills')).toEqual(['skills.txt'])
-    expect(fileAt('about/about.txt')).toMatchObject({ kind: 'text', text: profile.summary })
+    expect(fileAt('about/about.txt')).toMatchObject({
+      kind: 'text',
+      title: profile.name,
+      blocks: profile.summary.map((text) => ({ kind: 'paragraph', text })),
+    })
     const skills = fileAt('skills/skills.txt')
-    expect(skills?.kind === 'text' && skills.text).toHaveLength(profile.skillGroups.length)
+    expect(skills?.kind === 'text' && skills.blocks).toEqual(
+      profile.skillGroups.map((group) => ({
+        kind: 'tags',
+        label: group.name,
+        items: group.skills,
+      })),
+    )
   })
 
   it('writes a role file out of the role, down to the last bullet', () => {
     const role = experience[0]
     const file = fileAt(`experience/${role.slug}.txt`)
-    expect(file?.kind).toBe('text')
-    const text = file?.kind === 'text' ? file.text : []
-    expect(text[0]).toContain(role.company)
-    expect(text[0]).toContain(role.title)
-    expect(text).toHaveLength(role.bullets.length + 1)
+    expect(file).toMatchObject({
+      kind: 'text',
+      title: role.title,
+      blocks: [{ kind: 'list', items: role.bullets }],
+    })
+    expect(file?.kind === 'text' && file.subtitle).toContain(role.company)
+  })
+
+  it('writes a readme out of the project, with its link and its stack', () => {
+    const project = projects[0]
+    const file = fileAt(`projects/${project.slug}/readme.txt`)
+    expect(file).toMatchObject({
+      kind: 'text',
+      title: project.name,
+      link: project.url,
+      blocks: [
+        { kind: 'paragraph', text: project.tagline },
+        { kind: 'list', items: project.contribution },
+        { kind: 'tags', label: 'Stack', items: project.stack },
+      ],
+    })
   })
 
   it('says when a role is still running and when it ended', () => {
@@ -68,7 +94,7 @@ describe('the tree Finder browses', () => {
     const past = experience.find((role) => role.end !== undefined)
     const said = (slug: string) => {
       const file = fileAt(`experience/${slug}.txt`)
-      return file?.kind === 'text' ? file.text[0] : ''
+      return file?.kind === 'text' ? file.subtitle : ''
     }
     expect(current && said(current.slug)).toContain('to now')
     expect(past && said(past.slug)).not.toContain('to now')

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { Prose } from './prose'
 import type { Target } from './routes'
 import { type Page, pageAt, pages } from './safari-tabs'
 import { useWindows } from './window-store'
@@ -44,61 +45,97 @@ export function Safari({ target }: { target: Target }) {
         <span className="truncate text-zinc-800 dark:text-zinc-100">{page.host}</span>
       </p>
 
-      <div className="@container min-h-0 flex-1 overflow-auto px-[22px] pb-[18px]">
+      <div className="@container min-h-0 flex-1 overflow-auto">
         <Reading page={page} />
       </div>
     </div>
   )
 }
 
-/** One project, read the way a page about it would be laid out. */
+/**
+ * One project. The screenshot runs the full width of the window, which is what
+ * a browser showing a site looks like, and fades out at the bottom rather than
+ * stopping mid-sentence on whatever the site's own headline happens to say.
+ * Nothing is set over it for the same reason.
+ */
 function Reading({ page }: { page: Page }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-[22px] @[620px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <div>
-        <Image
-          src={page.shot.src}
-          alt={page.shot.alt}
-          width={640}
-          height={400}
-          className="aspect-[16/10] w-full rounded-[9px] object-cover shadow-[0_2px_14px_rgba(0,0,0,0.2)]"
-        />
-        <ul role="list" className="mt-2.5 flex flex-wrap gap-1.5">
-          {page.stack.map((tool) => (
-            <li
-              key={tool}
-              className="rounded-full bg-black/[0.06] px-2.5 py-[3px] text-[11.5px] text-zinc-500 dark:bg-white/10 dark:text-zinc-400"
-            >
-              {tool}
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div className="flex flex-col">
+      <Image
+        key={page.slug}
+        src={page.shot.src}
+        alt={page.shot.alt}
+        width={1200}
+        height={520}
+        className="h-[148px] w-full shrink-0 object-cover object-top [mask-image:linear-gradient(to_bottom,#000_68%,transparent)] @[560px]:h-[206px]"
+      />
 
-      <div>
-        <h2 className="mb-1 font-[650] text-[19px] text-zinc-900 tracking-[-0.015em] dark:text-zinc-50">
-          {page.name}
-        </h2>
-        <p className="text-[13px] text-zinc-500 dark:text-zinc-400">{page.tagline}</p>
-        <div className="mt-3 space-y-[11px] text-[13.5px]/[1.62] text-zinc-700 dark:text-zinc-300">
-          {page.contribution.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </div>
-        <p className="mt-3 text-[13px] text-zinc-500 dark:text-zinc-400">
-          {page.employer} · {page.period}
-        </p>
-        <p className="mt-3.5">
+      <div className="flex flex-col gap-3.5 px-[22px] pb-[18px]">
+        <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-2.5">
+          <div>
+            <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
+              {page.name}
+            </h2>
+            <p className="mt-[3px] max-w-[62ch] text-[13.5px] text-zinc-500 dark:text-zinc-400">
+              {page.tagline}
+            </p>
+          </div>
           <a
             href={page.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-[7px] bg-sky-600 px-[13px] py-1.5 font-medium text-[13px] text-white hover:bg-sky-700 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:outline-offset-2"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-[7px] bg-sky-600 px-[13px] py-[7px] font-medium text-[13px] text-white hover:bg-sky-700 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:outline-offset-2"
           >
             Open {page.host}
             <Leaving />
           </a>
-        </p>
+        </div>
+
+        {page.results.length > 0 && (
+          <ul role="list" className="flex flex-wrap gap-2.5">
+            {page.results.map((result) => (
+              <li
+                key={result.of}
+                data-result={result.value}
+                className="min-w-[180px] flex-1 rounded-[9px] bg-black/[0.05] px-[13px] py-[9px] dark:bg-white/[0.08]"
+              >
+                <b className="block font-[680] text-[21px] text-sky-700 tracking-[-0.02em] dark:text-sky-400">
+                  {result.value}
+                </b>
+                <span className="mt-px block text-[12px] text-zinc-500 dark:text-zinc-400">
+                  {result.of}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="@[560px]:columns-2 @[560px]:gap-x-[26px]">
+          {page.contribution.map((line) => (
+            <p
+              key={line}
+              className="mb-2.5 break-inside-avoid text-[13.5px]/[1.66] text-zinc-700 dark:text-zinc-300"
+            >
+              <Prose sentence={line} />
+            </p>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <ul role="list" className="flex flex-wrap gap-1.5">
+            {page.stack.map((tool) => (
+              <li
+                key={tool}
+                className="rounded-full bg-black/[0.06] px-2.5 py-[3px] text-[11.5px] text-zinc-500 dark:bg-white/10 dark:text-zinc-400"
+              >
+                {tool}
+              </li>
+            ))}
+          </ul>
+          <p className="text-[12.5px] text-zinc-500 dark:text-zinc-400">
+            {page.employer} · {page.period}
+          </p>
+        </div>
       </div>
     </div>
   )
