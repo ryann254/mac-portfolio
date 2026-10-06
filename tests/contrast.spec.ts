@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { PNG } from 'pngjs'
+import { wallpapers } from '../src/desktop/appearance'
 import { contrastRatio, type Rgb, requiredRatio } from '../src/lib/contrast'
-import { gotoDesktop } from './desktop'
+import { chooseAppearance, gotoDesktop } from './desktop'
 
 /**
  * Lighthouse skips contrast for text over an SVG or gradient, which is exactly
@@ -53,35 +54,36 @@ async function lightestPixelBehind(
 
 const WHITE: Rgb = [255, 255, 255]
 
-test('the name stays readable over the wallpaper', async ({ page }) => {
-  await gotoDesktop(page)
+/**
+ * Every wallpaper in both themes, because the reader picks both from phase 8 on
+ * and a palette that reads well in one can wash out in another. One test per
+ * palette rather than one per line of text: the same four screenshots either
+ * way, and a failure names the wallpaper and then the line.
+ */
+for (const wallpaper of wallpapers) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`${wallpaper.name} in ${theme} keeps every word over it readable`, async ({ page }) => {
+      await chooseAppearance(page, { wallpaper: wallpaper.id, theme })
+      await gotoDesktop(page)
 
-  const behind = await lightestPixelBehind(page, 'h1')
-  expect(contrastRatio(behind, WHITE)).toBeGreaterThanOrEqual(requiredRatio(true))
-})
+      const lines: readonly [string, boolean][] = [
+        ['h1', true],
+        ['[data-testid="welcome-role"]', false],
+        ['[data-testid="welcome-tagline"]', false],
+      ]
+      for (const [selector, large] of lines) {
+        const behind = await lightestPixelBehind(page, selector)
+        expect(contrastRatio(behind, WHITE), selector).toBeGreaterThanOrEqual(requiredRatio(large))
+      }
 
-test('the job title stays readable over the wallpaper', async ({ page }) => {
-  await gotoDesktop(page)
-
-  const behind = await lightestPixelBehind(page, '[data-testid="welcome-role"]')
-  expect(contrastRatio(behind, WHITE)).toBeGreaterThanOrEqual(requiredRatio(false))
-})
-
-test('the line under the title stays readable over the wallpaper', async ({ page }) => {
-  await gotoDesktop(page)
-
-  const behind = await lightestPixelBehind(page, '[data-testid="welcome-tagline"]')
-  expect(contrastRatio(behind, WHITE)).toBeGreaterThanOrEqual(requiredRatio(false))
-})
-
-test('every folder label stays readable over the wallpaper', async ({ page }) => {
-  await gotoDesktop(page)
-
-  const labels = page.getByTestId('folder-label')
-  for (let nth = 0; nth < (await labels.count()); nth += 1) {
-    const behind = await lightestPixelBehind(page, '[data-testid="folder-label"]', nth)
-    expect(contrastRatio(behind, WHITE), await labels.nth(nth).innerText()).toBeGreaterThanOrEqual(
-      requiredRatio(false),
-    )
+      const labels = page.getByTestId('folder-label')
+      for (let nth = 0; nth < (await labels.count()); nth += 1) {
+        const behind = await lightestPixelBehind(page, '[data-testid="folder-label"]', nth)
+        expect(
+          contrastRatio(behind, WHITE),
+          await labels.nth(nth).innerText(),
+        ).toBeGreaterThanOrEqual(requiredRatio(false))
+      }
+    })
   }
-})
+}

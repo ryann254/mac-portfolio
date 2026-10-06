@@ -89,6 +89,13 @@ const roleFile = (role: Role): TextFile =>
     ...role.bullets.map((bullet) => `- ${bullet}`),
   ])
 
+/**
+ * The file a role is written to. Spotlight opens a role by opening its file, and
+ * this is the only way out of here that hands over a path, so the filename is
+ * still written in one place.
+ */
+export const fileOfRole = (role: Role): string => roleFile(role).path
+
 const readme = (project: Project): TextFile =>
   textFile(`projects/${project.slug}`, 'readme.txt', [
     [project.name, project.url, project.period, employerOf(project)].join('\n'),

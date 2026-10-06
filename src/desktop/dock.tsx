@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useRef } from 'react'
 import { type App, dockApps, offsiteApps, opensAWindow } from './apps'
+import { useSystem } from './system-store'
 import { putKeyboardIn } from './window-frame'
 import { isOpen } from './window-state'
 import { useWindows } from './window-store'
@@ -108,6 +109,7 @@ export function Dock() {
 function DockItem({ app }: { app: App }) {
   const open = useWindows((store) => isOpen(store.stack, app.id))
   const show = useWindows((store) => store.open)
+  const togglePanel = useSystem((store) => store.togglePanel)
 
   const art = (
     <>
@@ -177,13 +179,20 @@ function DockItem({ app }: { app: App }) {
     )
   }
 
-  /* Launchpad is a full-screen overlay rather than a window, and phase 8 builds
-     it, so it is drawn rather than made into a button that does nothing. */
+  /* The one app in the dock that is an overlay rather than a window, which is
+     Launchpad. It opens the panel of the same name, and pressing the icon again
+     closes it. */
   return (
     <li>
-      <span data-dock-item="" className={shared}>
+      <button
+        type="button"
+        data-dock-item=""
+        className={shared}
+        aria-label={app.name}
+        onClick={() => togglePanel('launchpad')}
+      >
         {art}
-      </span>
+      </button>
     </li>
   )
 }
