@@ -2,6 +2,12 @@
  * What the machine is doing. The boot reaches `booting` and `desktop`; the
  * Apple menu reaches the other four. The table is the whole rule, so a new
  * state is a row rather than a branch somewhere in a component.
+ *
+ * `booting` and `restarting` both play the boot, and they are two states
+ * because only one of them can be skipped: `booting` is the one the page starts
+ * in, which a session that has already watched it goes straight past, and
+ * `restarting` is a boot the reader asked for, by Restart or by turning the
+ * machine back on, which always plays.
  */
 export type SystemState = 'booting' | 'desktop' | 'sleeping' | 'locked' | 'restarting' | 'off'
 
@@ -21,7 +27,7 @@ const TRANSITIONS: Record<SystemState, Partial<Record<SystemEvent, SystemState>>
   sleeping: { wake: 'desktop', lock: 'locked', restart: 'restarting', 'shut-down': 'off' },
   locked: { unlock: 'desktop', sleep: 'sleeping', restart: 'restarting', 'shut-down': 'off' },
   restarting: { booted: 'desktop' },
-  off: { 'power-on': 'booting' },
+  off: { 'power-on': 'restarting' },
 }
 
 /**

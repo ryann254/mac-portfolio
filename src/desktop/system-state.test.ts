@@ -63,7 +63,14 @@ describe('the system state machine', () => {
     expect(next('desktop', 'shut-down')).toBe('off')
     expect(next('off', 'wake')).toBe('off')
     expect(next('off', 'unlock')).toBe('off')
-    expect(next('off', 'power-on')).toBe('booting')
+  })
+
+  it('plays the boot when the power comes back, rather than skipping it', () => {
+    /* `booting` is the state a session that has already watched the boot goes
+       straight past, so turning a machine back on has to land in the other one
+       or the curtain is up for a frame and gone. */
+    expect(next('off', 'power-on')).toBe('restarting')
+    expect(isBooting(next('off', 'power-on'))).toBe(true)
   })
 
   it('reaches every state from somewhere, apart from the one it starts in', () => {

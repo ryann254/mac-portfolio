@@ -65,7 +65,7 @@ export function Spotlight() {
           onKeyDown={onKeyDown}
           aria-label="Spotlight Search"
           aria-expanded={hits.length > 0}
-          aria-controls={RESULTS}
+          aria-controls={hits.length > 0 ? RESULTS : undefined}
           aria-activedescendant={chosen ? rowId(chosen) : undefined}
           placeholder="Spotlight Search"
           className="w-full bg-transparent py-3.5 text-[19px] text-zinc-900 outline-none placeholder:text-zinc-500 dark:text-zinc-50 dark:placeholder:text-zinc-400"

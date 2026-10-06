@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { projects } from '../src/content'
-import { openableApps } from '../src/desktop/apps'
+import { appById, openableApps } from '../src/desktop/apps'
 import { chooseAppearance, gotoDesktop, panelOpener, wallpaperColour } from './desktop'
 
 test.skip(
@@ -50,6 +50,20 @@ test('Launchpad filters as you type, and Enter opens what is left', async ({ pag
   await expect(page.getByTestId('launchpad-apps')).toBeHidden()
 })
 
+test('Enter on an app that leaves the site opens the tab rather than a window', async ({
+  page,
+}) => {
+  await gotoDesktop(page)
+  await launchpadIcon(page).click()
+  await page.getByRole('searchbox', { name: 'Search apps' }).fill('git')
+
+  const [tab] = await Promise.all([
+    page.waitForEvent('popup'),
+    page.getByRole('searchbox', { name: 'Search apps' }).press('Enter'),
+  ])
+  expect(tab.url()).toBe(appById('github').href)
+})
+
 test('Launchpad says so when nothing is called that', async ({ page }) => {
   await gotoDesktop(page)
   await launchpadIcon(page).click()
@@ -81,6 +95,8 @@ test('Spotlight puts an exact app name first and opens it', async ({ page }) => 
   await spotlightBox(page).press('Enter')
   await expect(page.getByRole('region', { name: 'Photos' })).toBeVisible()
   await expect(page).toHaveURL(/\/photos$/)
+  // The keyboard goes where the window went, so Escape closes what was opened.
+  await expect(page.getByRole('region', { name: 'Photos' })).toBeFocused()
 })
 
 test('Spotlight finds a project by a stack tag and opens Safari on it', async ({ page }) => {

@@ -7,6 +7,14 @@ test.skip(
   'under 768px phase 9 puts an iOS home screen here instead of the menu bar and the dock',
 )
 
+/** Whether the boot bar is part way across its track, which is a boot playing. */
+const filling = (page: Page) =>
+  page.getByTestId('boot-bar').evaluate((node) => {
+    const bar = node.getBoundingClientRect().width
+    const track = (node.parentElement as HTMLElement).getBoundingClientRect().width
+    return bar > 0 && bar < track
+  })
+
 const appleItem = async (page: Page, label: string) => {
   await panelOpener(page, 'apple').click()
   await page
@@ -67,7 +75,13 @@ test('Shut Down leaves a screen only the power turns back on', async ({ page }) 
 
   await dark.press('Enter')
   // Turning it back on is a boot rather than a wake, so the curtain plays again.
+  // The bar has to be caught part way: a curtain that is merely up for a frame
+  // is what this looked like before the machine learned the difference between
+  // the boot a page starts with and one the reader asked for.
   await expect(page.getByTestId('boot')).toBeVisible()
+  await page.waitForTimeout(400)
+  expect(await filling(page)).toBe(true)
+
   await expect(page.getByTestId('boot')).toBeHidden({ timeout: 5_000 })
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 })

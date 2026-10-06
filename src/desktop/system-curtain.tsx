@@ -51,7 +51,7 @@ function DarkScreen({ curtain, onLift }: { curtain: Curtain; onLift: () => void 
       type="button"
       data-testid="dark-screen"
       onClick={onLift}
-      className="absolute inset-0 z-[90] cursor-default bg-black text-center text-[13px] text-white/35 outline-none"
+      className="absolute inset-0 z-[90] cursor-default bg-black text-center text-[13px] text-white/35 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white/40"
     >
       {curtain.label}
     </button>

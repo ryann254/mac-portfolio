@@ -23,6 +23,12 @@ export function Launchpad() {
   }, [])
 
   const launch = (app: App) => {
+    /* The two offsite apps have a tab rather than a window, the same split the
+       tiles below make, because Enter lands on whatever the filter left. */
+    if (app.href !== undefined) {
+      globalThis.open(app.href, '_blank', 'noopener,noreferrer')
+      return
+    }
     open({ app: app.id })
     putKeyboardIn(app.id)
   }

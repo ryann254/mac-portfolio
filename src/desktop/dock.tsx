@@ -110,6 +110,7 @@ function DockItem({ app }: { app: App }) {
   const open = useWindows((store) => isOpen(store.stack, app.id))
   const show = useWindows((store) => store.open)
   const togglePanel = useSystem((store) => store.togglePanel)
+  const panelUp = useSystem((store) => store.panel === app.id)
 
   const art = (
     <>
@@ -189,6 +190,7 @@ function DockItem({ app }: { app: App }) {
         data-dock-item=""
         className={shared}
         aria-label={app.name}
+        aria-expanded={panelUp}
         onClick={() => togglePanel('launchpad')}
       >
         {art}

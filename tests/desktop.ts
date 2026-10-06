@@ -93,11 +93,16 @@ export async function chooseAppearance(page: Page, appearance: Partial<Appearanc
 export const panelOpener = (page: Page, panel: Panel) =>
   page.locator(`[data-panel-opener="${panel}"]`)
 
-/** One of the wallpaper's twenty-three colours, which says which palette is on. */
+/**
+ * The colour the wallpaper actually paints with, read off the gradient stop
+ * rather than off the custom property behind it. Both say which palette is on,
+ * and this one also says the page resolved it.
+ */
 export const wallpaperColour = (page: Page) =>
-  page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--wall-base-1').trim(),
-  )
+  page
+    .locator('#wall-base stop')
+    .first()
+    .evaluate((node) => getComputedStyle(node).stopColor)
 
 /**
  * Tabs from the top of the page until the keyboard is on the dock, and answers
