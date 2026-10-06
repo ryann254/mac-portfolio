@@ -54,9 +54,14 @@ export function Safari({ target }: { target: Target }) {
 
 /**
  * One project. The screenshot runs the full width of the window, which is what
- * a browser showing a site looks like, and fades out at the bottom rather than
- * stopping mid-sentence on whatever the site's own headline happens to say.
- * Nothing is set over it for the same reason.
+ * a browser showing a site looks like.
+ *
+ * All five screenshots are one 1440x900 view of a homepage, so no height shows
+ * a whole one and every crop lands somewhere different. It fades out rather
+ * than stopping on a line, because a line through the middle of a site's own
+ * headline reads as a mistake and a fade reads as the page carrying on. For
+ * the same reason nothing is laid over the picture: each of these sites has a
+ * headline of its own in it already.
  */
 function Reading({ page }: { page: Page }) {
   return (
@@ -67,10 +72,10 @@ function Reading({ page }: { page: Page }) {
         alt={page.shot.alt}
         width={1200}
         height={520}
-        className="h-[148px] w-full shrink-0 object-cover object-top [mask-image:linear-gradient(to_bottom,#000_68%,transparent)] @[560px]:h-[206px]"
+        className="h-[156px] w-full shrink-0 object-cover object-top [mask-image:linear-gradient(to_bottom,#000_72%,transparent)] @[560px]:h-[212px]"
       />
 
-      <div className="flex flex-col gap-3.5 px-[22px] pb-[18px]">
+      <div className="flex flex-col gap-3.5 px-[22px] pt-3.5 pb-[18px]">
         <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-2.5">
           <div>
             <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
