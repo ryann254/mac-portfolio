@@ -71,3 +71,11 @@ reports, and the five scripts that made them.
 
 One follow-up, not in this branch: opening a file from Finder blocks for about 218ms the first time,
 which is the window's code being fetched. Preloading it on hover would fix it.
+
+### After the turn-in
+
+Ryan maximised a Safari window and found the full-width screenshot reduced to a letterbox strip
+over 450px of nothing, and asked for half the picture and half the words. It is two halves now,
+stacking under 620px, and the picture is fitted rather than cropped: at a maximised window it is
+larger than the full-width band ever was, and no screenshot loses 40% of itself to a crop. Shots
+10 and 11 are the same window at the size it opens and at the size it maximises to.
