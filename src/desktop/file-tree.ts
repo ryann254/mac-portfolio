@@ -24,13 +24,29 @@ export type Folder = {
   readonly parent?: string
 }
 
+/**
+ * What a text file is made of. A role has a title, a company, a span of time and
+ * a list of what was done, and flattening all of that into paragraphs joined by
+ * newlines is what made the windows read like a dump. Each piece keeps its own
+ * shape here and the window sets it.
+ */
+export type Block =
+  | { readonly kind: 'paragraph'; readonly text: string }
+  | { readonly kind: 'list'; readonly items: readonly string[] }
+  | { readonly kind: 'tags'; readonly label: string; readonly items: readonly string[] }
+
 export type TextFile = {
   readonly kind: 'text'
   readonly path: string
   readonly name: string
   readonly parent: string
-  /** One paragraph each. A newline inside one is kept, the way a file keeps it. */
-  readonly text: readonly string[]
+  /** The line at the top, which is what the file is about. */
+  readonly title: string
+  /** Who, when and where, already joined, because every file joins its own the same way. */
+  readonly subtitle?: string
+  /** The one address a file is about. Only a project's readme has one. */
+  readonly link?: string
+  readonly blocks: readonly Block[]
 }
 
 export type ImageFile = {
@@ -66,12 +82,16 @@ const folder = (path: string, name: string, parent?: string): Folder => ({
   parent,
 })
 
-const textFile = (parent: string, name: string, text: readonly string[]): TextFile => ({
+const paragraph = (text: string): Block => ({ kind: 'paragraph', text })
+const list = (items: readonly string[]): Block => ({ kind: 'list', items })
+const tags = (label: string, items: readonly string[]): Block => ({ kind: 'tags', label, items })
+
+type Written = Omit<TextFile, 'kind' | 'path'>
+
+const textFile = (file: Written): TextFile => ({
   kind: 'text',
-  path: `${parent}/${name}`,
-  name,
-  parent,
-  text,
+  path: `${file.parent}/${file.name}`,
+  ...file,
 })
 
 const imageFile = (parent: string, name: string, src: string, alt: string): ImageFile => ({
@@ -84,10 +104,13 @@ const imageFile = (parent: string, name: string, src: string, alt: string): Imag
 })
 
 const roleFile = (role: Role): TextFile =>
-  textFile('experience', `${role.slug}.txt`, [
-    [role.title, role.company, span(role), `${role.location}, ${role.arrangement}`].join('\n'),
-    ...role.bullets.map((bullet) => `- ${bullet}`),
-  ])
+  textFile({
+    parent: 'experience',
+    name: `${role.slug}.txt`,
+    title: role.title,
+    subtitle: [role.company, span(role), `${role.location}, ${role.arrangement}`].join(' · '),
+    blocks: [list(role.bullets)],
+  })
 
 /**
  * The file a role is written to. Spotlight opens a role by opening its file, and
@@ -97,19 +120,32 @@ const roleFile = (role: Role): TextFile =>
 export const fileOfRole = (role: Role): string => roleFile(role).path
 
 const readme = (project: Project): TextFile =>
-  textFile(`projects/${project.slug}`, 'readme.txt', [
-    [project.name, project.url, project.period, employerOf(project)].join('\n'),
-    project.tagline,
-    ...project.contribution.map((line) => `- ${line}`),
-    `Stack\n${project.stack.join(', ')}`,
-  ])
+  textFile({
+    parent: `projects/${project.slug}`,
+    name: 'readme.txt',
+    title: project.name,
+    subtitle: [employerOf(project), project.period].join(' · '),
+    link: project.url,
+    blocks: [paragraph(project.tagline), list(project.contribution), tags('Stack', project.stack)],
+  })
 
+const aboutFile = (): TextFile =>
+  textFile({
+    parent: 'about',
+    name: 'about.txt',
+    title: profile.name,
+    subtitle: [profile.headline, profile.location].join(' · '),
+    blocks: profile.summary.map(paragraph),
+  })
+
+/** No subtitle: the groups are the file, and a line above them would say it twice. */
 const skillsFile = (): TextFile =>
-  textFile(
-    'skills',
-    'skills.txt',
-    profile.skillGroups.map((group) => `${group.name}\n${group.skills.join(', ')}`),
-  )
+  textFile({
+    parent: 'skills',
+    name: 'skills.txt',
+    title: 'Skills',
+    blocks: profile.skillGroups.map((group) => tags(group.name, group.skills)),
+  })
 
 /**
  * Every node, in the order a folder lists its contents. Folders come from the
@@ -119,7 +155,7 @@ const skillsFile = (): TextFile =>
 const nodes: readonly Node[] = [
   ...locations.map((location) => folder(location.slug, location.name)),
 
-  textFile('about', 'about.txt', profile.summary),
+  aboutFile(),
   imageFile('about', 'avatar.svg', '/about/avatar.svg', 'A drawn stand-in for a photograph'),
 
   ...projects.flatMap((project): readonly Node[] => [

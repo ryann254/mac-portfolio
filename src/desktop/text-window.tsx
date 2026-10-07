@@ -1,24 +1,101 @@
+import type { Block } from './file-tree'
 import { fileAt } from './file-tree'
 import { MissingFile } from './missing-file'
+import { Prose } from './prose'
 import type { Target } from './routes'
 
 /**
- * A text file, opened from Finder. No toolbar, only the title bar, because a
- * TextEdit window opened on a file has nothing else. Monospaced on purpose: it
- * is meant to read like a file rather than like a web page.
+ * A text file, opened from Finder, set as the document it is rather than as the
+ * paragraphs it used to be dumped into. The title, the line under it and the
+ * blocks all come out of `file-tree.ts`, so what a role is made of is decided in
+ * one place and drawn here.
+ *
+ * The first paragraph of any document reads as its opening line, which is true
+ * of the intro and of a project's tagline alike, so it is the one rule rather
+ * than a kind of block of its own.
  */
 export function TextWindow({ target }: { target: Target }) {
   const file = target.showing === undefined ? undefined : fileAt(target.showing)
   if (file?.kind !== 'text') return <MissingFile />
 
   return (
-    <div className="h-full space-y-4 overflow-auto px-[22px] py-[18px] font-mono text-[12.5px]/[1.7] text-zinc-700 dark:text-zinc-300">
-      {file.text.map((paragraph, at) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: a file's paragraphs never reorder, and two of them are allowed to read the same.
-        <p key={`${file.path}-${at}`} className="whitespace-pre-line">
-          {paragraph}
+    <article className="h-full overflow-auto px-8 py-7">
+      <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
+        {file.title}
+      </h2>
+      {(file.subtitle || file.link) && (
+        <p className="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">
+          {file.link && (
+            <>
+              <a
+                href={file.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-700 hover:underline dark:text-sky-400"
+              >
+                {new URL(file.link).host}
+              </a>
+              {file.subtitle && ' · '}
+            </>
+          )}
+          {file.subtitle}
         </p>
+      )}
+      <hr className="my-[18px] border-black/10 dark:border-white/10" />
+      {file.blocks.map((block, at) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: a file's blocks never reorder, and two of them are allowed to read the same.
+        <Written key={`${file.path}-${at}`} block={block} lead={at === 0} />
       ))}
-    </div>
+    </article>
+  )
+}
+
+/** One block, in the shape its kind asks for. */
+function Written({ block, lead }: { block: Block; lead: boolean }) {
+  if (block.kind === 'paragraph') {
+    return (
+      <p
+        className={
+          lead
+            ? 'mb-[15px] max-w-[66ch] text-[15px]/[1.6] text-zinc-800 dark:text-zinc-200'
+            : 'mb-[13px] max-w-[64ch] text-[14px]/[1.72] text-zinc-700 dark:text-zinc-300'
+        }
+      >
+        <Prose sentence={block.text} />
+      </p>
+    )
+  }
+
+  if (block.kind === 'list') {
+    return (
+      <ul role="list" className="max-w-[66ch]">
+        {block.items.map((item) => (
+          <li
+            key={item}
+            className="relative mb-[13px] pl-5 text-[13.5px]/[1.7] text-zinc-700 before:absolute before:top-[0.62em] before:left-[3px] before:size-[5px] before:rounded-full before:bg-sky-600/75 before:content-[''] dark:text-zinc-300 dark:before:bg-sky-400/75"
+          >
+            <Prose sentence={item} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  return (
+    <>
+      <p className="mt-5 mb-2 text-[11px] text-zinc-500 uppercase tracking-[0.08em] dark:text-zinc-400">
+        {block.label}
+      </p>
+      <ul role="list" className="flex flex-wrap gap-1.5">
+        {block.items.map((item) => (
+          <li
+            key={item}
+            className="rounded-full bg-black/[0.06] px-2.5 py-[3px] text-[11.5px] text-zinc-500 dark:bg-white/10 dark:text-zinc-400"
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }

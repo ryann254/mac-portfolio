@@ -1,4 +1,5 @@
 import { projects } from '@/content'
+import type { Result } from '@/content/types'
 import { employerOf, hostOf, type Shot, shots } from './project-view'
 
 /**
@@ -16,6 +17,8 @@ export type Page = {
   readonly tagline: string
   readonly contribution: readonly string[]
   readonly stack: readonly string[]
+  /** What the work moved, in numbers. Empty for a project whose work has none. */
+  readonly results: readonly Result[]
   readonly employer: string
   readonly period: string
   readonly shot: Shot
@@ -29,6 +32,7 @@ export const pages: readonly Page[] = projects.map((project, at) => ({
   tagline: project.tagline,
   contribution: project.contribution,
   stack: project.stack,
+  results: project.results,
   employer: employerOf(project),
   period: project.period,
   shot: shots[at],

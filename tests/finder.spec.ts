@@ -58,6 +58,37 @@ test('double-clicking about.txt opens the summary in a text window', async ({ pa
   await expect(openWindows(page)).toHaveCount(2)
 })
 
+test('a role file reads as a document, with its figures set apart', async ({ page }) => {
+  const role = experience[0]
+  await gotoDesktop(page, '/finder/experience')
+  await openItem(page, `experience/${role.slug}.txt`)
+
+  const text = windowNamed(page, `${role.slug}.txt`)
+  // The title, the company and the dates each have their own place now, rather
+  // than being three lines joined by newlines inside the first paragraph.
+  await expect(text.getByRole('heading', { level: 2 })).toHaveText(role.title)
+  await expect(text).toContainText(role.company)
+  await expect(text.getByRole('listitem')).toHaveCount(role.bullets.length)
+
+  // 29% is a figure. The year beside it is a date, and stays prose.
+  await expect(text.locator('b').first()).toHaveText(/\d+%/)
+  await expect(text.locator('b', { hasText: /^\d{4}$/ })).toHaveCount(0)
+})
+
+test('a project readme carries its link and its stack', async ({ page }) => {
+  const project = projects[0]
+  await gotoDesktop(page, '/finder/projects')
+  await openItem(page, `projects/${project.slug}`)
+  await openItem(page, `projects/${project.slug}/readme.txt`)
+
+  const text = windowNamed(page, 'readme.txt')
+  await expect(text.getByRole('link', { name: new RegExp(project.slug, 'i') })).toHaveAttribute(
+    'href',
+    project.url,
+  )
+  for (const tool of project.stack) await expect(text).toContainText(tool)
+})
+
 test('double-clicking a thumbnail opens that picture in an image window', async ({ page }) => {
   await gotoDesktop(page, '/finder/projects')
   await openItem(page, INSIDE)
