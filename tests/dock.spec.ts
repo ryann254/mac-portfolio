@@ -1,6 +1,6 @@
 import { expect, type Locator, test } from '@playwright/test'
 import { dockApps, offsiteApps } from '../src/desktop/apps'
-import { gotoDesktop } from './desktop'
+import { gotoDesktop, tabToTheDock } from './desktop'
 
 const widthOf = async (item: Locator): Promise<number> => {
   const box = await item.boundingBox()
@@ -63,8 +63,9 @@ test('the dock shows what an icon is on hover', async ({ page }) => {
 test('the keyboard reaches the dock and opens an app', async ({ page }) => {
   await gotoDesktop(page)
 
-  // Four desktop folders come first in the tab order, then the dock.
-  for (let press = 0; press < 5; press += 1) await page.keyboard.press('Tab')
+  // The menu bar comes first in the tab order, then the four desktop folders,
+  // then the dock. It should stay a short walk whatever else lands up there.
+  expect(await tabToTheDock(page)).toBeLessThanOrEqual(8)
 
   const focused = page.locator(':focus')
   await expect(focused).toHaveAttribute('aria-label', 'Finder')

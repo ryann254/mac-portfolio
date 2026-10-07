@@ -6,66 +6,174 @@
 }
 
 /**
- * The wallpaper's palette. Plain custom properties rather than theme tokens,
- * because nothing needs a `bg-wall-*` utility and Tailwind would emit one for
- * every colour here. Day and night share one set of paths, so switching the
- * wallpaper is switching these twenty-six values.
+ * Dark mode follows the system until the reader says otherwise in Control
+ * Centre, and `data-theme` lands on `<html>` only once they have. That is why
+ * this is two rules rather than a class: a browser running no JavaScript never
+ * gets the attribute, and still reads the media query.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme]), :root:not([data-theme]) *) {
+      @slot;
+    }
+  }
+}
+
+/**
+ * `color-scheme` is what `light-dark()` reads, and every wallpaper colour below
+ * is a `light-dark()` pair, so these three rules are the whole theme switch and
+ * no palette has to say which half of the day it is in.
  */
 :root {
   color-scheme: light dark;
 
-  --wall-base-1: #7a24e8;
-  --wall-base-2: #9b31d8;
-  --wall-base-3: #c866c9;
-  --wall-base-4: #e7b6dc;
-  --wall-left-1: #7c26ea;
-  --wall-left-2: #8527d6;
-  --wall-left-3: #a838c8;
-  --wall-left-4: #c85fc0;
-  --wall-ridge-1: #6215e0;
-  --wall-ridge-2: #7a20c4;
-  --wall-ridge-3: #9c36b4;
-  --wall-right-1: #f2cfe4;
-  --wall-right-2: #dd94c8;
-  --wall-right-3: #bb5ec4;
-  --wall-right-4: #9634c4;
-  --wall-haze-1: #f6e0ef;
-  --wall-haze-2: #eccbe4;
-  --wall-haze-3: #d9a4cf;
-  --wall-haze-4: #c886c4;
-  --wall-mist-1: #fbeef5;
-  --wall-mist-2: #f0d9ea;
-  --wall-mist-3: #e0b8dc;
-  --wall-glow: #7a2bf7;
-
   --boot-duration: 1200ms;
+  --brightness: 100;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --wall-base-1: #1c0552;
-    --wall-base-2: #250860;
-    --wall-base-3: #341070;
-    --wall-base-4: #43207e;
-    --wall-left-1: #1b0556;
-    --wall-left-2: #1d0752;
-    --wall-left-3: #260b5e;
-    --wall-left-4: #33136c;
-    --wall-ridge-1: #0f0238;
-    --wall-ridge-2: #150440;
-    --wall-ridge-3: #1e084e;
-    --wall-right-1: #4a2f7e;
-    --wall-right-2: #3b2168;
-    --wall-right-3: #2c1652;
-    --wall-right-4: #1e0e3e;
-    --wall-haze-1: #6b53a4;
-    --wall-haze-2: #583f90;
-    --wall-haze-3: #452e78;
-    --wall-haze-4: #341f60;
-    --wall-mist-1: #7d64b6;
-    --wall-mist-2: #63499c;
-    --wall-mist-3: #4a3480;
-    --wall-glow: #3a10a0;
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/**
+ * The wallpapers: one drawn composition, three palettes, each with a day and a
+ * night half. Plain custom properties rather than theme tokens, because nothing
+ * needs a `bg-wall-*` utility and Tailwind would emit one for every colour here.
+ *
+ * `:root` carries the first palette as well, so a `data-wallpaper` nobody
+ * recognises falls back to it instead of painting nothing. Every block matches
+ * on the attribute alone rather than on `:root[data-wallpaper]`, which is what
+ * lets Control Centre draw a real preview of each one by putting the attribute
+ * on a div.
+ */
+:root,
+[data-wallpaper="monterey"] {
+  --wall-base-1: light-dark(#7a24e8, #1c0552);
+  --wall-base-2: light-dark(#9b31d8, #250860);
+  --wall-base-3: light-dark(#c866c9, #341070);
+  --wall-base-4: light-dark(#e7b6dc, #43207e);
+
+  --wall-left-1: light-dark(#7c26ea, #1b0556);
+  --wall-left-2: light-dark(#8527d6, #1d0752);
+  --wall-left-3: light-dark(#a838c8, #260b5e);
+  --wall-left-4: light-dark(#c85fc0, #33136c);
+
+  --wall-ridge-1: light-dark(#6215e0, #0f0238);
+  --wall-ridge-2: light-dark(#7a20c4, #150440);
+  --wall-ridge-3: light-dark(#9c36b4, #1e084e);
+
+  --wall-right-1: light-dark(#f2cfe4, #4a2f7e);
+  --wall-right-2: light-dark(#dd94c8, #3b2168);
+  --wall-right-3: light-dark(#bb5ec4, #2c1652);
+  --wall-right-4: light-dark(#9634c4, #1e0e3e);
+
+  --wall-haze-1: light-dark(#f6e0ef, #6b53a4);
+  --wall-haze-2: light-dark(#eccbe4, #583f90);
+  --wall-haze-3: light-dark(#d9a4cf, #452e78);
+  --wall-haze-4: light-dark(#c886c4, #341f60);
+
+  --wall-mist-1: light-dark(#fbeef5, #7d64b6);
+  --wall-mist-2: light-dark(#f0d9ea, #63499c);
+  --wall-mist-3: light-dark(#e0b8dc, #4a3480);
+
+  --wall-glow: light-dark(#7a2bf7, #3a10a0);
+}
+
+[data-wallpaper="tide"] {
+  --wall-base-1: light-dark(#0a3fb0, #04163c);
+  --wall-base-2: light-dark(#1457c8, #061d4e);
+  --wall-base-3: light-dark(#3184c6, #0a2a62);
+  --wall-base-4: light-dark(#74b0d2, #103872);
+
+  --wall-left-1: light-dark(#0b42b4, #04173c);
+  --wall-left-2: light-dark(#0e4ab8, #051940);
+  --wall-left-3: light-dark(#1a6cc6, #07224e);
+  --wall-left-4: light-dark(#3c9ad2, #0c3062);
+
+  --wall-ridge-1: light-dark(#062f92, #020b28);
+  --wall-ridge-2: light-dark(#0a3ba0, #041130);
+  --wall-ridge-3: light-dark(#1256b0, #061a42);
+
+  --wall-right-1: light-dark(#a9cfe4, #26436c);
+  --wall-right-2: light-dark(#7ab8da, #1b325e);
+  --wall-right-3: light-dark(#55aad6, #13264e);
+  --wall-right-4: light-dark(#2878c8, #0c1a3a);
+
+  --wall-haze-1: light-dark(#bcd9ea, #466698);
+  --wall-haze-2: light-dark(#a9cde3, #385384);
+  --wall-haze-3: light-dark(#7aadd2, #2a4170);
+  --wall-haze-4: light-dark(#6ca4cc, #1d3058);
+
+  --wall-mist-1: light-dark(#c8e0ef, #5676aa);
+  --wall-mist-2: light-dark(#b4d4e9, #425e90);
+  --wall-mist-3: light-dark(#8ab8d8, #304678);
+
+  --wall-glow: light-dark(#1655e2, #09288e);
+}
+
+[data-wallpaper="graphite"] {
+  --wall-base-1: light-dark(#4a4f58, #2b2f36);
+  --wall-base-2: light-dark(#5c616b, #343841);
+  --wall-base-3: light-dark(#858a95, #40454f);
+  --wall-base-4: light-dark(#b4b9c4, #4d525e);
+
+  --wall-left-1: light-dark(#4b5059, #2c3037);
+  --wall-left-2: light-dark(#51565f, #31353c);
+  --wall-left-3: light-dark(#676c76, #3a3f48);
+  --wall-left-4: light-dark(#878c97, #464b56);
+
+  --wall-ridge-1: light-dark(#3a3e46, #262a31);
+  --wall-ridge-2: light-dark(#444851, #2b2f36);
+  --wall-ridge-3: light-dark(#565a64, #343942);
+
+  --wall-right-1: light-dark(#cacad2, #5e6373);
+  --wall-right-2: light-dark(#a8a8b2, #4f5464);
+  --wall-right-3: light-dark(#85858f, #414654);
+  --wall-right-4: light-dark(#6b7079, #343845);
+
+  --wall-haze-1: light-dark(#d6d6dc, #6a6f80);
+  --wall-haze-2: light-dark(#c4c4cc, #5b6070);
+  --wall-haze-3: light-dark(#a9a9b3, #4c5160);
+  --wall-haze-4: light-dark(#92929c, #3e4250);
+
+  --wall-mist-1: light-dark(#e2e2e7, #74798a);
+  --wall-mist-2: light-dark(#d0d0d8, #63687a);
+  --wall-mist-3: light-dark(#b8b8c2, #525768);
+
+  --wall-glow: light-dark(#555a64, #3a4056);
+}
+
+/**
+ * Brightness: a black sheet over the whole screen, which is what dimming one
+ * looks like. The clamp is on the opacity rather than on the number, so a value
+ * typed into storage by hand cannot black the page out.
+ */
+[data-dim] {
+  opacity: clamp(0, calc((100 - var(--brightness)) * 0.0075), 0.45);
+}
+
+/**
+ * Anything a reader can press shows the hand. macOS shows an arrow over its own
+ * dock and menu bar, but this is a web page pretending to be a desktop, and on
+ * a web page the hand is how a reader knows a thing is pressable at all.
+ *
+ * In the components layer and behind `:where()`, so the cascade's layer order
+ * does all the work: it beats Tailwind's own `button { cursor: default }` in
+ * the base layer, and every `cursor-*` utility beats it in turn. The title bar,
+ * the resize handles, the sheet behind a panel, a sleeping screen and an
+ * enlarged photo all want a different cursor, and all keep theirs.
+ */
+@layer components {
+  :where(button, [role="button"], a[href], summary) {
+    cursor: pointer;
   }
 }
 
@@ -93,13 +201,13 @@ body {
   }
 }
 
-[data-boot] {
+/* The fade is declared on the state it ends in, so the curtain fades away when
+   the boot finishes and snaps back when the Apple menu asks for a restart,
+   which is the way round a Mac does both. */
+[data-boot][data-done] {
   transition:
     opacity 450ms ease,
     visibility 0s linear 450ms;
-}
-
-[data-boot][data-done] {
   opacity: 0;
   visibility: hidden;
   /* Without this the curtain goes on swallowing clicks for the whole fade,
@@ -134,7 +242,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-boot] {
+  [data-boot][data-done] {
     transition: none;
   }
 
@@ -202,6 +310,21 @@ body {
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* A panel arrives in front of the desktop rather than sliding in from an edge,
+   which is what Spotlight and Launchpad both do. Every use of it is behind
+   `motion-safe:`, so reduced motion needs no rule of its own here. */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

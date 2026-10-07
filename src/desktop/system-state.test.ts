@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
   BOOTED_KEY,
+  CURTAINS,
   hasBootedAlready,
   isBooting,
   next,
   rememberBoot,
   type SessionMemory,
   type SystemState,
-} from './boot-state'
+  states,
+} from './system-state'
 
 const fakeMemory = (seed: Record<string, string> = {}): SessionMemory => {
   const store = new Map(Object.entries(seed))
@@ -52,9 +54,56 @@ describe('the system state machine', () => {
 
   it('covers the screen while booting and while restarting', () => {
     const covered: SystemState[] = ['booting', 'restarting']
-    const clear: SystemState[] = ['desktop', 'sleeping', 'locked']
+    const clear: SystemState[] = ['desktop', 'sleeping', 'locked', 'off']
     expect(covered.map(isBooting)).toEqual([true, true])
-    expect(clear.map(isBooting)).toEqual([false, false, false])
+    expect(clear.map(isBooting)).toEqual([false, false, false, false])
+  })
+
+  it('shuts down to a screen only the power turns back on', () => {
+    expect(next('desktop', 'shut-down')).toBe('off')
+    expect(next('off', 'wake')).toBe('off')
+    expect(next('off', 'unlock')).toBe('off')
+  })
+
+  it('plays the boot when the power comes back, rather than skipping it', () => {
+    /* `booting` is the state a session that has already watched the boot goes
+       straight past, so turning a machine back on has to land in the other one
+       or the curtain is up for a frame and gone. */
+    expect(next('off', 'power-on')).toBe('restarting')
+    expect(isBooting(next('off', 'power-on'))).toBe(true)
+  })
+
+  it('reaches every state from somewhere, apart from the one it starts in', () => {
+    const events = ['booted', 'sleep', 'wake', 'lock', 'unlock', 'restart'] as const
+    const reached = new Set(
+      states.flatMap((from) => [
+        ...events.map((event) => next(from, event)),
+        next(from, 'shut-down'),
+        next(from, 'power-on'),
+      ]),
+    )
+    expect(states.filter((state) => !reached.has(state))).toEqual([])
+  })
+})
+
+describe('the curtains', () => {
+  it('gives every state that holds the desktop a way back to it', () => {
+    const stuck = states.filter(
+      (state) => state !== 'desktop' && !isBooting(state) && CURTAINS[state] === undefined,
+    )
+    expect(stuck).toEqual([])
+  })
+
+  it('leaves the state it is drawn over', () => {
+    for (const [state, curtain] of Object.entries(CURTAINS)) {
+      expect(next(state as SystemState, curtain.event)).not.toBe(state)
+    }
+  })
+
+  it('says what to press, so a dark screen is not a crashed one', () => {
+    expect(CURTAINS.sleeping?.label).toMatch(/wake/i)
+    expect(CURTAINS.off?.label).toMatch(/turn on/i)
+    expect(CURTAINS.locked?.label).toBe('Log in')
   })
 })
 

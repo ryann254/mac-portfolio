@@ -82,3 +82,25 @@ test('the clock never ends up behind the dock', async ({ page }) => {
     expect(overlaps, `the clock and the dock collide at ${width}px`).toBe(false)
   }
 })
+
+test('everything you can press shows the hand, and the exceptions keep theirs', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(Boolean(isMobile), 'under 768px the menu bar keeps these two icons hidden')
+  await gotoDesktop(page)
+
+  // The two Ryan hovered, plus a dock icon, because the rule is one rule.
+  for (const control of [
+    page.locator('[data-panel-opener="spotlight"]'),
+    page.locator('[data-panel-opener="control-centre"]'),
+    page.getByTestId('dock').getByRole('button').first(),
+  ]) {
+    await expect(control).toHaveCSS('cursor', 'pointer')
+  }
+
+  // The sheet behind a panel is a button a reader presses to dismiss, and it
+  // deliberately does not look like one.
+  await page.locator('[data-panel-opener="control-centre"]').click()
+  await expect(page.getByTestId('panel-backdrop')).toHaveCSS('cursor', 'default')
+})

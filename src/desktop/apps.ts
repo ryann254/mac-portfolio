@@ -151,6 +151,14 @@ export const addressedApps: readonly WindowedApp[] = windowedApps.filter(
   (app) => app.reach === 'desktop',
 )
 
+/**
+ * Every app a reader can open from a list: the ones with an address and the ones
+ * that leave the site. Launchpad falls out of it by having no window, because it
+ * is the list itself, and so do the text and image windows, which need a file
+ * Finder has already picked.
+ */
+export const openableApps: readonly App[] = [...addressedApps, ...offsiteApps]
+
 /** Where an app sits in this list. Windows draw in this order, whatever is in front. */
 export const appOrder = (id: AppId): number => apps.findIndex((app) => app.id === id)
 

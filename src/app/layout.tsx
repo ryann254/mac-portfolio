@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import type { ReactNode } from 'react'
-import { BOOTED_KEY } from '@/desktop/boot-state'
+import { APPEARANCE_SCRIPT } from '@/desktop/appearance'
 import { Desktop } from '@/desktop/desktop'
+import { SKIP_BOOT_SCRIPT } from '@/desktop/system-state'
 import './globals.css'
 
 /**
@@ -16,13 +17,6 @@ const inter = localFont({
   weight: '100 900',
   display: 'swap',
 })
-
-/**
- * Runs before the first paint. The boot markup is in the server response so it
- * paints without waiting for JavaScript, which also means a reload would flash
- * it before React could say otherwise. This hides it in the same tick instead.
- */
-const skipBootScript = `try{if(sessionStorage.getItem(${JSON.stringify(BOOTED_KEY)})==='yes')document.documentElement.dataset.booted=''}catch(e){}`
 
 export const metadata: Metadata = {
   title: 'Ryan Waweru, Senior Frontend Engineer',
@@ -43,9 +37,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <head>
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: a fixed string
-            with no input in it, and it has to run before the first paint. */}
-        <script dangerouslySetInnerHTML={{ __html: skipBootScript }} />
+        {/* Two fixed strings, and both have to run before the first paint: one
+            hides the boot a reader has already watched, the other puts back the
+            theme, wallpaper, and brightness they chose last time. */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: fixed strings
+            with no input in them, and they have to run before the first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: `${SKIP_BOOT_SCRIPT}${APPEARANCE_SCRIPT}` }} />
       </head>
       <body className="h-full overflow-hidden">
         <Desktop>{children}</Desktop>
