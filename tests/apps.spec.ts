@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 import { profile, projects } from '../src/content'
 import { rows } from '../src/desktop/contact-rows'
 import { RESUME_FILE } from '../src/desktop/resume-file'
-import { dockIcon, gotoDesktop, openWindow, SAFARI, windowNamed } from './desktop'
+import { dockIcon, gotoDesktop, openWindow, SAFARI, settled, windowNamed } from './desktop'
 
 test.skip(
   ({ isMobile }) => Boolean(isMobile),
@@ -58,15 +58,19 @@ test('a project shows the figures it has, and a project with none shows none', a
 test('a project puts the picture over the words, half the window each', async ({ page }) => {
   await gotoDesktop(page, `/safari/${projects[0].slug}`)
   const shown = windowNamed(page, projects[0].name)
+  await settled(shown)
 
-  const picture = await shown.locator('[data-shot]').boundingBox()
-  const words = await shown.locator('[data-words]').boundingBox()
-  if (picture === null || words === null) throw new Error('Safari drew no project')
-
-  expect(picture.y + picture.height, 'the picture ends where the words start').toBeCloseTo(
-    words.y,
-    0,
+  /* Both halves in one read. Two `boundingBox` calls are two round trips, and
+     anything still easing between them reports a gap that is not there. */
+  const [picture, words] = await shown.evaluate((pane) =>
+    ['[data-shot]', '[data-words]'].map((part) => {
+      const box = pane.querySelector(part)?.getBoundingClientRect()
+      if (!box) throw new Error(`Safari drew no ${part}`)
+      return { top: box.top, bottom: box.bottom, height: box.height }
+    }),
   )
+
+  expect(picture.bottom, 'the picture ends where the words start').toBeCloseTo(words.top, 0)
   expect(Math.abs(picture.height - words.height), 'half each').toBeLessThanOrEqual(2)
 
   // The fade is the whole reason the crop is allowed to land anywhere.
