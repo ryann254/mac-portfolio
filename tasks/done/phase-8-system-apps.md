@@ -110,3 +110,17 @@ gradient stop before any of this was built on it.
 One gap, handed to phase 9: Spotlight and Control Centre hang off menu bar icons that are
 hidden under 640px, so a phone reaches Launchpad from the dock and neither of the other two.
 The mobile layout is phase 9 and this ticket put it out of scope.
+
+### After the turn-in
+
+Ryan opened the preview and reported a black background he could not change. Graphite's night
+palette was a neutral near-black, so it read as a screen that is switched off, and picking it
+again changed nothing he could see. The contrast gate had passed it because black has excellent
+contrast with white text, which is the wrong thing to measure; lightness alone does not catch it
+either, because that palette and Monterey's night were within a point of each other in L\*.
+Chroma is the difference. Graphite's night is a slate now, and `tests/wallpaper.spec.ts` holds
+every wallpaper in both themes to a CIELAB lightness plus chroma of 30. Checked by putting the
+shipped palette back: it fails at 19.8 with `Graphite dark: L* 19.7, C* 7.2`.
+
+Gates after the fix: 208 unit tests, 145 browser tests with 75 skipped, roast clean, and screens
+09 to 11 retaken.
