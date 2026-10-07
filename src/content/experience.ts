@@ -4,6 +4,7 @@ import type { Role } from './types'
 export const experience: readonly Role[] = [
   {
     slug: 'streamlyne',
+    logo: '/logos/streamlyne.svg',
     company: 'Streamlyne',
     title: 'Senior Software Engineer',
     start: '2025-07',
@@ -18,6 +19,7 @@ export const experience: readonly Role[] = [
   },
   {
     slug: 'surveva',
+    logo: '/logos/surveva.svg',
     company: 'Surveva',
     title: 'Senior Mobile Engineer',
     start: '2024-04',
@@ -46,6 +48,7 @@ export const experience: readonly Role[] = [
   },
   {
     slug: 'newline',
+    logo: '/logos/newline.svg',
     company: 'newLine',
     title: 'Frontend Developer',
     start: '2023-09',
@@ -60,6 +63,7 @@ export const experience: readonly Role[] = [
   },
   {
     slug: 'tintash',
+    logo: '/logos/tintash.svg',
     company: 'Tintash',
     title: 'Frontend Engineer',
     start: '2023-02',

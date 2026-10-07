@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { experience, profile, projects } from '../src/content'
 import { contentsOf } from '../src/desktop/file-tree'
+import { initialsOf } from '../src/desktop/lettermark'
+import { contrastRatio, type Rgb, requiredRatio } from '../src/lib/contrast'
 import {
   dockIcon,
   FINDER,
@@ -74,6 +76,59 @@ test('a role file reads as a document, with its figures set apart', async ({ pag
   await expect(text.locator('b').first()).toHaveText(/\d+%/)
   await expect(text.locator('b', { hasText: /^\d{4}$/ })).toHaveCount(0)
 })
+
+/**
+ * Four of the eight companies have no site left to take a logo from, so both
+ * kinds of mark are checked here: a fetched logo, and the initials that stand
+ * in for one. The initials carry their own colour, and white letters on a hue
+ * off a hash is exactly the kind of thing that works for seven names and fails
+ * for the eighth, so the ratio is measured rather than assumed.
+ */
+test('a role wears its company logo, or initials that can be read', async ({ page }) => {
+  const [withLogo] = experience.filter((role) => role.logo !== undefined)
+  const lettered = experience.filter((role) => role.logo === undefined)
+
+  await gotoDesktop(page, '/finder/experience')
+  await openItem(page, `experience/${withLogo.slug}.txt`)
+  const marked = windowNamed(page, `${withLogo.slug}.txt`)
+  await expect(marked.locator('[data-logo] img')).toHaveAttribute('src', withLogo.logo ?? '')
+
+  for (const role of lettered) {
+    // Back to the desktop each time, because the file just opened is over Finder.
+    await gotoDesktop(page, '/finder/experience')
+    await openItem(page, `experience/${role.slug}.txt`)
+    const shown = windowNamed(page, `${role.slug}.txt`)
+    const letters = shown.locator('[data-logo]')
+
+    await expect(letters).toHaveText(initialsOf(role.company))
+    await expect(shown).toContainText(role.company)
+
+    const [tile, ink] = await letters.evaluate(painted)
+    expect(
+      contrastRatio(ink, tile),
+      `${role.company} initials on their own tile`,
+    ).toBeGreaterThanOrEqual(requiredRatio(false))
+  }
+})
+
+/**
+ * The tile's colour and the letters', both resolved by a canvas. These are
+ * written as `oklch()` and reading the strings back would mean parsing a colour
+ * space; painting them is the browser's own answer for what lands on screen.
+ */
+const painted = (node: Element): [Rgb, Rgb] => {
+  const canvas = document.createElement('canvas')
+  const ink = canvas.getContext('2d')
+  if (!ink) throw new Error('this browser has no 2d canvas to mix the colour in')
+  const read = (colour: string): Rgb => {
+    ink.fillStyle = colour
+    ink.fillRect(0, 0, 1, 1)
+    const [red, green, blue] = ink.getImageData(0, 0, 1, 1).data
+    return [red, green, blue]
+  }
+  const style = getComputedStyle(node)
+  return [read(style.backgroundColor), read(style.color)]
+}
 
 test('a project readme carries its link and its stack', async ({ page }) => {
   const project = projects[0]
