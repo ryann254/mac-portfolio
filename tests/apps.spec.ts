@@ -51,6 +51,32 @@ test('a project shows the figures it has, and a project with none shows none', a
 })
 
 /**
+ * Ryan asked for half the picture and half the words, stacked. Both halves are
+ * measured here rather than the classes being read back, because `basis-1/2`
+ * only lands on half if every box above it has a height to take half of.
+ */
+test('a project puts the picture over the words, half the window each', async ({ page }) => {
+  await gotoDesktop(page, `/safari/${projects[0].slug}`)
+  const shown = windowNamed(page, projects[0].name)
+
+  const picture = await shown.locator('[data-shot]').boundingBox()
+  const words = await shown.locator('[data-words]').boundingBox()
+  if (picture === null || words === null) throw new Error('Safari drew no project')
+
+  expect(picture.y + picture.height, 'the picture ends where the words start').toBeCloseTo(
+    words.y,
+    0,
+  )
+  expect(Math.abs(picture.height - words.height), 'half each').toBeLessThanOrEqual(2)
+
+  // The fade is the whole reason the crop is allowed to land anywhere.
+  const fade = await shown
+    .locator('[data-shot]')
+    .evaluate((shot) => getComputedStyle(shot).maskImage)
+  expect(fade).toContain('linear-gradient')
+})
+
+/**
  * The window shows our own screenshot rather than the site in a frame, because
  * three of the five refuse to be framed. So the one way to the real thing is
  * this link, and a link that opens a tab has to hand the tab no way back.
