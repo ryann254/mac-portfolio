@@ -160,6 +160,23 @@
   opacity: clamp(0, calc((100 - var(--brightness)) * 0.0075), 0.45);
 }
 
+/**
+ * Anything a reader can press shows the hand. macOS shows an arrow over its own
+ * dock and menu bar, but this is a web page pretending to be a desktop, and on
+ * a web page the hand is how a reader knows a thing is pressable at all.
+ *
+ * In the components layer and behind `:where()`, so the cascade's layer order
+ * does all the work: it beats Tailwind's own `button { cursor: default }` in
+ * the base layer, and every `cursor-*` utility beats it in turn. The title bar,
+ * the resize handles, the sheet behind a panel, a sleeping screen and an
+ * enlarged photo all want a different cursor, and all keep theirs.
+ */
+@layer components {
+  :where(button, [role="button"], a[href], summary) {
+    cursor: pointer;
+  }
+}
+
 html,
 body {
   height: 100%;
