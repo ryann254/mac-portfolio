@@ -17,6 +17,20 @@ export type Bounds = {
 /** A width and a height, used for both a window's size and the desktop's. */
 export type Size = { readonly width: number; readonly height: number }
 
+/**
+ * Where the desktop stops being usable. Tailwind's `md`, so one number decides
+ * both the layout CSS switches to and the shape a window takes, and the two
+ * cannot drift apart.
+ */
+export const PHONE = 768
+
+/**
+ * A screen with no room for a window manager. Every window fills it instead,
+ * which is what a phone does with an app, and is why nothing below this width
+ * has a title bar to drag.
+ */
+export const isPhone = (screen: Size): boolean => screen.width < PHONE
+
 /** The menu bar, `h-7` in `menu-bar.tsx`. No title bar is allowed under it. */
 export const MENU_BAR = 28
 

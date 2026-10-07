@@ -30,7 +30,8 @@ test('the menu bar keeps up with the minute turning over', async ({ page }) => {
   await expect(page.getByTestId('menu-clock')).toHaveText('Thu 24 Sep 6:42 PM')
 })
 
-test('the desktop folders open Finder where they point', async ({ page }) => {
+test('the desktop folders open Finder where they point', async ({ page, isMobile }) => {
+  test.skip(Boolean(isMobile), 'under 768px the home screen stands in for the desktop folders')
   await gotoDesktop(page)
 
   const folders = page.getByRole('navigation', { name: 'Desktop' }).getByRole('button')
@@ -85,9 +86,7 @@ test('the clock never ends up behind the dock', async ({ page }) => {
 
 test('everything you can press shows the hand, and the exceptions keep theirs', async ({
   page,
-  isMobile,
 }) => {
-  test.skip(Boolean(isMobile), 'under 768px the menu bar keeps these two icons hidden')
   await gotoDesktop(page)
 
   // The two Ryan hovered, plus a dock icon, because the rule is one rule.

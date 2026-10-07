@@ -51,6 +51,12 @@ export type App = {
   readonly window?: Size
   /** Where this app goes when it leaves the site. The dock marks it and opens a tab. */
   readonly href?: string
+  /**
+   * Kept in the dock on a phone. The home screen already lists every app, so a
+   * dock that listed them again would be the same eight icons twice; these four
+   * are the ones worth a permanent row under it.
+   */
+  readonly pinned?: true
 }
 
 /** An app the window manager can open, narrowed so `window` is no longer optional. */
@@ -60,6 +66,7 @@ export const apps: readonly App[] = [
   {
     id: 'finder',
     reach: 'desktop',
+    pinned: true,
     name: 'Finder',
     icon: '/icons/finder.webp',
     window: { width: 980, height: 640 },
@@ -68,6 +75,7 @@ export const apps: readonly App[] = [
   {
     id: 'safari',
     reach: 'desktop',
+    pinned: true,
     name: 'Safari',
     icon: '/icons/safari.webp',
     window: { width: 940, height: 620 },
@@ -89,6 +97,7 @@ export const apps: readonly App[] = [
   {
     id: 'resume',
     reach: 'desktop',
+    pinned: true,
     name: 'Resume',
     icon: '/icons/preview.webp',
     window: { width: 760, height: 640 },
@@ -96,6 +105,7 @@ export const apps: readonly App[] = [
   {
     id: 'contact',
     reach: 'desktop',
+    pinned: true,
     name: 'Contact',
     icon: '/icons/mail.webp',
     window: { width: 600, height: 480 },
