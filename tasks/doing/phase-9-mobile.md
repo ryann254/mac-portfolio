@@ -1,7 +1,11 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: claude
+files:
+  - src/desktop/mobile/
+  - src/desktop/desktop.tsx
+  - src/app/layout.tsx
+  - tests/mobile.spec.ts
 pr:
 ---
 Problem: A window manager on a 390 pixel phone is unusable, and most people sent a portfolio link open it on a phone.
