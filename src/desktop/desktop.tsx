@@ -4,6 +4,8 @@ import { DeskClock } from './desk-clock'
 import { DeskFolders } from './desk-folders'
 import { Dock } from './dock'
 import { MenuBar } from './menu-bar'
+import { PanelLayer } from './panel-layer'
+import { SystemCurtain } from './system-curtain'
 import { Wallpaper } from './wallpaper'
 import { Welcome } from './welcome'
 import { WindowLayer } from './window-layer'
@@ -23,7 +25,17 @@ export function Desktop({ children }: { children: ReactNode }) {
       <DeskClock />
       <WindowLayer />
       <Dock />
+      <PanelLayer />
       <BootScreen />
+      <SystemCurtain />
+      {/* What the brightness slider does. It takes no pointer events, so a
+          dimmed screen is still a working one, and at full brightness it is
+          transparent and costs the page nothing. */}
+      <div
+        data-dim=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[100] bg-black"
+      />
       {children}
     </main>
   )

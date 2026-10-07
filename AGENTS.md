@@ -6,7 +6,7 @@ A portfolio for Ryan Waweru that looks and behaves like a macOS desktop. Read `P
 
 ## Stack
 
-Next.js App Router, React 19, TypeScript strict, Tailwind 4, zustand, next-themes. Deployed to Vercel. Package manager is pnpm. No animation library: phase 4 measured GSAP at 41.8 kB gzipped for one tween and built the window manager on CSS and pointer events for 2.7 kB. Adding one back needs a measurement and a line in `PLAN.md`.
+Next.js App Router, React 19, TypeScript strict, Tailwind 4, zustand. Deployed to Vercel. Package manager is pnpm. No animation library: phase 4 measured GSAP at 41.8 kB gzipped for one tween and built the window manager on CSS and pointer events for 2.7 kB. Adding one back needs a measurement and a line in `PLAN.md`.
 
 ## Commands
 
@@ -42,6 +42,11 @@ Next.js App Router, React 19, TypeScript strict, Tailwind 4, zustand, next-theme
 - Every content app is a pure view model in a `.ts` beside its `.tsx`, derived from `src/content` and tested against it: `safari-tabs.ts`, `terminal-transcript.ts`, `contact-rows.ts`, `resume-file.ts`, and `project-view.ts` for the two facts about a project no content file writes down, its employer and its host. A string a component invents is a string no unit test can hold to the CV.
 - Every app that opens a window has a body in `app-window.tsx`, and `apps.test.ts` fails if one does not. There is no placeholder to fall back on any more.
 - The menu bar names whichever window is in front, and Finder when there is none.
+- The five panels, meaning Launchpad, Spotlight, Control Centre, About This Site, and the Apple menu, are one table in `src/desktop/panel-layer.tsx` and load on first open, the same way an app body does. One is up at a time, and the layer owns the three ways out: Escape, a press on the desktop behind, and a window coming up in front. A panel that closes itself is a panel with a fourth rule nobody else has.
+- How the desktop looks is three settings in `src/desktop/appearance.ts`: two attributes and a custom property on `<html>`. CSS carries both halves of every colour as a `light-dark()` pair and the default wallpaper on `:root`, so a value nothing recognises falls back and a browser running no JavaScript still follows the system. The script in the layout and `appearance-store.ts` are the only writers, and both take the key and the names from `appearance.ts`.
+- Anything a reader can press shows the hand. One rule in `globals.css`, in the components layer behind `:where()`, so it beats Tailwind 4's own `button { cursor: default }` in the base layer and every `cursor-*` utility beats it in turn. A control that wants a different cursor sets the utility and keeps it.
+- A wallpaper has to read as a wallpaper rather than as a screen that is off, and `tests/wallpaper.spec.ts` holds each one in both themes to a CIELAB lightness plus chroma of 30. Brightness alone does not say it: a dark purple and a dark neutral grey can have the same lightness and only one of them looks like anything. `src/lib/colour.ts` does the arithmetic.
+- `src/desktop/system-state.ts` is the whole of what the machine is doing, including which states hold the desktop behind a curtain and what lifts each one. A state that arrives with no way back to the desktop fails `system-state.test.ts` rather than stranding a reader.
 - Copy goes through the `humanizer` skill before it ships. See the copy section in `PLAN.md`.
 - `public/resume.pdf` is generated from `src/content` by `pnpm resume`, never edited by hand. It is what a recruiter downloads, so it names no employer and `src/lib/resume.test.ts` keeps it that way. Editing content and forgetting to rerun leaves the two out of step.
 - Window drag and resize use pointer events, never mouse events, so touch works.

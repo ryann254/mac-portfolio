@@ -1,7 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test'
-import { BOOTED_KEY } from '../src/desktop/boot-state'
+import { APPEARANCE_KEY, type Appearance, DEFAULT_APPEARANCE } from '../src/desktop/appearance'
 import { HOME, nameAt } from '../src/desktop/file-tree'
+import type { Panel } from '../src/desktop/panels'
 import { showingsOf } from '../src/desktop/routes'
+import { BOOTED_KEY } from '../src/desktop/system-state'
 
 /**
  * What the dock's Finder icon opens. A window is titled by whatever it is on,
@@ -70,4 +72,48 @@ export const finderPlace = (page: Page, slug: string) => page.locator(`[data-pla
 /** Opens a file or walks into a folder, the way a reader with a mouse does. */
 export const openItem = async (page: Page, path: string) => {
   await finderItem(page, path).dblclick()
+}
+
+/**
+ * Lands with a theme, a wallpaper, or a brightness already chosen, the way a
+ * reader who has been here before does. It writes the storage the layout's
+ * script reads before the first paint, so this exercises the real path rather
+ * than reaching into the store.
+ */
+export async function chooseAppearance(page: Page, appearance: Partial<Appearance>): Promise<void> {
+  await page.addInitScript(
+    ([key, value]) => {
+      localStorage.setItem(key, value)
+    },
+    [APPEARANCE_KEY, JSON.stringify({ ...DEFAULT_APPEARANCE, ...appearance })] as const,
+  )
+}
+
+/** The menu bar button that opens a panel, or closes the one it opened. */
+export const panelOpener = (page: Page, panel: Panel) =>
+  page.locator(`[data-panel-opener="${panel}"]`)
+
+/**
+ * The colour the wallpaper actually paints with, read off the gradient stop
+ * rather than off the custom property behind it. Both say which palette is on,
+ * and this one also says the page resolved it.
+ */
+export const wallpaperColour = (page: Page) =>
+  page
+    .locator('#wall-base stop')
+    .first()
+    .evaluate((node) => getComputedStyle(node).stopColor)
+
+/**
+ * Tabs from the top of the page until the keyboard is on the dock, and answers
+ * with how many presses that took. A number written down here instead would be
+ * two numbers: the menu bar comes before the dock in the tab order and part of
+ * it is hidden under 640px, so the count is not the same on a phone.
+ */
+export async function tabToTheDock(page: Page): Promise<number> {
+  for (let presses = 1; presses <= 12; presses += 1) {
+    await page.keyboard.press('Tab')
+    if ((await page.locator(':focus[data-dock-item]').count()) > 0) return presses
+  }
+  throw new Error('twelve presses of Tab never reached the dock')
 }

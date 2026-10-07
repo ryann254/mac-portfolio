@@ -1,6 +1,15 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 import { handles, MENU_BAR } from '../src/desktop/window-bounds'
-import { dockIcon, FINDER, gotoDesktop, openWindow, SAFARI, settled, windowNamed } from './desktop'
+import {
+  dockIcon,
+  FINDER,
+  gotoDesktop,
+  openWindow,
+  SAFARI,
+  settled,
+  tabToTheDock,
+  windowNamed,
+} from './desktop'
 
 test.skip(
   ({ isMobile }) => Boolean(isMobile),
@@ -179,8 +188,7 @@ test('clicking a window behind brings it to the front', async ({ page }) => {
 test('the keyboard alone opens a window, lands in it, and closes it', async ({ page }) => {
   await gotoDesktop(page)
 
-  // Four desktop folders come first in the tab order, then the dock.
-  for (let press = 0; press < 5; press += 1) await page.keyboard.press('Tab')
+  await tabToTheDock(page)
   await expect(page.locator(':focus')).toHaveAttribute('aria-label', 'Finder')
 
   await page.keyboard.press('Enter')

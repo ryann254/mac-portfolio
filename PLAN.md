@@ -26,6 +26,11 @@ Recorded 2026-09-22 from your answers. Change any of them by editing this sectio
 | Finder's address | `/finder` settles to the folder it opens in, decided 2026-09-30. A Finder window is always in a folder, so `/finder` names one only until the window is up, and then the address says which folder it is. Every folder in the sidebar keeps its own address; a folder inside one does not, because Safari already has the shareable link to a project. |
 | Safari's address | `/safari` settles to the project it opens on, decided 2026-09-30. Safari is always on a project the way Finder is always in a folder, so one rule covers both: a window asked for with nothing opens on what it is already on, and a window that is not up yet on the first thing the app has. |
 | The resume viewer | The browser's own, decided 2026-09-30. Drawing a page rail and a zoom would be a second PDF renderer to keep in step with the file, and worse than the one already in the browser. A browser with no viewer, which is most of them on a phone, gets the file instead of a grey rectangle. |
+| Dark mode | The reader's own, held in one attribute, decided 2026-10-06. `data-theme` goes on `<html>` only once they have overridden the system, so a browser running no JavaScript still reads `prefers-color-scheme`, which is what every colour on the site is written against. It costs two rules per `dark:` utility, about 9 kB of the document gzipped. |
+| next-themes | Dropped, decided 2026-10-06. The theme is one of three things Control Centre changes, and the wallpaper and the brightness need the same script before the first paint and the same storage. One module for all three beat a library for one of them with two more mechanisms beside it. |
+| A wallpaper has to look like one | Light enough or coloured enough, decided 2026-10-07. Graphite's night half shipped as a neutral near-black and Ryan reported the deployed site as a black background he could not change. Lightness alone does not catch it: that palette and Monterey's night were within a point of each other in L\*, and one reads as a dark purple while the other reads as a screen that is off. Chroma is the whole of the difference, so `tests/wallpaper.spec.ts` holds every wallpaper in both themes to L\* + C\* of 30 or more. The one that shipped scores 19.8. |
+| The three wallpapers | One drawn composition, three palettes, decided 2026-10-06. Monterey is the one the phase 2 mockup was approved with; Tide and Graphite are the same paths in blue and in grey. A palette is twenty-three colours and the alternative was three photographs at 380 kB each. Tide's day half was darkened twice before the welcome text cleared 4.5:1 over it, which is what `tests/contrast.spec.ts` is for. |
+| Shut Down | A sixth state, decided 2026-10-06. Sleeping and shut down look the same on a web page, and giving them one state would have left the Apple menu with two items that do one thing. Off is the state only the power lifts, and lifting it replays the boot. |
 | How a text file reads | A document, decided 2026-10-06. Ryan called the monospace windows boring and they were: a role has a title, a company, a span of time and a list of what was done, and `file-tree.ts` was flattening all four into paragraphs joined by newlines. A file is blocks now, a paragraph or a list or a labelled set of tags, and the window sets them. A mockup with the plain-text version beside the document one settled it. |
 | A project's figures | Two at most, out of the project's own sentences, decided 2026-10-06. The numbers are the best thing on a project page and they were buried in the third line of a paragraph. `results` on a project holds them, `content.test.ts` refuses any number the write-up does not already say, and a project whose work has no numbers shows no tiles rather than a rounded-up one. |
 | Safari's project page | The screenshot runs the full width under the address bar and fades out, decided 2026-10-06. The two-column pane filled the top half of the window and left 240px of nothing under it, and a browser window showing a site is the whole conceit. Nothing is set over the picture: the site has its own headline in it. |
@@ -78,7 +83,7 @@ We take what JSM doesn't have:
 - Spotlight.
 - Control Center with dark mode, brightness, and wallpaper.
 - Eight-handle window resize and maximize that respects the menu bar and dock.
-- Day and night wallpapers, dark mode through next-themes.
+- Day and night wallpapers, and a dark mode the reader can set.
 - The app and wallpaper assets in `public/`.
 
 We leave: the prop drilling, mouse-only events, the unused shadcn boilerplate, and multiple windows per app.
@@ -95,7 +100,7 @@ Judged on the three things you named:
 - Package support. Any React package works in Next.js. Astro islands are each their own React root, so packages that expect one provider at the top need extra care.
 - Load times. Astro wins by 30 to 40 KB of JavaScript, which is 100 to 200 ms on 4G. Next.js prerenders every page at build, and the boot screen covers hydration. Both hit Lighthouse 100 with discipline.
 
-So: the current stable Next.js with the App Router, React 19, TypeScript strict, Tailwind 4, zustand, next-themes. GSAP was in this list until phase 4 measured it. See the motion section. Deployed to Vercel on the free Hobby plan. No `output: 'export'`, because Vercel prerenders static pages by default and keeps `next/image` optimisation working, which the export mode disables.
+So: the current stable Next.js with the App Router, React 19, TypeScript strict, Tailwind 4, zustand. GSAP was in this list until phase 4 measured it and next-themes until phase 8 wrote the theme, the wallpaper, and the brightness as one thing. See the motion section and the decisions table. Deployed to Vercel on the free Hobby plan. No `output: 'export'`, because Vercel prerenders static pages by default and keeps `next/image` optimisation working, which the export mode disables.
 
 The Vite SPA the JSM video uses was considered and set aside. With no prerendered HTML the desktop is blank until the JavaScript arrives, and you asked for SSG.
 
@@ -116,6 +121,8 @@ The desktop is the root layout, so all of these are the same screen and a page s
 
 The address is whichever window is in front. Opening one calls `history.pushState`, which the Next.js router picks up natively, and focusing, closing, and minimising call `replaceState`, because bringing a window forward is not somewhere new to go back from. Back and forward hand the desktop an address and it rebuilds from it: the window that address names comes to the front, and `/` is the desktop with nothing on it, which is what makes back undo an open. A URL carries one window, so a second one left open behind it is not in the link a reader shares.
 
+The five panels have no address either, and for a plainer reason: a panel is not a window. Launchpad, Spotlight, Control Centre, About This Site, and the Apple menu are things a reader opens where they are, the way they would on a Mac, and a link to one of them would be a link to a menu hanging over somebody else's desktop.
+
 A window with nothing pointing at it leaves the address alone, and there are three of them: the text and image windows, because only a file names one and an address carries no file; a folder deeper in Finder than the sidebar goes; and the 404, which is Finder at a folder that is not there. All three fail the same check rather than each getting a rule, and `not-found.tsx` opens the last of them over the desktop.
 
 ### Content: typed constants, like JSM, in TypeScript
@@ -129,6 +136,8 @@ zustand, no immer. Phase 4 built it as two pieces: `window-state.ts` holds the r
 The array is in stacking order, front last, which turns three rules into no code at all. The front window is the last one. Closing hands the front to whatever was under it. Focusing is a move to the end, so there is no z-index counter to keep in step. z-index is the array index at render. Maximised windows are drawn against the desktop's own edges instead of a stored rectangle, so restoring one is exact and a browser resize cannot strand it. Actions: `open`, `focus`, `close`, `minimize`, `toggleMaximized`, `place`.
 
 Drag and resize do not go through the store while the pointer is down. The frame holds the live rectangle in its own state and commits it with `place` on release, so a gesture re-renders one window instead of the desktop. `window-bounds.ts` holds the arithmetic: an eight-entry table of which edges each handle moves, the clamp that keeps a title bar out from under the menu bar, and where a new window cascades to.
+
+The shell has a second store, from phase 8: `system-store.ts`, over `system-state.ts` and `panels.ts`. It holds what the machine is doing, which is the state machine phase 3 wrote, and which panel is up, which is one field because only one ever is. Neither survives a reload, because a reader who comes back wants a desktop rather than the lock screen they left. What does survive is in `appearance-store.ts`, and that writes to `<html>` and to local storage together so neither can get ahead of the other.
 
 The app registry, `apps.ts`, is one typed array. An app with a `window` size opens on the desktop; Launchpad has none because it is a full-screen overlay. The dock, Launchpad, Spotlight, and the router all read that one array. No app-specific branches anywhere else.
 
@@ -229,7 +238,7 @@ It runs twice. Once in phase 1, when the copy is first drafted, so we're not pol
 
 Phase 0 measured the floor instead of guessing it. A page with one heading on it costs 135.5 KB of gzipped JavaScript, which is React 19 and the Next.js App Router runtime and nothing of ours. That is the number every later phase builds on top of.
 
-From there, all gzipped: zustand 1 KB, next-themes 2 KB, and the shell we write, meaning the window manager, dock, menu bar, and boot screen, about 30 KB. The budget also held 30 KB for GSAP, which phase 4 did not spend. That lands near 200 KB, so the JavaScript budget is 230 KB and the total transfer budget stays at 600 KB. Add app icons at 60 KB and Inter at 48 KB, with the wallpaper drawn inline for about 8 KB, and a cold load sits around 350 KB.
+From there, all gzipped: zustand 1 KB and the shell we write, meaning the window manager, dock, menu bar, and boot screen, about 30 KB. The budget also held 30 KB for GSAP, which phase 4 did not spend, and 2 KB for next-themes, which phase 8 did not either. That lands near 200 KB, so the JavaScript budget is 230 KB and the total transfer budget stays at 600 KB. Add app icons at 60 KB and Inter at 48 KB, with the wallpaper drawn inline for about 8 KB, and a cold load sits around 350 KB.
 
 The first estimate here said 160 KB of JavaScript, written before anything had been built. It was wrong by the width of the Next.js runtime, and phase 4 would have breached it before a single window opened. Measure first, then budget.
 
@@ -285,7 +294,14 @@ Mac-Portfolio/
       project-view.ts              a project's employer, host, and picture
       safari-tabs.ts  terminal-transcript.ts  contact-rows.ts  resume-file.ts
       safari.tsx  terminal.tsx  photos.tsx  resume-window.tsx  contact.tsx
-      Launchpad.tsx  Spotlight.tsx  ControlCenter.tsx
+      system-state.ts  system-store.ts  what the machine is doing, and the curtains
+      panels.ts                    which panel is up, and the rule that one is
+      appearance.ts  appearance-store.ts   the theme, the wallpaper, the brightness
+      search.ts                    what Spotlight searches, and Launchpad's filter
+      panel-layer.tsx              which panel is drawn, and the three ways out of one
+      apple-menu.tsx  launchpad.tsx  spotlight.tsx
+      control-centre.tsx  about-this-site.tsx
+      system-curtain.tsx           asleep, locked, and off
       mobile/                  HomeScreen  AppSheet
     styles/globals.css         Tailwind 4 theme tokens, light and dark
   public/
@@ -371,9 +387,9 @@ Done when: those tests pass and every app's screenshot matches its mockup tab.
 
 ### Phase 8: system apps
 
-Build: Launchpad, Spotlight, Control Center with dark mode, brightness, and wallpaper, the Apple menu with About This Site, Sleep, Lock Screen, Restart, Shut Down.
+Build: Launchpad, Spotlight on Cmd+K, Control Centre with dark mode, brightness, and wallpaper, and the Apple menu with About This Site, Sleep, Lock Screen, Restart, and Shut Down. The five of them are panels rather than windows, so one rule covers all five: one is up at a time, and the layer around them owns Escape, the press on the desktop behind, and the window that comes up in front. Each loads on first open, like an app body, so none of them is on the first load. The theme, the wallpaper, and the brightness are three settings with one mechanism, two attributes and a custom property on `<html>`, written before the first paint by a script in the layout and after it by one store, with both halves of every colour in CSS as a `light-dark()` pair. Sleep, Lock Screen, Restart, and Shut Down are the state machine phase 3 wrote, with a sixth state for a machine that is off.
 
-Tests, unit: the Spotlight search function ranks an exact app name first, finds projects by name and by stack tag, finds roles by company, and returns nothing for an empty query. Tests, browser: Cmd+K opens Spotlight and Escape closes it, choosing a result opens the app, Launchpad shows every registry app and filters as you type, dark mode toggles and survives a reload, wallpaper choice survives a reload, Lock Screen and Sleep show and dismiss, Restart replays the boot.
+Tests, unit: the Spotlight search function ranks an exact app name first, finds projects by name and by stack tag, finds roles by company, and returns nothing for an empty query; every row it returns opens something the registry or the file tree really has. The state machine reaches every state, and every state that holds the desktop has a curtain with a way back out of it. The script that runs before the first paint is run against a document and asked what it wrote. Tests, browser: Cmd+K opens Spotlight and Escape closes it, the arrow keys walk the results while the keyboard stays in the box, choosing a result opens the app, Launchpad lists every app a reader can open and filters as you type, dark mode and the wallpaper and the brightness each survive a reload, Lock Screen and Sleep show and dismiss, Shut Down leaves a screen only the power lifts, and Restart replays the boot. Contrast is measured for all three wallpapers in both themes rather than for the one.
 
 Done when: those tests pass and the theme screenshots from phases 3, 6, and 7 still match.
 

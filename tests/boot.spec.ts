@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { BOOTED_KEY } from '../src/desktop/boot-state'
+import { BOOTED_KEY } from '../src/desktop/system-state'
 
 test('the boot screen is in the server response, before any JavaScript runs', async ({
   request,
