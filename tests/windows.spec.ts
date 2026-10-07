@@ -90,6 +90,10 @@ test('a flick of the title bar still lands where the pointer let go', async ({ p
  * clamp instead of the handle.
  */
 test('each of the eight handles resizes on its own axis', async ({ page }) => {
+  /* Eight windows opened, dragged and closed one after another. It is the one
+     test in the suite that genuinely needs longer than thirty seconds, and it
+     started tipping over the default once the suite grew past 140 tests. */
+  test.slow()
   await gotoDesktop(page)
 
   for (const handle of handles) {
