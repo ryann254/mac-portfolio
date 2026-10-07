@@ -40,7 +40,7 @@ export function Finder() {
     <div className="flex h-full min-h-0">
       <nav
         aria-label="Places"
-        className="w-[186px] shrink-0 overflow-auto border-black/10 border-r-[0.5px] bg-zinc-100/55 p-2 dark:border-white/10 dark:bg-zinc-900/35"
+        className="w-[116px] shrink-0 overflow-auto border-black/10 border-r-[0.5px] bg-zinc-100/55 p-2 md:w-[186px] dark:border-white/10 dark:bg-zinc-900/35"
       >
         <p className="px-2 pt-2 pb-1 font-semibold text-[11px] text-zinc-500 dark:text-zinc-400">
           Favourites
@@ -53,7 +53,7 @@ export function Finder() {
                 data-place={location.slug}
                 aria-current={location.slug === root ? 'page' : undefined}
                 onClick={() => goTo(location.slug)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-[5px] text-left text-[13px] text-zinc-800 hover:bg-black/[0.06] aria-[current]:bg-black/[0.08] aria-[current]:font-medium focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:-outline-offset-2 dark:text-zinc-100 dark:hover:bg-white/10 dark:aria-[current]:bg-white/[0.14]"
+                className="flex w-full items-center gap-2 truncate rounded-md px-2 py-[5px] text-left text-[12px] md:text-[13px] text-zinc-800 hover:bg-black/[0.06] aria-[current]:bg-black/[0.08] aria-[current]:font-medium focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:-outline-offset-2 dark:text-zinc-100 dark:hover:bg-white/10 dark:aria-[current]:bg-white/[0.14]"
               >
                 {/* biome-ignore lint/performance/noImgElement: drawn art at a
                     fixed 15 px, and the optimiser refuses SVG without
@@ -66,7 +66,10 @@ export function Finder() {
         </ul>
       </nav>
 
-      <div data-testid="finder-pane" className="min-w-0 flex-1 overflow-auto px-[22px] py-[18px]">
+      <div
+        data-testid="finder-pane"
+        className="min-w-0 flex-1 overflow-auto px-3 py-[18px] md:px-[22px]"
+      >
         {found.length === 0 ? (
           <p className="text-[13px] text-zinc-500 dark:text-zinc-400">
             {finding.trim() === ''
@@ -76,7 +79,7 @@ export function Finder() {
         ) : (
           <ul
             role="list"
-            className="grid grid-cols-[repeat(auto-fill,minmax(112px,1fr))] content-start gap-x-1 gap-y-1.5"
+            className="grid grid-cols-[repeat(auto-fill,minmax(84px,1fr))] content-start gap-x-1 gap-y-1.5 md:grid-cols-[repeat(auto-fill,minmax(112px,1fr))]"
           >
             {found.map((node) => (
               <li key={node.path}>

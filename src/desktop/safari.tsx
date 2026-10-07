@@ -33,7 +33,7 @@ export function Safari({ target }: { target: Target }) {
             data-tab={tab.slug}
             aria-current={tab.slug === page.slug ? 'page' : undefined}
             onClick={() => open({ app: 'safari', showing: tab.slug })}
-            className="max-w-[190px] truncate rounded-t-[8px] bg-black/[0.06] px-3 py-1.5 text-[12.5px] text-zinc-500 aria-[current]:bg-white/85 aria-[current]:font-medium aria-[current]:text-zinc-900 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:-outline-offset-2 dark:bg-white/[0.07] dark:text-zinc-400 dark:aria-[current]:bg-zinc-800/85 dark:aria-[current]:text-zinc-50"
+            className="max-w-[190px] shrink-0 truncate rounded-t-[8px] bg-black/[0.06] px-3 py-1.5 text-[12.5px] text-zinc-500 aria-[current]:bg-white/85 aria-[current]:font-medium aria-[current]:text-zinc-900 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:-outline-offset-2 dark:bg-white/[0.07] dark:text-zinc-400 dark:aria-[current]:bg-zinc-800/85 dark:aria-[current]:text-zinc-50"
           >
             {tab.name}
           </button>

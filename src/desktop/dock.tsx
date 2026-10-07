@@ -23,6 +23,10 @@ type Geometry = {
 
 export function Dock() {
   const dock = useRef<HTMLDivElement>(null)
+  /* A window on a phone fills the screen, so a dock over it would be sitting on
+     the app rather than beside it. It comes back when the app is closed, which
+     is the only way back to the home screen there anyway. */
+  const covered = useWindows((store) => store.phone && store.stack.some((one) => !one.minimized))
 
   useEffect(() => {
     const element = dock.current
@@ -91,13 +95,17 @@ export function Dock() {
       ref={dock}
       data-dock=""
       data-testid="dock"
+      hidden={covered}
       className="-translate-x-1/2 absolute bottom-2.5 left-1/2 z-[76] rounded-[20px] border-[0.5px] border-white/35 bg-white/25 p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.28)] backdrop-blur-xl backdrop-saturate-[1.7] dark:border-white/15 dark:bg-zinc-700/40"
     >
       <ul role="list" aria-label="Dock" className="flex items-end gap-[5px] sm:gap-[7px]">
         {dockApps.map((app) => (
           <DockItem key={app.id} app={app} />
         ))}
-        <li aria-hidden="true" className="my-1 mx-[3px] w-px self-stretch bg-white/35" />
+        <li
+          aria-hidden="true"
+          className="my-1 mx-[3px] w-px self-stretch bg-white/35 max-md:hidden"
+        />
         {offsiteApps.map((app) => (
           <DockItem key={app.id} app={app} />
         ))}
@@ -107,6 +115,10 @@ export function Dock() {
 }
 
 function DockItem({ app }: { app: App }) {
+  /* A phone's home screen lists every app already, so the dock there keeps only
+     the four worth a permanent row. The rest are hidden in CSS rather than
+     filtered out, because the layout is picked before any JavaScript has run. */
+  const room = app.pinned ? '' : ' max-md:hidden'
   const open = useWindows((store) => isOpen(store.stack, app.id))
   const show = useWindows((store) => store.open)
   const togglePanel = useSystem((store) => store.togglePanel)
@@ -146,7 +158,7 @@ function DockItem({ app }: { app: App }) {
 
   if (app.reach === 'offsite') {
     return (
-      <li>
+      <li className={room}>
         <a
           data-dock-item=""
           href={app.href}
@@ -163,7 +175,7 @@ function DockItem({ app }: { app: App }) {
 
   if (opensAWindow(app)) {
     return (
-      <li>
+      <li className={room}>
         <button
           type="button"
           data-dock-item=""
@@ -184,7 +196,7 @@ function DockItem({ app }: { app: App }) {
      Launchpad. It opens the panel of the same name, and pressing the icon again
      closes it. */
   return (
-    <li>
+    <li className={room}>
       <button
         type="button"
         data-dock-item=""

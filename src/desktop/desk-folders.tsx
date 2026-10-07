@@ -10,6 +10,9 @@ import { useWindows } from './window-store'
  * dock does, at a folder rather than at the app, which is what a folder on a
  * real desktop does. Phase 6 gives Finder the file tree behind them.
  *
+ * A phone has no desktop to put them on, so under 768px the home screen's grid
+ * stands in: it reaches the same folders through Finder's own icon.
+ *
  * The labels carry their own backdrop, which macOS does not. White text on the
  * pale half of this wallpaper measures 2.6:1, and a text shadow is not enough
  * to fix that; `tests/contrast.spec.ts` reads the pixels and holds it to 4.5.
@@ -25,7 +28,7 @@ export function DeskFolders() {
   const open = useWindows((store) => store.open)
 
   return (
-    <nav aria-label="Desktop" className="absolute top-[38px] left-5 z-10">
+    <nav aria-label="Desktop" className="absolute top-[38px] left-5 z-10 hidden md:block">
       <ul className="flex flex-col gap-1" role="list">
         {folders.map((folder) => (
           <li key={folder.label}>
@@ -49,6 +52,7 @@ export function DeskFolders() {
               />
               <span
                 data-testid="folder-label"
+                data-over-wallpaper
                 className="rounded bg-black/35 px-1.5 [text-shadow:0_1px_4px_rgba(0,0,0,0.55)]"
               >
                 {folder.label}
