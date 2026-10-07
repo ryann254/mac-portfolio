@@ -18,6 +18,13 @@ import { useWindows } from './window-store'
 export function useWindowUrl(): void {
   useEffect(() => {
     const stop = useWindows.subscribe((state, before) => {
+      /* The store holds more than the windows, and a change to the rest cannot
+         change the address. Without this, learning the screen size on mount
+         notified with nothing open and replaced a deep link with `/` before the
+         window it named had been opened. `refit` hands back the same array when
+         no window moved, so this is an identity check rather than a comparison. */
+      if (state.stack === before.stack) return
+
       const front = frontTarget(state.stack)
       const route = routeOf(front)
       if (route === undefined || route === globalThis.location.pathname) return
