@@ -1,5 +1,5 @@
 ---
-status: doing
+status: review
 owner: claude
 files:
   - src/content/types.ts
