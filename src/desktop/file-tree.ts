@@ -46,6 +46,8 @@ export type TextFile = {
   readonly subtitle?: string
   /** The one address a file is about. Only a project's readme has one. */
   readonly link?: string
+  /** The company's mark, drawn above the title. Only a role has one, and not every role. */
+  readonly logo?: string
   readonly blocks: readonly Block[]
 }
 
@@ -109,6 +111,7 @@ const roleFile = (role: Role): TextFile =>
     name: `${role.slug}.txt`,
     title: role.title,
     subtitle: [role.company, span(role), `${role.location}, ${role.arrangement}`].join(' · '),
+    logo: role.logo,
     blocks: [list(role.bullets)],
   })
 

@@ -47,6 +47,12 @@ export type Role = {
   readonly location: string
   readonly arrangement: 'remote' | 'hybrid' | 'on-site'
   readonly bullets: readonly string[]
+  /**
+   * The company's own mark, fetched by `pnpm logos`. Absent for the four
+   * companies with no site left to take one from, which a role's file handles
+   * by leaving the space out: the line under the title names the company.
+   */
+  readonly logo?: `/logos/${string}`
 }
 
 /**

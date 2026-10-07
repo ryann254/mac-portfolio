@@ -75,6 +75,28 @@ test('a role file reads as a document, with its figures set apart', async ({ pag
   await expect(text.locator('b', { hasText: /^\d{4}$/ })).toHaveCount(0)
 })
 
+/**
+ * Four of the eight companies have no site left to take a logo from, so both
+ * halves are checked: the ones with a mark wear it, and the ones without still
+ * say who they were for in the line under the title.
+ */
+test('a role wears its company logo, and reads without one', async ({ page }) => {
+  const [withLogo] = experience.filter((role) => role.logo !== undefined)
+  const [without] = experience.filter((role) => role.logo === undefined)
+
+  await gotoDesktop(page, '/finder/experience')
+  await openItem(page, `experience/${withLogo.slug}.txt`)
+  const marked = windowNamed(page, `${withLogo.slug}.txt`)
+  await expect(marked.locator('[data-logo] img')).toHaveAttribute('src', withLogo.logo ?? '')
+
+  // Back to the desktop, because the file just opened is now over Finder.
+  await gotoDesktop(page, '/finder/experience')
+  await openItem(page, `experience/${without.slug}.txt`)
+  const bare = windowNamed(page, `${without.slug}.txt`)
+  await expect(bare.locator('[data-logo]')).toHaveCount(0)
+  await expect(bare).toContainText(without.company)
+})
+
 test('a project readme carries its link and its stack', async ({ page }) => {
   const project = projects[0]
   await gotoDesktop(page, '/finder/projects')

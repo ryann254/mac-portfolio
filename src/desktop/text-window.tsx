@@ -20,6 +20,7 @@ export function TextWindow({ target }: { target: Target }) {
 
   return (
     <article className="h-full overflow-auto px-8 py-7">
+      {file.logo && <Letterhead src={file.logo} />}
       <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
         {file.title}
       </h2>
@@ -47,6 +48,27 @@ export function TextWindow({ target }: { target: Target }) {
         <Written key={`${file.path}-${at}`} block={block} lead={at === 0} />
       ))}
     </article>
+  )
+}
+
+/**
+ * The company's own mark above the title, the way a letter from them would
+ * carry it. Every one of these was drawn for a white page, and two of the four
+ * are near-black, so the tile stays white in both themes rather than the marks
+ * taking turns disappearing.
+ *
+ * No alt text: the line under the title already names the company, and a screen
+ * reader saying `Streamlyne logo` immediately before `Streamlyne` says it twice.
+ */
+function Letterhead({ src }: { src: string }) {
+  return (
+    <div
+      data-logo
+      className="mb-3.5 flex h-9 w-fit items-center rounded-[7px] bg-white px-2.5 ring-1 ring-black/10 ring-inset dark:ring-white/15"
+    >
+      {/* biome-ignore lint/performance/noImgElement: drawn art the optimiser refuses outright without dangerouslyAllowSVG. */}
+      <img src={src} alt="" className="h-6 w-auto" />
+    </div>
   )
 }
 

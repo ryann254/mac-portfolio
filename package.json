@@ -17,7 +17,8 @@
     "resume": "tsx scripts/build-resume.ts",
     "lighthouse": "lhci autorun",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm copy",
-    "copy": "tsx scripts/copy-check.ts"
+    "copy": "tsx scripts/copy-check.ts",
+    "logos": "tsx scripts/fetch-logos.ts"
   },
   "dependencies": {
     "next": "16.3.5",
