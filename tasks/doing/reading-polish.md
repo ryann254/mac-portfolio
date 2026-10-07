@@ -17,7 +17,7 @@ Done when:
 - A project page stacks at every width, picture above words.
 - The picture ends in a fade, never a hard edge.
 - Picture and words each get half the window's height.
-- Every role with a reachable logo shows it; the rest show none and still read.
+- Every role wears a mark: the company's own logo, or initials where there is no site left to take one from.
 - The logos come from a script a reviewer can rerun.
 Out of scope: The mobile layout, which is phase 9.
 
@@ -36,7 +36,7 @@ Done when, line by line:
   rather than read off the classes, because `basis-1/2` only lands on half if
   every box above it has a height to take half of. Both halves agree within two
   pixels at 940x620 and maximised at 1440x900.
-- Every role with a reachable logo shows it; the rest show none and still read.
+- Every role wears a mark: the company's own logo, or initials where there is no site left to take one from.
   Four of eight have a logo. `tests/finder.spec.ts` opens one of each.
 - The logos come from a script a reviewer can rerun: `pnpm logos`.
 
@@ -55,3 +55,13 @@ themes, a contact sheet of all four marks, and the bgr walkthrough.
 `pnpm resume` writes a new `public/resume.pdf` on every run because the
 generator stamps the PDF with the time it ran. The bytes change when nothing
 about the CV did, so a content edit cannot be told apart from a rebuild.
+
+## After the turn-in
+
+Ryan read the three options for the four companies with no reachable logo and
+chose the lettermark. `lettermark.ts` derives the letters from the capitals the
+company already writes its name with, and the colour from a hash of the name, so
+a ninth role on the CV arrives with a mark and there is no table to keep in step.
+White on a generated colour is exactly the thing that works for seven names and
+fails for the eighth, so the browser test paints all four tiles and holds each to
+4.5:1. At `oklch(0.48 0.13 h)` the worst of the four clears it.

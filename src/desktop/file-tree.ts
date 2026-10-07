@@ -1,6 +1,7 @@
 import { experience, profile, projects } from '@/content'
 import type { Project, Role, YearMonth } from '@/content/types'
 import type { AppId } from './apps'
+import { hueOf, initialsOf } from './lettermark'
 import { locations } from './locations'
 import { altOf, employerOf } from './project-view'
 
@@ -35,6 +36,15 @@ export type Block =
   | { readonly kind: 'list'; readonly items: readonly string[] }
   | { readonly kind: 'tags'; readonly label: string; readonly items: readonly string[] }
 
+/**
+ * What stands for a company above a role's title. Four of the eight have a logo
+ * on a site we can still reach; the rest get initials on a colour of their own,
+ * so every role wears something rather than four of them wearing a gap.
+ */
+export type Mark =
+  | { readonly kind: 'logo'; readonly src: string }
+  | { readonly kind: 'letters'; readonly text: string; readonly hue: number }
+
 export type TextFile = {
   readonly kind: 'text'
   readonly path: string
@@ -46,8 +56,8 @@ export type TextFile = {
   readonly subtitle?: string
   /** The one address a file is about. Only a project's readme has one. */
   readonly link?: string
-  /** The company's mark, drawn above the title. Only a role has one, and not every role. */
-  readonly logo?: string
+  /** The company's mark, drawn above the title. Only a role file has one. */
+  readonly mark?: Mark
   readonly blocks: readonly Block[]
 }
 
@@ -105,13 +115,18 @@ const imageFile = (parent: string, name: string, src: string, alt: string): Imag
   alt,
 })
 
+const markOf = (role: Role): Mark =>
+  role.logo === undefined
+    ? { kind: 'letters', text: initialsOf(role.company), hue: hueOf(role.company) }
+    : { kind: 'logo', src: role.logo }
+
 const roleFile = (role: Role): TextFile =>
   textFile({
     parent: 'experience',
     name: `${role.slug}.txt`,
     title: role.title,
     subtitle: [role.company, span(role), `${role.location}, ${role.arrangement}`].join(' · '),
-    logo: role.logo,
+    mark: markOf(role),
     blocks: [list(role.bullets)],
   })
 

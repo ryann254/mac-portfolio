@@ -1,5 +1,6 @@
-import type { Block } from './file-tree'
+import type { Block, Mark } from './file-tree'
 import { fileAt } from './file-tree'
+import { lettermarkColour } from './lettermark'
 import { MissingFile } from './missing-file'
 import { Prose } from './prose'
 import type { Target } from './routes'
@@ -20,7 +21,7 @@ export function TextWindow({ target }: { target: Target }) {
 
   return (
     <article className="h-full overflow-auto px-8 py-7">
-      {file.logo && <Letterhead src={file.logo} />}
+      {file.mark && <Letterhead mark={file.mark} />}
       <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
         {file.title}
       </h2>
@@ -53,21 +54,40 @@ export function TextWindow({ target }: { target: Target }) {
 
 /**
  * The company's own mark above the title, the way a letter from them would
- * carry it. Every one of these was drawn for a white page, and two of the four
- * are near-black, so the tile stays white in both themes rather than the marks
- * taking turns disappearing.
+ * carry it. Both kinds get the same tile, so the band above a role's title is
+ * the same height whether the company still has a site or not.
  *
- * No alt text: the line under the title already names the company, and a screen
- * reader saying `Streamlyne logo` immediately before `Streamlyne` says it twice.
+ * A logo keeps a white tile in both themes: every one of these was drawn for a
+ * white page and two of the four are near-black, so a tile that followed the
+ * theme would have the marks taking turns disappearing. Initials bring their
+ * own colour and are set in white on it, which `tests/finder.spec.ts` holds to
+ * 4.5:1 for whichever hue the name lands on.
+ *
+ * Neither is read out: the line under the title already names the company, and
+ * a screen reader saying `Streamlyne logo` immediately before `Streamlyne` says
+ * it twice.
  */
-function Letterhead({ src }: { src: string }) {
+function Letterhead({ mark }: { mark: Mark }) {
+  if (mark.kind === 'letters') {
+    return (
+      <div
+        data-logo
+        aria-hidden="true"
+        style={{ backgroundColor: lettermarkColour(mark.hue) }}
+        className="mb-3.5 flex h-9 min-w-9 w-fit items-center justify-center rounded-[7px] px-2.5 font-[680] text-[15px] text-white tracking-[0.04em]"
+      >
+        {mark.text}
+      </div>
+    )
+  }
+
   return (
     <div
       data-logo
       className="mb-3.5 flex h-9 w-fit items-center rounded-[7px] bg-white px-2.5 ring-1 ring-black/10 ring-inset dark:ring-white/15"
     >
       {/* biome-ignore lint/performance/noImgElement: drawn art the optimiser refuses outright without dangerouslyAllowSVG. */}
-      <img src={src} alt="" className="h-6 w-auto" />
+      <img src={mark.src} alt="" className="h-6 w-auto" />
     </div>
   )
 }
