@@ -120,35 +120,35 @@
 }
 
 [data-wallpaper="graphite"] {
-  --wall-base-1: light-dark(#3f3f47, #16161a);
-  --wall-base-2: light-dark(#52525b, #1d1d22);
-  --wall-base-3: light-dark(#7c7c86, #27272e);
-  --wall-base-4: light-dark(#b4b4be, #33333b);
+  --wall-base-1: light-dark(#4a4f58, #2b2f36);
+  --wall-base-2: light-dark(#5c616b, #343841);
+  --wall-base-3: light-dark(#858a95, #40454f);
+  --wall-base-4: light-dark(#b4b9c4, #4d525e);
 
-  --wall-left-1: light-dark(#404048, #16161b);
-  --wall-left-2: light-dark(#46464e, #1a1a1f);
-  --wall-left-3: light-dark(#5d5d66, #222228);
-  --wall-left-4: light-dark(#7e7e88, #2d2d35);
+  --wall-left-1: light-dark(#4b5059, #2c3037);
+  --wall-left-2: light-dark(#51565f, #31353c);
+  --wall-left-3: light-dark(#676c76, #3a3f48);
+  --wall-left-4: light-dark(#878c97, #464b56);
 
-  --wall-ridge-1: light-dark(#303038, #0e0e11);
-  --wall-ridge-2: light-dark(#3a3a42, #131317);
-  --wall-ridge-3: light-dark(#4c4c55, #1b1b20);
+  --wall-ridge-1: light-dark(#3a3e46, #262a31);
+  --wall-ridge-2: light-dark(#444851, #2b2f36);
+  --wall-ridge-3: light-dark(#565a64, #343942);
 
-  --wall-right-1: light-dark(#cacad2, #3b3b44);
-  --wall-right-2: light-dark(#a8a8b2, #2f2f37);
-  --wall-right-3: light-dark(#85858f, #25252c);
-  --wall-right-4: light-dark(#62626c, #1a1a20);
+  --wall-right-1: light-dark(#cacad2, #5e6373);
+  --wall-right-2: light-dark(#a8a8b2, #4f5464);
+  --wall-right-3: light-dark(#85858f, #414654);
+  --wall-right-4: light-dark(#6b7079, #343845);
 
-  --wall-haze-1: light-dark(#d6d6dc, #55555f);
-  --wall-haze-2: light-dark(#c4c4cc, #46464f);
-  --wall-haze-3: light-dark(#a9a9b3, #38383f);
-  --wall-haze-4: light-dark(#92929c, #2b2b32);
+  --wall-haze-1: light-dark(#d6d6dc, #6a6f80);
+  --wall-haze-2: light-dark(#c4c4cc, #5b6070);
+  --wall-haze-3: light-dark(#a9a9b3, #4c5160);
+  --wall-haze-4: light-dark(#92929c, #3e4250);
 
-  --wall-mist-1: light-dark(#e2e2e7, #62626c);
-  --wall-mist-2: light-dark(#d0d0d8, #4e4e57);
-  --wall-mist-3: light-dark(#b8b8c2, #3c3c44);
+  --wall-mist-1: light-dark(#e2e2e7, #74798a);
+  --wall-mist-2: light-dark(#d0d0d8, #63687a);
+  --wall-mist-3: light-dark(#b8b8c2, #525768);
 
-  --wall-glow: light-dark(#4a4a54, #2a2a32);
+  --wall-glow: light-dark(#555a64, #3a4056);
 }
 
 /**
