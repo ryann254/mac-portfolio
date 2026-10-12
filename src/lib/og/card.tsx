@@ -78,8 +78,11 @@ export async function cardFor(title: string, detail?: string): Promise<ImageResp
             {detail}
           </div>
         )}
+        {/* Whose site this is, under whatever the card is about. The desktop's
+            own card is titled with his name already, so that one carries the
+            headline alone rather than saying the name twice. */}
         <div style={{ display: 'flex', fontSize: 28, marginTop: 56, opacity: 0.82 }}>
-          {profile.name} · {profile.headline}
+          {title === profile.name ? profile.headline : `${profile.name} · ${profile.headline}`}
         </div>
       </div>
     </div>,
