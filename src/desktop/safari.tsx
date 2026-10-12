@@ -53,42 +53,59 @@ export function Safari({ target }: { target: Target }) {
 }
 
 /**
- * One project: the screenshot on one side and what Ryan did on the other, each
- * taking half the window once there is room for two columns.
+ * One project: the screenshot across the top half of the window and what Ryan
+ * did under it, which is the shape a browser showing a site already has.
  *
- * The picture is never cropped. Every screenshot is one 1440x900 view of a
- * homepage, and a cropped one lands differently on each: it cut `ELEVATING
- * COLLEGE` in half on The Players Lounge and ran a fade through the middle of
- * another. Fitted into half the window it is whole, and as big as the half
- * allows, which on a maximised window is bigger than the full width ever was.
+ * The picture ends in a fade rather than on a line. All five screenshots are one
+ * 1440x900 view of a homepage, so no crop lands the same way twice, and a line
+ * through the middle of a site's own headline reads as a mistake. The fade is a
+ * mask, not a sheet of colour over the top, so it eases into the window's own
+ * background in both themes with nothing to keep in step.
  *
- * Under 620px there is no room for two columns, so the picture goes on top and
- * the words run under it.
- *
- * Nothing is pushed to the bottom of the column. A maximised window reaches
- * under the dock, the way every window on a Mac does, and anything held down
- * there would be behind it.
+ * Only the words scroll. The picture holds its half however far down the reader
+ * gets, and nothing is pushed to the bottom of the column: a maximised window
+ * reaches under the dock, the way every window on a Mac does, and anything held
+ * down there would be behind it.
  */
 function Reading({ page }: { page: Page }) {
   return (
-    <div className="flex h-full min-h-0 flex-col @[620px]:flex-row">
-      <div className="shrink-0 overflow-hidden border-black/10 border-b @[620px]:h-full @[620px]:w-1/2 @[620px]:shrink @[620px]:border-r @[620px]:border-b-0 dark:border-white/10">
+    <div className="flex h-full min-h-0 flex-col">
+      <div
+        data-shot
+        className="min-h-0 shrink-0 grow-0 basis-1/2 overflow-hidden [mask-image:linear-gradient(to_bottom,#000_70%,transparent)]"
+      >
         <Image
           key={page.slug}
           src={page.shot.src}
           alt={page.shot.alt}
           width={1200}
           height={750}
-          className="h-auto w-full object-contain"
+          className="h-full w-full object-cover object-top"
         />
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-auto px-[22px] py-4">
-        <div>
-          <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
-            {page.name}
-          </h2>
-          <p className="mt-[3px] text-[13.5px] text-zinc-500 dark:text-zinc-400">{page.tagline}</p>
+      <div
+        data-words
+        className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-auto px-[22px] pt-1 pb-[18px]"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-2.5">
+          <div>
+            <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
+              {page.name}
+            </h2>
+            <p className="mt-[3px] max-w-[62ch] text-[13.5px] text-zinc-500 dark:text-zinc-400">
+              {page.tagline}
+            </p>
+          </div>
+          <a
+            href={page.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-[7px] bg-sky-600 px-[13px] py-[7px] font-medium text-[13px] text-white hover:bg-sky-700 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:outline-offset-2"
+          >
+            Open {page.host}
+            <Leaving />
+          </a>
         </div>
 
         {page.results.length > 0 && (
@@ -97,7 +114,7 @@ function Reading({ page }: { page: Page }) {
               <li
                 key={result.of}
                 data-result={result.value}
-                className="min-w-[150px] flex-1 rounded-[9px] bg-black/[0.05] px-[13px] py-[9px] dark:bg-white/[0.08]"
+                className="min-w-[180px] flex-1 rounded-[9px] bg-black/[0.05] px-[13px] py-[9px] dark:bg-white/[0.08]"
               >
                 <b className="block font-[680] text-[21px] text-sky-700 tracking-[-0.02em] dark:text-sky-400">
                   {result.value}
@@ -110,15 +127,18 @@ function Reading({ page }: { page: Page }) {
           </ul>
         )}
 
-        <div>
+        <div className="@[560px]:columns-2 @[560px]:gap-x-[26px]">
           {page.contribution.map((line) => (
-            <p key={line} className="mb-2.5 text-[13.5px]/[1.66] text-zinc-700 dark:text-zinc-300">
+            <p
+              key={line}
+              className="mb-2.5 break-inside-avoid text-[13.5px]/[1.66] text-zinc-700 dark:text-zinc-300"
+            >
               <Prose sentence={line} />
             </p>
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5 pt-1">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <ul role="list" className="flex flex-wrap gap-1.5">
             {page.stack.map((tool) => (
               <li
@@ -133,16 +153,6 @@ function Reading({ page }: { page: Page }) {
             {page.employer} · {page.period}
           </p>
         </div>
-
-        <a
-          href={page.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex w-fit items-center gap-1.5 rounded-[7px] bg-sky-600 px-[13px] py-[7px] font-medium text-[13px] text-white hover:bg-sky-700 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:outline-offset-2"
-        >
-          Open {page.host}
-          <Leaving />
-        </a>
       </div>
     </div>
   )

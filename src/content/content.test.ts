@@ -61,6 +61,13 @@ describe('experience', () => {
     }
   })
 
+  it('has the logo file for every role that claims one', () => {
+    for (const role of experience) {
+      if (role.logo === undefined) continue
+      expect(existsSync(`public${role.logo}`), `${role.slug} logo`).toBe(true)
+    }
+  })
+
   it('gives every role a unique slug and something to say', () => {
     const slugs = experience.map((role) => role.slug)
     expect(new Set(slugs).size).toBe(slugs.length)
