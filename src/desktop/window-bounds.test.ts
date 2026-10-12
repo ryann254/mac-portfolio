@@ -3,11 +3,13 @@ import {
   type Bounds,
   clampPosition,
   handles,
+  isPhone,
   KEEP_ON_SCREEN,
   MENU_BAR,
   MIN_SIZE,
   moveBy,
   openingBounds,
+  PHONE,
   resizeBy,
   type Size,
   TITLE_BAR,
@@ -15,6 +17,22 @@ import {
 
 const screen: Size = { width: 1440, height: 900 }
 const window: Bounds = { x: 400, y: 200, width: 600, height: 400 }
+
+describe('isPhone', () => {
+  it('calls anything under the breakpoint a phone', () => {
+    expect(isPhone({ width: 390, height: 844 })).toBe(true)
+    expect(isPhone({ width: PHONE - 1, height: 800 })).toBe(true)
+  })
+
+  it('keeps the window manager from the breakpoint up', () => {
+    expect(isPhone({ width: PHONE, height: 800 })).toBe(false)
+    expect(isPhone({ width: 1440, height: 900 })).toBe(false)
+  })
+
+  it('reads the width alone, because a short screen is still a desktop', () => {
+    expect(isPhone({ width: 1024, height: 320 })).toBe(false)
+  })
+})
 
 describe('moving a window', () => {
   it('follows the pointer by the distance it travelled', () => {

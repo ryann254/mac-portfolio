@@ -25,10 +25,13 @@ export function WindowLayer() {
   useWindowUrl()
 
   /* A window dragged to the right edge of a wide screen would otherwise still
-     be out there after the browser narrows, off screen with nothing to grab. */
+     be out there after the browser narrows, off screen with nothing to grab.
+     The same call is what tells the store whether this is a phone, and it runs
+     once on mount because the server had no viewport to read. */
   useEffect(() => {
     const { refit } = useWindows.getState()
     const onResize = () => refit(viewport())
+    onResize()
     globalThis.addEventListener('resize', onResize)
     return () => globalThis.removeEventListener('resize', onResize)
   }, [])

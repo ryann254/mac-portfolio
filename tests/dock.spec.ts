@@ -23,7 +23,14 @@ test('the dock holds every app a reader can start from it', async ({ page }) => 
   await expect(items).toHaveCount(dockApps.length + offsiteApps.length)
 })
 
-test('the icon under the pointer grows, and the ones beside it less so', async ({ page }) => {
+test('the icon under the pointer grows, and the ones beside it less so', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(
+    Boolean(isMobile),
+    'a phone has no pointer to hover, and the dock there does not magnify',
+  )
   await gotoDesktop(page)
 
   const safari = page.getByTestId('dock').getByRole('button', { name: 'Safari' })
@@ -60,11 +67,14 @@ test('the dock shows what an icon is on hover', async ({ page }) => {
   await expect(safari.getByText('Safari')).toBeVisible()
 })
 
-test('the keyboard reaches the dock and opens an app', async ({ page }) => {
+test('the keyboard reaches the dock and opens an app', async ({ page, isMobile }) => {
+  test.skip(Boolean(isMobile), 'under 768px the home screen comes between the bar and the dock')
   await gotoDesktop(page)
 
   // The menu bar comes first in the tab order, then the four desktop folders,
   // then the dock. It should stay a short walk whatever else lands up there.
+  // A phone has a home screen of eight apps in between, so the walk there is a
+  // different one and `tests/mobile.spec.ts` holds it.
   expect(await tabToTheDock(page)).toBeLessThanOrEqual(8)
 
   const focused = page.locator(':focus')
@@ -76,7 +86,11 @@ test('the keyboard reaches the dock and opens an app', async ({ page }) => {
   await expect(page.getByRole('region', { name: 'Intro' })).toBeVisible()
 })
 
-test('the offsite apps say they leave the site', async ({ page }) => {
+test('the offsite apps say they leave the site', async ({ page, isMobile }) => {
+  test.skip(
+    Boolean(isMobile),
+    'under 768px the dock keeps four apps and the home screen carries these two',
+  )
   await gotoDesktop(page)
 
   const github = page.getByTestId('dock').getByRole('link', { name: /GitHub/ })

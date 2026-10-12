@@ -15,25 +15,25 @@ import { chooseAppearance, gotoDesktop } from './desktop'
  */
 async function lightestPixelBehind(
   page: import('@playwright/test').Page,
-  selector: string,
-  nth = 0,
+  words: import('@playwright/test').Locator,
+  /* Plain CSS, which is not always what found the element: Playwright's
+     `:visible` is its own and a stylesheet given it matches nothing, which once
+     left the letters painted and had this measuring white on white. */
+  hide: string,
 ): Promise<Rgb> {
   // The box the letters actually occupy, not the element's. An element's box
   // includes padding and the corners its own backdrop rounds off, and sampling
   // those reads the wallpaper behind text that never goes there.
-  const box = await page
-    .locator(selector)
-    .nth(nth)
-    .evaluate((node) => {
-      const range = document.createRange()
-      range.selectNodeContents(node)
-      const { x, y, width, height } = range.getBoundingClientRect()
-      return { x, y, width, height }
-    })
-  if (box.width === 0 || box.height === 0) throw new Error(`${selector} has no text to measure`)
+  const box = await words.evaluate((node) => {
+    const range = document.createRange()
+    range.selectNodeContents(node)
+    const { x, y, width, height } = range.getBoundingClientRect()
+    return { x, y, width, height }
+  })
+  if (box.width === 0 || box.height === 0) throw new Error(`${hide} has no text to measure`)
 
   const inkless = await page.addStyleTag({
-    content: `${selector}, ${selector} * { color: transparent !important; text-shadow: none !important; }`,
+    content: `${hide}, ${hide} * { color: transparent !important; text-shadow: none !important; }`,
   })
   const shot = await page.screenshot({ clip: box })
   await inkless.evaluate((node: Element) => node.remove())
@@ -72,13 +72,16 @@ for (const wallpaper of wallpapers) {
         ['[data-testid="welcome-tagline"]', false],
       ]
       for (const [selector, large] of lines) {
-        const behind = await lightestPixelBehind(page, selector)
+        const behind = await lightestPixelBehind(page, page.locator(selector), selector)
         expect(contrastRatio(behind, WHITE), selector).toBeGreaterThanOrEqual(requiredRatio(large))
       }
 
-      const labels = page.getByTestId('folder-label')
+      /* Every white word drawn straight onto the wallpaper carries the marker,
+         wherever it lives: the desktop's folder labels at full width, the home
+         screen's app names on a phone. Neither layout has to be named here. */
+      const labels = page.locator('[data-over-wallpaper]:visible')
       for (let nth = 0; nth < (await labels.count()); nth += 1) {
-        const behind = await lightestPixelBehind(page, '[data-testid="folder-label"]', nth)
+        const behind = await lightestPixelBehind(page, labels.nth(nth), '[data-over-wallpaper]')
         expect(
           contrastRatio(behind, WHITE),
           await labels.nth(nth).innerText(),

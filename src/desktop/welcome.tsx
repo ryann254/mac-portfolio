@@ -7,15 +7,17 @@ import { profile } from '@/content'
  * gets to change the wallpaper from phase 8 on. `tests/contrast.spec.ts` reads
  * the rendered pixels to prove it.
  *
- * It sits lower on a phone, where the desktop folders reach further down the
- * screen and the two used to print on top of each other.
+ * It sits near the top on a phone, where the home screen's app grid fills the
+ * bottom half, and centred on a desktop, where nothing else is in the middle.
+ * The scrim is darker on a phone: the top of every wallpaper is its lightest
+ * part, and white over it measured 4.2:1 there with the desktop's scrim.
  */
 export function Welcome() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-[46%] z-10 sm:top-[24%] flex flex-col items-center px-6 text-center text-white">
+    <div className="pointer-events-none absolute inset-x-0 top-[13%] z-10 sm:top-[24%] flex flex-col items-center px-6 text-center text-white">
       <div
         aria-hidden
-        className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 h-[620px] w-[1240px] bg-[radial-gradient(closest-side,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.36)_32%,rgba(0,0,0,0.16)_66%,transparent_100%)]"
+        className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 h-[620px] w-[1240px] bg-[radial-gradient(closest-side,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.36)_32%,rgba(0,0,0,0.16)_66%,transparent_100%)] max-md:bg-[radial-gradient(closest-side,rgba(0,0,0,0.56)_0%,rgba(0,0,0,0.5)_38%,rgba(0,0,0,0.22)_70%,transparent_100%)]"
       />
       <h1 className="relative font-semibold text-4xl tracking-tight [text-shadow:0_1px_3px_rgba(0,0,0,0.4),0_2px_22px_rgba(0,0,0,0.35)] sm:text-5xl lg:text-6xl">
         {profile.name}

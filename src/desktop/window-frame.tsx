@@ -84,6 +84,11 @@ export function WindowFrame({
   const [gesture, setGesture] = useState<Gesture | undefined>(undefined)
   const [live, setLive] = useState<Bounds | undefined>(undefined)
   const bounds = live ?? state.bounds
+  /* A phone has no window manager: every window is the screen. One truth for
+     the box it is drawn in, the gestures it answers, and the handles it wears,
+     rather than three places each asking the width again. */
+  const phone = useWindows((store) => store.phone)
+  const full = state.maximized || phone
 
   /* The keyboard follows the front window. Opening one puts the keyboard in it,
      which is the whole of the keyboard path: tab to the dock, press Enter, and
@@ -95,7 +100,7 @@ export function WindowFrame({
   }, [focused])
 
   const begin = (event: ReactPointerEvent, handle?: Handle) => {
-    if (state.maximized) return
+    if (full) return
     /* The element the reader pressed keeps the pointer, so the gesture survives
        the pointer leaving the window, and the double click that zooms still
        lands on the title bar. Capturing on the frame instead would retarget
@@ -161,8 +166,8 @@ export function WindowFrame({
       onKeyDown={(event) => {
         if (event.key === 'Escape') close(state.id)
       }}
-      style={{ ...frameBox(state, bounds), zIndex: z }}
-      className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-[10px] border-[0.5px] border-black/25 bg-white/85 shadow-[0_18px_50px_rgba(0,0,0,0.3)] outline-none backdrop-blur-2xl backdrop-saturate-150 focus-visible:ring-2 focus-visible:ring-sky-500/70 data-[focused]:shadow-[0_26px_70px_rgba(0,0,0,0.42)] dark:border-white/15 dark:bg-zinc-800/85"
+      style={{ ...frameBox(state, bounds, full), zIndex: z }}
+      className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-[10px] border-[0.5px] border-black/25 bg-white/85 max-md:rounded-none max-md:border-0 max-md:bg-white max-md:shadow-none shadow-[0_18px_50px_rgba(0,0,0,0.3)] outline-none backdrop-blur-2xl backdrop-saturate-150 focus-visible:ring-2 focus-visible:ring-sky-500/70 data-[focused]:shadow-[0_26px_70px_rgba(0,0,0,0.42)] dark:border-white/15 dark:bg-zinc-800/85 max-md:dark:bg-zinc-900"
     >
       <header
         className="relative flex shrink-0 items-center border-black/10 border-b bg-zinc-100/70 dark:border-white/10 dark:bg-zinc-900/60"
@@ -178,7 +183,10 @@ export function WindowFrame({
           onDoubleClick={() => toggleMaximized(state.id)}
           {...pulls()}
         />
-        <div className="relative flex items-center gap-2 pl-3">
+        {/* The three lights are a pointer's controls at a pointer's size. A
+            phone gets Done instead: a window there fills the screen, so there
+            is nothing to resize and nowhere to minimise it to. */}
+        <div className="relative hidden items-center gap-2 pl-3 md:flex">
           <Light
             label={`Close ${title}`}
             colour={focused ? 'bg-[#ff5f57]' : DIMMED}
@@ -196,13 +204,21 @@ export function WindowFrame({
           />
         </div>
         <AppChrome target={target} title={title} />
+        <button
+          type="button"
+          data-done
+          onClick={() => close(state.id)}
+          className="relative z-10 ml-auto mr-1 flex h-9 items-center rounded-lg px-3 font-medium text-[14px] text-sky-700 focus-visible:outline-2 focus-visible:outline-sky-600 focus-visible:outline-offset-[-2px] md:hidden dark:text-sky-400"
+        >
+          Done
+        </button>
       </header>
 
       <div className="min-h-0 flex-1 overflow-hidden">
         <AppBody target={target} />
       </div>
 
-      {!state.maximized &&
+      {!full &&
         handles.map((handle) => (
           <div
             key={handle}
@@ -222,9 +238,9 @@ export function WindowFrame({
  * one stays mounted, because an app that has loaded a document should not have
  * to load it again to come back from the dock.
  */
-const frameBox = (state: WindowState, bounds: Bounds): CSSProperties => {
+const frameBox = (state: WindowState, bounds: Bounds, full: boolean): CSSProperties => {
   if (state.minimized) return { display: 'none' }
-  if (state.maximized) return { top: MENU_BAR, right: 0, bottom: 0, left: 0 }
+  if (full) return { top: MENU_BAR, right: 0, bottom: 0, left: 0 }
   return { top: bounds.y, left: bounds.x, width: bounds.width, height: bounds.height }
 }
 
