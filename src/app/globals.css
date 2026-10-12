@@ -287,6 +287,39 @@ body {
  */
 [data-window] {
   animation: window-open 190ms cubic-bezier(0.2, 0.8, 0.3, 1);
+  /* What minimising rides on. Nothing else here changes the transform, because
+     a drag rewrites `left` and `top` instead, so this only ever runs when a
+     window goes into the dock or comes back out. */
+  transition:
+    transform 240ms cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 240ms ease-in;
+}
+
+/**
+ * Minimised. The window shrinks into its own dock icon rather than vanishing,
+ * which is the one thing a reader needs to believe it went somewhere it can be
+ * got back from.
+ *
+ * Where it shrinks to is three custom properties set by `window-frame.tsx` when
+ * the window is minimised, because a dock icon's position depends on how many
+ * icons are in the dock and how wide the screen is, and CSS can know neither.
+ * They default to the transform that does nothing, so the window is measurable
+ * at full size the moment it is minimised, and so a browser running no
+ * JavaScript still has it fade out rather than fly to a corner.
+ *
+ * `visibility` waits out the whole transition, so at the end the window is
+ * really gone rather than a transparent sheet over the desktop, and it comes
+ * back the instant the window is restored.
+ */
+[data-window][data-minimized] {
+  transform: translate(var(--into-x, 0px), var(--into-y, 0px)) scale(var(--into-scale, 1));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 240ms cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 240ms ease-in,
+    visibility 0s linear 240ms;
 }
 
 /* A pointer drag over the window body would otherwise select the text under it. */
@@ -329,7 +362,9 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-window] {
+  [data-window],
+  [data-window][data-minimized] {
     animation: none;
+    transition: none;
   }
 }

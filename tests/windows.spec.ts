@@ -220,6 +220,46 @@ test('closing the front window hands the keyboard to the one underneath', async 
   await expect(finder).toHaveCount(0)
 })
 
+/**
+ * Minimising used to be a `display: none`, which read as the window being
+ * destroyed rather than put somewhere. It shrinks into its own dock icon now.
+ *
+ * Where it is aimed is checked rather than where it has got to: catching a
+ * 240ms transition partway through is a race, and the aim is the part that can
+ * actually be wrong. That it moves at all is a separate question, which the
+ * running transition answers.
+ */
+test('a minimised window shrinks into its own dock icon', async ({ page }) => {
+  await gotoDesktop(page)
+  const safari = await openWindow(page, 'Safari', SAFARI)
+
+  const icon = await page.getByTestId('dock').locator('[data-dock-item="safari"]').boundingBox()
+  const before = await safari.boundingBox()
+  if (!icon || !before) throw new Error('the window or its dock icon is not on screen')
+
+  await page.getByRole('button', { name: `Minimise ${SAFARI}` }).click()
+
+  const aim = await safari.evaluate((frame) => ({
+    x: Number.parseFloat(frame.style.getPropertyValue('--into-x')),
+    y: Number.parseFloat(frame.style.getPropertyValue('--into-y')),
+    scale: Number.parseFloat(frame.style.getPropertyValue('--into-scale')),
+    moving: frame.getAnimations().some((one) => one.playState === 'running'),
+  }))
+
+  expect(before.x + before.width / 2 + aim.x, 'aimed at the icon across').toBeCloseTo(
+    icon.x + icon.width / 2,
+    0,
+  )
+  expect(before.y + before.height / 2 + aim.y, 'aimed at the icon down').toBeCloseTo(
+    icon.y + icon.height / 2,
+    0,
+  )
+  expect(aim.scale, 'shrunk to about the size of the icon').toBeLessThan(0.2)
+  expect(aim.moving, 'it jumps there instead of travelling').toBe(true)
+
+  await expect(safari).toBeHidden()
+})
+
 test('minimising the front window hands the keyboard down too', async ({ page }) => {
   await gotoDesktop(page)
   const finder = await openWindow(page, 'Finder', FINDER)

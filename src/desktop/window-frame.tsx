@@ -4,6 +4,7 @@ import {
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react'
@@ -90,6 +91,35 @@ export function WindowFrame({
   const phone = useWindows((store) => store.phone)
   const full = state.maximized || phone
 
+  /* Where this window shrinks to when it is minimised: its own icon in the
+     dock. Measured at the moment it is minimised rather than kept anywhere,
+     because it is a fact about the screen right now, and the dock moves when
+     the window does not.
+
+     Before paint, so the properties and `data-minimized` land in the same frame
+     and the transition has somewhere to go. A dock icon the phone layout has
+     hidden measures zero, and a window aimed at that would fly into the top
+     left corner, so it falls back to the middle of the bottom edge, which is
+     where the dock is. */
+  useLayoutEffect(() => {
+    const frame = root.current
+    if (!frame || !state.minimized) return
+
+    /* This reads the window at full size because the properties below default
+       to the transform that does nothing, and it forces the style resolution
+       that gives the transition somewhere to start from. */
+    const box = frame.getBoundingClientRect()
+    const icon = document.querySelector(`[data-dock-item="${state.id}"]`)?.getBoundingClientRect()
+    const into =
+      icon && icon.width > 0
+        ? { x: icon.left + icon.width / 2, y: icon.top + icon.height / 2, size: icon.width }
+        : { x: globalThis.innerWidth / 2, y: globalThis.innerHeight, size: 48 }
+
+    frame.style.setProperty('--into-x', `${into.x - (box.left + box.width / 2)}px`)
+    frame.style.setProperty('--into-y', `${into.y - (box.top + box.height / 2)}px`)
+    frame.style.setProperty('--into-scale', `${into.size / Math.max(box.width, 1)}`)
+  }, [state.minimized, state.id])
+
   /* The keyboard follows the front window. Opening one puts the keyboard in it,
      which is the whole of the keyboard path: tab to the dock, press Enter, and
      you are inside. Closing or minimising the front window hands the front to
@@ -162,11 +192,12 @@ export function WindowFrame({
       data-testid="window"
       data-focused={focused ? '' : undefined}
       data-dragging={gesture ? '' : undefined}
+      data-minimized={state.minimized ? '' : undefined}
       onPointerDown={() => focus(state.id)}
       onKeyDown={(event) => {
         if (event.key === 'Escape') close(state.id)
       }}
-      style={{ ...frameBox(state, bounds, full), zIndex: z }}
+      style={{ ...frameBox(bounds, full), zIndex: z }}
       className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-[10px] border-[0.5px] border-black/25 bg-white/85 max-md:rounded-none max-md:border-0 max-md:bg-white max-md:shadow-none shadow-[0_18px_50px_rgba(0,0,0,0.3)] outline-none backdrop-blur-2xl backdrop-saturate-150 focus-visible:ring-2 focus-visible:ring-sky-500/70 data-[focused]:shadow-[0_26px_70px_rgba(0,0,0,0.42)] dark:border-white/15 dark:bg-zinc-800/85 max-md:dark:bg-zinc-900"
     >
       <header
@@ -235,11 +266,14 @@ export function WindowFrame({
 /**
  * A maximised window is drawn against the desktop's own edges, so it needs no
  * stored rectangle and restoring puts it back exactly where it was. A minimised
- * one stays mounted, because an app that has loaded a document should not have
- * to load it again to come back from the dock.
+ * one stays mounted and keeps its box, because an app that has loaded a
+ * document should not have to load it again to come back from the dock, and
+ * because a window with no box has nowhere to shrink from.
  */
-const frameBox = (state: WindowState, bounds: Bounds, full: boolean): CSSProperties => {
-  if (state.minimized) return { display: 'none' }
+const frameBox = (bounds: Bounds, full: boolean): CSSProperties => {
+  /* A minimised window keeps its box. It is still laid out where it was, so it
+     has somewhere to shrink from, and `globals.css` takes it out of the page
+     with `visibility` once the shrink is over. */
   if (full) return { top: MENU_BAR, right: 0, bottom: 0, left: 0 }
   return { top: bounds.y, left: bounds.x, width: bounds.width, height: bounds.height }
 }
