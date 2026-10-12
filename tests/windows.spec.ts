@@ -231,9 +231,19 @@ test('closing the front window hands the keyboard to the one underneath', async 
  */
 test('a minimised window shrinks into its own dock icon', async ({ page }) => {
   await gotoDesktop(page)
-  const safari = await openWindow(page, 'Safari', SAFARI)
 
-  const icon = await page.getByTestId('dock').locator('[data-dock-item="safari"]').boundingBox()
+  /* Measured before anything has hovered the dock. The pointer magnifies
+     whatever is under it, by half again in width and 37px upwards, and opening
+     the window below leaves the pointer sitting on this very icon. The window
+     is aimed at the resting one, because by the time anyone minimises a window
+     the pointer is on its title bar and the dock has gone back to rest. */
+  const art = page.getByTestId('dock').locator('[data-dock-item="safari"]')
+  const icon = await art.boundingBox()
+
+  const safari = await openWindow(page, 'Safari', SAFARI)
+  await page.mouse.move(700, 300)
+  await expect.poll(async () => (await art.boundingBox())?.width).toBe(icon?.width)
+
   const before = await safari.boundingBox()
   if (!icon || !before) throw new Error('the window or its dock icon is not on screen')
 
@@ -258,6 +268,26 @@ test('a minimised window shrinks into its own dock icon', async ({ page }) => {
   expect(aim.moving, 'it jumps there instead of travelling').toBe(true)
 
   await expect(safari).toBeHidden()
+})
+
+/**
+ * The other half of the gesture. A minimised window is laid out where it always
+ * was and held off the screen by a transform, so a bug here leaves it invisible
+ * at full size rather than missing, which is harder to notice.
+ */
+test('the dock brings a minimised window back the size it was', async ({ page }) => {
+  await gotoDesktop(page)
+  const safari = await openWindow(page, 'Safari', SAFARI)
+  const before = await safari.boundingBox()
+
+  await page.getByRole('button', { name: `Minimise ${SAFARI}` }).click()
+  await expect(safari).toBeHidden()
+
+  await page.getByTestId('dock').locator('[data-dock-item="safari"]').click()
+
+  await expect(safari).toBeVisible()
+  await settled(safari)
+  expect(await safari.boundingBox()).toEqual(before)
 })
 
 test('minimising the front window hands the keyboard down too', async ({ page }) => {
