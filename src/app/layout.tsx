@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { APPEARANCE_SCRIPT } from '@/desktop/appearance'
 import { Desktop } from '@/desktop/desktop'
 import { SKIP_BOOT_SCRIPT } from '@/desktop/system-state'
+import { origin } from '@/lib/site'
 import './globals.css'
 
 /**
@@ -19,6 +20,9 @@ const inter = localFont({
 })
 
 export const metadata: Metadata = {
+  /* What the per-route `opengraph-image` files are resolved against. Without it
+     Next hands a crawler a relative URL, which every one of them drops. */
+  metadataBase: new URL(origin),
   title: 'Ryan Waweru, Senior Frontend Engineer',
   description:
     'The portfolio of Ryan Waweru, a senior frontend engineer in Nairobi, built as a macOS desktop.',
