@@ -1,7 +1,13 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: claude
+files:
+  - src/app/globals.css
+  - src/app/opengraph-image.tsx
+  - src/app/sitemap.ts
+  - src/app/robots.ts
+  - src/desktop/window-frame.tsx
+  - tests/motion.spec.ts
 pr:
 ---
 Problem: Minimize jumps instead of animating, shared links have no preview image, and nothing proves reduced motion turns every animation off.
