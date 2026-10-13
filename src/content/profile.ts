@@ -7,8 +7,8 @@ export const profile: Profile = {
     '6+ years of React, Next.js, and TypeScript building large scale projects in the education, real estate and many other sectors...',
   summary: [
     "I'm a frontend engineer with six years of experience, most of it in React and TypeScript. The work I enjoy most is the kind where data keeps arriving while you are looking at it and the page still has to feel quick.",
-    'At Streamlyne I built a real-time messaging product with voice that helps university researchers draft documents and ask questions about policy. Research submissions went up 29%. I also rebuilt parts of a long-running Java application in React and Node, which cut load times by 44%.',
-    'Before that I worked on mobile and on the backend: a survey app in Flutter where lazy loading cut load times 25%, an author dashboard publishing to more than 5,000 students, and a property platform where analytics work improved ad spending by 20%.',
+    'At Streamlyne I built a real-time messaging product with voice support that helps university researchers draft documents and ask questions about policy. Research submissions went up 29%. I also rebuilt parts of a long-running Java application in React and Node, which cut load times by 44%.',
+    'Before that I worked on mobile apps and on the backend. Some projects include a survey app in Flutter where lazy loading cut load times 25%, an author dashboard publishing to more than 5,000 students, and a property platform where analytics work improved ad spending by 20%.',
     "I'm in Nairobi and I work remotely with teams in the US, Europe, and the Middle East.",
   ],
   location: 'Nairobi, Kenya',
@@ -53,7 +53,7 @@ export const profile: Profile = {
     {
       title: 'Research submissions up 29%',
       detail:
-        'Built a real-time messaging product with voice that helps researchers prepare documents, ask questions about university policy, and plan budgets.',
+        'Built a real-time messaging product with voice support that helps researchers prepare documents, ask questions about university policy, and plan budgets.',
     },
     {
       title: 'Load times down 44%',

@@ -11,7 +11,7 @@ export const experience: readonly Role[] = [
     location: 'U.S.',
     arrangement: 'remote',
     bullets: [
-      'Work on the platform U.S. universities run their research administration on, including a real-time messaging product with voice that helps researchers prepare documents, answer university policy questions, and plan budgets. Submissions went up 29%.',
+      'Work on the platform U.S. universities run their research administration on, including a real-time messaging product with voice support that helps researchers prepare documents, answer university policy questions, and plan budgets. Submissions went up 29%.',
       'Build and maintain product across the frontend and the backend, and take part in roadmap and technical decisions that weigh customer needs against delivery speed and what we can maintain later.',
       'Helped modernize a long-running Java application by rebuilding selected workflows in React and Node, cutting load times 44%, and put the project in Docker so other developers could run it locally.',
       'Work with product and other engineers to break down vague problems and judge whether something is a quick fix, an architectural change, or a roadmap item.',
