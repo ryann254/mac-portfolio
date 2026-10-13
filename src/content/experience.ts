@@ -11,9 +11,9 @@ export const experience: readonly Role[] = [
     location: 'U.S.',
     arrangement: 'remote',
     bullets: [
-      'Work on the platform U.S. universities run their research administration on, including a real-time messaging product with voice support that helps researchers prepare documents, answer university policy questions, and plan budgets. Submissions went up 29%.',
-      'Build and maintain product across the frontend and the backend, and take part in roadmap and technical decisions that weigh customer needs against delivery speed and what we can maintain later.',
-      'Helped modernize a long-running Java application by rebuilding selected workflows in React and Node, cutting load times 44%, and put the project in Docker so other developers could run it locally.',
+      'Work on the platform U.S. universities run their research administration on, including a real-time messaging product with voice support that helps researchers prepare documents, get answers on university policy, and plan budgets. Submissions went up 29%.',
+      'Build and maintain features across the frontend and the backend, and take part in roadmap and technical decisions that weigh customer needs against delivery speed and what we can maintain later.',
+      'Took a Java application that had been running for years and rebuilt nearly half of it in React and Node, one workflow at a time, which cut load times by 44%. Also put it in Docker so the rest of the team could run it locally.',
       'Work with product and other engineers to break down vague problems and judge whether something is a quick fix, an architectural change, or a roadmap item.',
     ],
   },
@@ -27,9 +27,9 @@ export const experience: readonly Role[] = [
     location: 'Kuwait',
     arrangement: 'remote',
     bullets: [
-      'Built and maintained features for the Surveva survey app in Flutter and Node.js.',
-      'Wrote a lazy-loading algorithm that cut survey load times 25%, which mattered most to people working through longer surveys.',
-      'Worked across the UI, application logic, API integrations, debugging, and release prep, and helped decide the frontend architecture with a remote team.',
+      'Built and maintained features for the survey app in Flutter and Node.js.',
+      'Wrote a lazy-loading algorithm that cut survey load times by 25%, which mattered most to people working through longer surveys.',
+      'Worked on the UI, the application logic, and the API integrations, and helped a remote team settle on the frontend architecture.',
       'Built a CI/CD pipeline so the team could test and ship more reliably from different time zones.',
     ],
   },
@@ -42,8 +42,8 @@ export const experience: readonly Role[] = [
     location: 'France',
     arrangement: 'remote',
     bullets: [
-      'Built a property management platform and helped onboard more than 500 property owners.',
-      'Worked across the frontend and the backend on a remote contract: API integration, debugging, and shipping features.',
+      'Brought more than 500 property owners onto a property management platform.',
+      'Built both ends of it, the frontend screens and the APIs behind them.',
     ],
   },
   {
@@ -56,9 +56,10 @@ export const experience: readonly Role[] = [
     location: 'Contract',
     arrangement: 'remote',
     bullets: [
-      'Led the author dashboard for publishing educational content to more than 5,000 students, building the video and book management experience in Next.js and Redux.',
-      "Connected the dashboard to Discord's API so students could comment from Discord without leaving where they already were.",
-      'Built reporting views on MongoDB so authors could watch how their content performed, and planned milestones with senior management.',
+      'Led the development of the author dashboard for publishing educational content to more than 5,000 students, building the video and book management screens in Next.js and Redux.',
+      "Connected the dashboard to Discord's API so students could comment from inside Discord instead of signing in to the dashboard.",
+      'Built reporting views on MongoDB so authors could watch how their content performed.',
+      'Planned the milestones with senior management.',
     ],
   },
   {
@@ -71,8 +72,8 @@ export const experience: readonly Role[] = [
     location: 'Contract',
     arrangement: 'remote',
     bullets: [
-      'Led a subscription dashboard for premium content and newsletters, which raised subscriptions 25%.',
-      'Worked with a cross-functional team on the frontend of an NFL-focused sports product and helped choose its architecture.',
+      'Led the development of a subscription dashboard for premium content and newsletters, which raised subscriptions by 25%.',
+      'Worked on the frontend of an NFL-focused sports product and helped choose its architecture.',
       'Added end-to-end tests and release checks that caught problems before production.',
     ],
   },
@@ -86,7 +87,7 @@ export const experience: readonly Role[] = [
     arrangement: 'hybrid',
     bullets: [
       'Designed and built a property management platform for owners and agents.',
-      'Added analytics so property managers could see where their traffic came from, which improved ad spending by up to 20%.',
+      'Added analytics so property managers could see where their traffic came from, which reduced ad spending by 20%.',
       'Built the backend workflows for uploading and tracking properties and agents.',
     ],
   },
@@ -101,7 +102,7 @@ export const experience: readonly Role[] = [
     bullets: [
       'Designed and built a parking app that helped drivers find parking near them.',
       'Integrated Google Maps and routing to guide drivers to the lot they picked.',
-      'Added in-app payments and the backend jobs that worked out parking time.',
+      'Added in-app payments and the backend jobs that worked out how long a car had been parked and what the driver owed.',
     ],
   },
   {
@@ -114,7 +115,7 @@ export const experience: readonly Role[] = [
     arrangement: 'on-site',
     bullets: [
       'Built frontend screens and authentication for a logistics startup tracking truckloads and revenue.',
-      'Added dynamic search and worked on performance and page loading.',
+      'Added dynamic search and cut the time the pages took to load.',
     ],
   },
 ]
