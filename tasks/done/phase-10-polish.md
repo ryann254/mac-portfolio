@@ -1,5 +1,5 @@
 ---
-status: review
+status: done
 owner: claude
 files:
   - src/app/globals.css
