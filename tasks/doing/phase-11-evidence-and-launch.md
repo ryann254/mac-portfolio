@@ -10,7 +10,7 @@ files:
   - tests/copy.spec.ts
   - .github/workflows/ci.yml
   - tasks/doing/phase-11-evidence-and-launch.md
-pr:
+pr: https://github.com/ryann254/mac-portfolio/pull/16
 ---
 Problem: Each phase proved its own slice, but nobody has checked the finished site against the definition of done, and the copy added since phase 1 is unreviewed.
 Fix: Run humanizer over every string added since phase 1 and script that check against the built HTML so it reruns. Run the whole suite on the production build, then walk the definition of done, attaching each line's artifact.
