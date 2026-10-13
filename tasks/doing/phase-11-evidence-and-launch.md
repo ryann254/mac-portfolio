@@ -1,7 +1,13 @@
 ---
-status: open
-owner:
-files: []
+status: doing
+owner: claude
+files:
+  - src/lib/copy-tells.ts
+  - src/lib/copy-tells.test.ts
+  - scripts/copy-check.ts
+  - .github/workflows/ci.yml
+  - src/desktop/
+  - tasks/doing/phase-11-evidence-and-launch.md
 pr:
 ---
 Problem: Each phase proved its own slice, but nobody has checked the finished site against the definition of done, and the copy added since phase 1 is unreviewed.
