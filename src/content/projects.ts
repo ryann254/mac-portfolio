@@ -8,7 +8,7 @@ export const projects: readonly Project[] = [
     url: 'https://streamlyne.com/',
     tagline: 'Research administration software that U.S. universities run their grant work on.',
     contribution: [
-      'I built the real-time messaging product with voice that helps researchers draft documents, ask questions about university policy, and plan budgets. Research submissions went up 29%.',
+      'I built the real-time messaging product with voice support that helps researchers draft documents, ask questions about university policy, and plan budgets. Research submissions went up 29%.',
       'I also rebuilt selected workflows of the long-running Java application in React and Node, which cut load times 44%, and moved the project into Docker so other developers could run it locally.',
     ],
     under: 'streamlyne',

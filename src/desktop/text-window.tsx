@@ -1,4 +1,4 @@
-import type { Block, Mark } from './file-tree'
+import type { Block, Fact, Mark } from './file-tree'
 import { fileAt } from './file-tree'
 import { lettermarkColour } from './lettermark'
 import { MissingFile } from './missing-file'
@@ -25,23 +25,8 @@ export function TextWindow({ target }: { target: Target }) {
       <h2 className="font-[650] text-[21px] text-zinc-900 tracking-[-0.02em] dark:text-zinc-50">
         {file.title}
       </h2>
-      {(file.subtitle || file.link) && (
-        <p className="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">
-          {file.link && (
-            <>
-              <a
-                href={file.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-700 hover:underline dark:text-sky-400"
-              >
-                {new URL(file.link).host}
-              </a>
-              {file.subtitle && ' · '}
-            </>
-          )}
-          {file.subtitle}
-        </p>
+      {file.subtitle && (
+        <p className="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">{file.subtitle}</p>
       )}
       <hr className="my-[18px] border-black/10 dark:border-white/10" />
       {file.blocks.map((block, at) => (
@@ -94,50 +79,142 @@ function Letterhead({ mark }: { mark: Mark }) {
 
 /** One block, in the shape its kind asks for. */
 function Written({ block, lead }: { block: Block; lead: boolean }) {
-  if (block.kind === 'paragraph') {
-    return (
-      <p
-        className={
-          lead
-            ? 'mb-[15px] max-w-[66ch] text-[15px]/[1.6] text-zinc-800 dark:text-zinc-200'
-            : 'mb-[13px] max-w-[64ch] text-[14px]/[1.72] text-zinc-700 dark:text-zinc-300'
-        }
-      >
-        <Prose sentence={block.text} />
-      </p>
-    )
+  switch (block.kind) {
+    case 'paragraph':
+      return <Said text={block.text} lead={lead} />
+    case 'list':
+      return <Bullets items={block.items} />
+    case 'tags':
+      return (
+        <>
+          <Label text={block.label} />
+          <Chips items={block.items} />
+        </>
+      )
+    case 'section':
+      return <Label text={block.label} />
+    case 'facts':
+      return <Facts rows={block.rows} />
   }
+}
 
-  if (block.kind === 'list') {
-    return (
-      <ul role="list" className="max-w-[66ch]">
-        {block.items.map((item) => (
-          <li
-            key={item}
-            className="relative mb-[13px] pl-5 text-[13.5px]/[1.7] text-zinc-700 before:absolute before:top-[0.62em] before:left-[3px] before:size-[5px] before:rounded-full before:bg-sky-600/75 before:content-[''] dark:text-zinc-300 dark:before:bg-sky-400/75"
-          >
-            <Prose sentence={item} />
-          </li>
-        ))}
-      </ul>
-    )
-  }
-
+/** A paragraph, set a size larger when it is the one the document opens on. */
+function Said({ text, lead }: { text: string; lead: boolean }) {
   return (
-    <>
-      <p className="mt-5 mb-2 text-[11px] text-zinc-500 uppercase tracking-[0.08em] dark:text-zinc-400">
-        {block.label}
-      </p>
-      <ul role="list" className="flex flex-wrap gap-1.5">
-        {block.items.map((item) => (
-          <li
-            key={item}
-            className="rounded-full bg-black/[0.06] px-2.5 py-[3px] text-[11.5px] text-zinc-500 dark:bg-white/10 dark:text-zinc-400"
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
-    </>
+    <p
+      className={
+        lead
+          ? 'mb-[15px] max-w-[66ch] text-[15px]/[1.6] text-zinc-800 dark:text-zinc-200'
+          : 'mb-[13px] max-w-[64ch] text-[14px]/[1.72] text-zinc-700 dark:text-zinc-300'
+      }
+    >
+      <Prose sentence={text} />
+    </p>
   )
+}
+
+function Bullets({ items }: { items: readonly string[] }) {
+  return (
+    <ul role="list" className="max-w-[66ch]">
+      {items.map((item) => (
+        <li
+          key={item}
+          className="relative mb-[13px] pl-5 text-[13.5px]/[1.7] text-zinc-700 before:absolute before:top-[0.62em] before:left-[3px] before:size-[5px] before:rounded-full before:bg-sky-600/75 before:content-[''] dark:text-zinc-300 dark:before:bg-sky-400/75"
+        >
+          <Prose sentence={item} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** What names the thing under it, whether that is a set of chips or prose. */
+function Label({ text }: { text: string }) {
+  return (
+    <p className="mt-5 mb-2 text-[11px] text-zinc-500 uppercase tracking-[0.08em] dark:text-zinc-400">
+      {text}
+    </p>
+  )
+}
+
+/** A set of short words, which is what a stack and a skill group both are. */
+function Chips({ items }: { items: readonly string[] }) {
+  return (
+    <ul role="list" className="flex flex-wrap gap-1.5">
+      {items.map((item) => (
+        <li
+          key={item}
+          className="rounded-full bg-black/[0.06] px-2.5 py-[3px] text-[11.5px] text-zinc-500 dark:bg-white/10 dark:text-zinc-400"
+        >
+          {item}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/**
+ * Everything known about a project, in the panel macOS puts facts in. This is
+ * what a project's readme has and a role's file does not, because the two were
+ * otherwise one document: a title, a line under it, and a list.
+ *
+ * A row wraps rather than squeezes. The narrowest this window gets is a phone
+ * filling 390px, where `Built for` and the company beside it have about 290px
+ * between them, and a stack of six chips needs the whole of it.
+ */
+function Facts({ rows }: { rows: readonly Fact[] }) {
+  return (
+    <dl
+      data-facts
+      className="my-[18px] max-w-[66ch] rounded-[10px] bg-black/[0.04] px-[15px] dark:bg-white/[0.06]"
+    >
+      {rows.map((row) => (
+        <div
+          key={row.label}
+          className="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-black/[0.07] border-b-[0.5px] py-[10px] last:border-b-0 dark:border-white/[0.09]"
+        >
+          <dt className="w-[76px] shrink-0 text-[11px] text-zinc-500 uppercase tracking-[0.06em] dark:text-zinc-400">
+            {row.label}
+          </dt>
+          <dd className="min-w-0 flex-1 text-[13px] text-zinc-800 dark:text-zinc-200">
+            <Says row={row} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+/** What a row says, which is a different thing to draw for every kind of fact. */
+function Says({ row }: { row: Fact }) {
+  switch (row.kind) {
+    case 'says':
+      return row.text
+    case 'link':
+      return (
+        <a
+          href={row.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sky-700 hover:underline dark:text-sky-400"
+        >
+          {new URL(row.href).host}
+        </a>
+      )
+    case 'figures':
+      return (
+        <ul role="list" className="flex flex-col gap-[3px]">
+          {row.items.map((figure) => (
+            <li key={figure.of} data-result={figure.value} className="flex items-baseline gap-2">
+              <b className="font-[680] text-[15px] text-sky-700 tracking-[-0.01em] dark:text-sky-400">
+                {figure.value}
+              </b>
+              <span className="text-[12.5px] text-zinc-500 dark:text-zinc-400">{figure.of}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    case 'tags':
+      return <Chips items={row.items} />
+  }
 }

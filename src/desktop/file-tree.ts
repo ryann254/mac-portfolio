@@ -1,5 +1,5 @@
 import { experience, profile, projects } from '@/content'
-import type { Project, Role, YearMonth } from '@/content/types'
+import type { Project, Result, Role, YearMonth } from '@/content/types'
 import type { AppId } from './apps'
 import { hueOf, initialsOf } from './lettermark'
 import { locations } from './locations'
@@ -35,6 +35,21 @@ export type Block =
   | { readonly kind: 'paragraph'; readonly text: string }
   | { readonly kind: 'list'; readonly items: readonly string[] }
   | { readonly kind: 'tags'; readonly label: string; readonly items: readonly string[] }
+  /** The line that names what comes under it, the way a readme's headings do. */
+  | { readonly kind: 'section'; readonly label: string }
+  /** Everything a project is, in one panel, above the write-up. */
+  | { readonly kind: 'facts'; readonly rows: readonly Fact[] }
+
+/**
+ * One row of that panel. Each kind is its own thing to draw rather than a label
+ * and a string, because a site is a link, a figure is a number set apart from
+ * what it counts, and a stack is a row of chips.
+ */
+export type Fact =
+  | { readonly kind: 'says'; readonly label: string; readonly text: string }
+  | { readonly kind: 'link'; readonly label: string; readonly href: string }
+  | { readonly kind: 'figures'; readonly label: string; readonly items: readonly Result[] }
+  | { readonly kind: 'tags'; readonly label: string; readonly items: readonly string[] }
 
 /**
  * What stands for a company above a role's title. Four of the eight have a logo
@@ -54,8 +69,6 @@ export type TextFile = {
   readonly title: string
   /** Who, when and where, already joined, because every file joins its own the same way. */
   readonly subtitle?: string
-  /** The one address a file is about. Only a project's readme has one. */
-  readonly link?: string
   /** The company's mark, drawn above the title. Only a role file has one. */
   readonly mark?: Mark
   readonly blocks: readonly Block[]
@@ -97,6 +110,8 @@ const folder = (path: string, name: string, parent?: string): Folder => ({
 const paragraph = (text: string): Block => ({ kind: 'paragraph', text })
 const list = (items: readonly string[]): Block => ({ kind: 'list', items })
 const tags = (label: string, items: readonly string[]): Block => ({ kind: 'tags', label, items })
+const section = (label: string): Block => ({ kind: 'section', label })
+const facts = (rows: readonly Fact[]): Block => ({ kind: 'facts', rows })
 
 type Written = Omit<TextFile, 'kind' | 'path'>
 
@@ -137,14 +152,46 @@ const roleFile = (role: Role): TextFile =>
  */
 export const fileOfRole = (role: Role): string => roleFile(role).path
 
+/**
+ * What a project's panel says about it. The numbers are left out rather than
+ * drawn empty for a project whose work has none: a `Results` row with nothing
+ * after it reads as data that failed to load rather than as work with no figure
+ * attached to it.
+ */
+const factsOf = (project: Project): readonly Fact[] => {
+  const figures: readonly Fact[] =
+    project.results.length === 0
+      ? []
+      : [{ kind: 'figures', label: 'Results', items: project.results }]
+
+  return [
+    { kind: 'says', label: 'Built for', text: employerOf(project) },
+    { kind: 'says', label: 'Period', text: project.period },
+    ...figures,
+    { kind: 'tags', label: 'Stack', items: project.stack },
+    { kind: 'link', label: 'Live at', href: project.url },
+  ]
+}
+
+/**
+ * The readme in a project's folder. A role's file is a letter from a company,
+ * so it wears the company's mark and lists what was done under it; a project is
+ * something that shipped, so this one states the facts about it the way Get
+ * Info does and keeps the write-up under them. Before this the two were one
+ * document with a mark on one of them, which left the logo doing all the work
+ * of saying which of the two a reader was looking at.
+ */
 const readme = (project: Project): TextFile =>
   textFile({
     parent: `projects/${project.slug}`,
     name: 'readme.txt',
     title: project.name,
-    subtitle: [employerOf(project), project.period].join(' · '),
-    link: project.url,
-    blocks: [paragraph(project.tagline), list(project.contribution), tags('Stack', project.stack)],
+    blocks: [
+      paragraph(project.tagline),
+      facts(factsOf(project)),
+      section('What I did'),
+      ...project.contribution.map(paragraph),
+    ],
   })
 
 const aboutFile = (): TextFile =>

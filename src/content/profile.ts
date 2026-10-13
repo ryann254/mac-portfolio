@@ -4,12 +4,12 @@ export const profile: Profile = {
   name: 'Ryan Waweru',
   headline: 'Senior Frontend Engineer',
   tagline:
-    '6+ years of React, Next.js, and TypeScript building large scale projects in the education, real estate and many other sectors...',
+    '6+ years of React, Next.js, and TypeScript, building large-scale products in education and real estate.',
   summary: [
     "I'm a frontend engineer with six years of experience, most of it in React and TypeScript. The work I enjoy most is the kind where data keeps arriving while you are looking at it and the page still has to feel quick.",
-    'At Streamlyne I built a real-time messaging product with voice that helps university researchers draft documents and ask questions about policy. Research submissions went up 29%. I also rebuilt parts of a long-running Java application in React and Node, which cut load times by 44%.',
-    'Before that I worked on mobile and on the backend: a survey app in Flutter where lazy loading cut load times 25%, an author dashboard publishing to more than 5,000 students, and a property platform where analytics work improved ad spending by 20%.',
-    "I'm in Nairobi and I work remotely with teams in the US, Europe, and the Middle East.",
+    'At Streamlyne I built a real-time messaging product with voice support that helps university researchers draft documents and ask questions about policy. Research submissions went up 29%. I also rebuilt nearly half of an old Java application in React and Node, which cut load times by 44%.',
+    'Before that I worked on mobile apps and on the backend. Some projects include a survey app in Flutter where lazy loading cut load times by 25%, an author dashboard publishing to more than 5,000 students, and a property platform where analytics reduced ad spending by 20%.',
+    "I'm in Nairobi and I work remotely with teams in the U.S., Europe, and the Middle East.",
   ],
   location: 'Nairobi, Kenya',
   email: 'ryannjoroge45@gmail.com',
@@ -38,7 +38,7 @@ export const profile: Profile = {
       skills: ['Jest', 'Cypress', 'Git', 'Docker', 'CI/CD', 'AWS', 'Figma'],
     },
     {
-      name: 'Also',
+      name: 'Practices',
       skills: [
         'Real-time systems',
         'LLM applications',
@@ -53,16 +53,12 @@ export const profile: Profile = {
     {
       title: 'Research submissions up 29%',
       detail:
-        'Built a real-time messaging product with voice that helps researchers prepare documents, ask questions about university policy, and plan budgets.',
+        'Built a real-time messaging product with voice support that helps researchers prepare documents, ask questions about university policy, and plan budgets.',
     },
     {
       title: 'Load times down 44%',
       detail:
-        'Rebuilt selected workflows of a long-running Java application in React and Node, and put the project in Docker so other developers could run it locally.',
-    },
-    {
-      title: '45% of an application moved to React',
-      detail: 'Migrated it incrementally, which made the interface faster and steadier as it went.',
+        'Rebuilt 45% of an old Java application in React and Node, one workflow at a time, and put the project in Docker so other developers could run it locally.',
     },
     {
       title: 'Subscriptions up 25%',
@@ -70,7 +66,7 @@ export const profile: Profile = {
         'Led a subscription dashboard for premium content and newsletters on an NFL-focused sports product.',
     },
     {
-      title: 'Ad spending improved 20%',
+      title: 'Ad spending down 20%',
       detail:
         'Added analytics to a property platform so managers could see where their traffic came from.',
     },
