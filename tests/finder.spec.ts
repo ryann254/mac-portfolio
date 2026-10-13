@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { experience, profile, projects } from '../src/content'
-import { contentsOf } from '../src/desktop/file-tree'
+import { contentsOf, type Fact, fileAt } from '../src/desktop/file-tree'
 import { initialsOf } from '../src/desktop/lettermark'
 import { contrastRatio, type Rgb, requiredRatio } from '../src/lib/contrast'
 import {
@@ -130,19 +130,42 @@ const painted = (node: Element): [Rgb, Rgb] => {
   return [read(style.backgroundColor), read(style.color)]
 }
 
-test('a project readme carries its link and its stack', async ({ page }) => {
+/**
+ * A project's readme against the document a role gets. The two were one shape
+ * with a mark on one of them, so what is checked here is that the panel is
+ * drawn, that every row of it says what the file says, and that the readme
+ * carries no company mark to be mistaken for a role's.
+ */
+test('a project readme states the facts about it, and wears no company mark', async ({ page }) => {
   const project = projects[0]
+  const rows = panelOf(`projects/${project.slug}/readme.txt`)
+
   await gotoDesktop(page, '/finder/projects')
   await openItem(page, `projects/${project.slug}`)
   await openItem(page, `projects/${project.slug}/readme.txt`)
 
   const text = windowNamed(page, 'readme.txt')
-  await expect(text.getByRole('link', { name: new RegExp(project.slug, 'i') })).toHaveAttribute(
+  const facts = text.locator('[data-facts]')
+  await expect(facts).toBeVisible()
+  await expect(text.locator('[data-logo]')).toHaveCount(0)
+
+  await expect(facts.getByRole('term')).toHaveText(rows.map((row) => row.label))
+  await expect(facts.getByRole('link', { name: new RegExp(project.slug, 'i') })).toHaveAttribute(
     'href',
     project.url,
   )
-  for (const tool of project.stack) await expect(text).toContainText(tool)
+  for (const result of project.results) {
+    await expect(facts.locator(`[data-result="${result.value}"]`)).toContainText(result.of)
+  }
+  for (const tool of project.stack) await expect(facts).toContainText(tool)
 })
+
+/** The rows of the panel the file itself says it has. */
+const panelOf = (path: string): readonly Fact[] => {
+  const file = fileAt(path)
+  if (file?.kind !== 'text') throw new Error(`${path} is not a text file`)
+  return file.blocks.flatMap((block) => (block.kind === 'facts' ? block.rows : []))
+}
 
 test('double-clicking a thumbnail opens that picture in an image window', async ({ page }) => {
   await gotoDesktop(page, '/finder/projects')

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { experience, profile, projects } from '@/content'
+import type { Fact } from './file-tree'
 import {
   around,
   contentsOf,
@@ -15,8 +16,21 @@ import {
   searchIn,
 } from './file-tree'
 import { locations } from './locations'
+import { employerOf } from './project-view'
 
 const names = (path: string) => contentsOf(path).map((node) => node.name)
+
+/** The rows of the panel a file carries, or none for a file that carries no panel. */
+const panelOf = (path: string): readonly Fact[] => {
+  const file = fileAt(path)
+  if (file?.kind !== 'text') return []
+  return file.blocks.flatMap((block) => (block.kind === 'facts' ? block.rows : []))
+}
+
+const kindsIn = (path: string): readonly string[] => {
+  const file = fileAt(path)
+  return file?.kind === 'text' ? file.blocks.map((block) => block.kind) : []
+}
 
 describe('the tree Finder browses', () => {
   it('starts at the four folders the sidebar has, and nowhere above them', () => {
@@ -74,19 +88,55 @@ describe('the tree Finder browses', () => {
     expect(file?.kind === 'text' && file.subtitle).toContain(role.company)
   })
 
-  it('writes a readme out of the project, with its link and its stack', () => {
+  it('writes a readme out of the project, the facts about it in a panel', () => {
     const project = projects[0]
     const file = fileAt(`projects/${project.slug}/readme.txt`)
     expect(file).toMatchObject({
       kind: 'text',
       title: project.name,
-      link: project.url,
       blocks: [
         { kind: 'paragraph', text: project.tagline },
-        { kind: 'list', items: project.contribution },
-        { kind: 'tags', label: 'Stack', items: project.stack },
+        {
+          kind: 'facts',
+          rows: [
+            { kind: 'says', label: 'Built for', text: employerOf(project) },
+            { kind: 'says', label: 'Period', text: project.period },
+            { kind: 'figures', label: 'Results', items: project.results },
+            { kind: 'tags', label: 'Stack', items: project.stack },
+            { kind: 'link', label: 'Live at', href: project.url },
+          ],
+        },
+        { kind: 'section', label: 'What I did' },
+        ...project.contribution.map((text) => ({ kind: 'paragraph', text })),
       ],
     })
+  })
+
+  /**
+   * The complaint this answers: the two documents were the same shape with a
+   * different mark on one of them, so a project read as a job with a logo
+   * missing. A role keeps the mark and the bulleted list, a project gets the
+   * panel and prose, and neither borrows the other's.
+   */
+  it('sets a project and a role as two different documents', () => {
+    const project = kindsIn(`projects/${projects[0].slug}/readme.txt`)
+    const role = kindsIn(`experience/${experience[0].slug}.txt`)
+
+    expect(project).toContain('facts')
+    expect(role).not.toContain('facts')
+    expect(role).toContain('list')
+    expect(project).not.toContain('list')
+  })
+
+  it('leaves the numbers out of a project whose work has none', () => {
+    const quiet = projects.find((project) => project.results.length === 0)
+    if (!quiet) throw new Error('this test needs a project with no figures')
+
+    const rows = panelOf(`projects/${quiet.slug}/readme.txt`)
+    expect(
+      rows.map((row) => row.label),
+      'an empty Results row reads as a mistake',
+    ).toEqual(['Built for', 'Period', 'Stack', 'Live at'])
   })
 
   it('says when a role is still running and when it ended', () => {
