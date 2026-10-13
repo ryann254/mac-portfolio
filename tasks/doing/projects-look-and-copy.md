@@ -49,8 +49,8 @@ support now; "I worked on mobile and on the backend" named nothing afterwards
 and introduces the projects it leads into. Both repeat in four places, all four
 match, and `public/resume.pdf` is printed again from the content.
 
-Gates: `pnpm fix`, `pnpm typecheck`, `pnpm check` clean including the copy
-script, roast clean on the first round on Fable 5.1, 234 unit tests,
+Gates, both rounds: `pnpm fix`, `pnpm typecheck`, `pnpm check` clean including
+the copy script, roast clean on the first round on Fable 5.1, 234 unit tests,
 208 browser tests (96 skipped), `pnpm routes` clean at 16
 addresses. Transfer 321.7 kB of 600 and JavaScript 163.3 kB of 230, up 0.7 kB
 and 0.1 kB from main. Lighthouse mobile on `/`: performance 0.96, 0.98, 0.95,
@@ -59,6 +59,48 @@ with accessibility, best practices and SEO at 1.
 Evidence in `evidence/projects-look-and-copy`: the readme and a role file beside
 each other in both themes, the project with no figures, the readme at 390px, the
 document as it was before this change, and `walkthrough.html` from bgr.
+
+## Second round: the rest of the CV
+
+Ryan asked whether the whole resume had been read or only the two sentences he
+named. Only the two, so the rest got the same pass and he ruled on every line
+that came back. Twenty-two replacements, applied by a script that fails unless
+each one matches exactly once, so the run is the receipt that every ruling
+landed.
+
+What changed and why:
+
+- Streamlyne's first bullet handed the policy answers to the researchers rather
+  than to the product. It matches the achievement card now.
+- "Build and maintain product" was missing a word. Features.
+- "Helped modernize a long-running Java application ... and put the project in
+  Docker" did not join up, and Ryan read the first rewrite as machine-made. It
+  says what happened: a Java application that had been running for years, nearly
+  half of it rebuilt one workflow at a time, load times down 44%.
+- Two dashboards were led as objects. They are led by their development now.
+- "the video and book management experience" is screens.
+- The Discord bullet ended "without leaving where they already were", which is
+  now "instead of signing in to the dashboard".
+- Park254's "worked out parking time" says what the jobs worked out.
+- The intern's "worked on performance and page loading" was two names for one
+  thing.
+- newLine's third bullet held reporting views and milestone planning in one
+  sentence. Two bullets.
+- Ad spending is reduced by 20%, not "improved by up to 20%". Ryan's wording.
+- The achievement card claiming 45% of an unnamed application was the same Java
+  work as the 44% card, so the two are one card and the 44% headline stays.
+- Riyadh Real Estate opened with MajiSoft's sentence. It leads with the 500
+  owners it brought on, which is the part only it can claim.
+- Small ones: every figure reads "cut X by N%", the U.S. is spelled one way, the
+  company name is not repeated under its own heading, a list that mixed areas
+  with activities is areas, "cross-functional" is gone, and the skills group
+  called "Also" is Practices.
+- The desktop tagline ended "and many other sectors...". It names education and
+  real estate and stops.
+
+The PDF is printed again, still two pages, and both pages are in the evidence as
+images. `copy-welcome.png`, `copy-role-streamlyne.png`, `copy-skills.png` and
+`copy-terminal.png` show the same words on the site.
 
 ## Found on the way, fixed here
 
