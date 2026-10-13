@@ -94,9 +94,15 @@ test.describe('with reduced motion', () => {
   test('the boot bar holds still, which is why it keeps its duration', async ({ page }) => {
     await page.goto('/')
 
-    const name = await page
-      .locator('[data-boot-bar]')
-      .evaluate((bar) => getComputedStyle(bar).animationName)
+    /* Found and read in one step. The bar is keyed on the state, so the end of
+       the boot replaces the element rather than changing it, and a handle taken
+       before that answers "" for every computed style afterwards: a locator
+       resolved and then read a moment later fails on a loaded machine as though
+       the bar had been on the wrong keyframes. */
+    const name = await page.evaluate(() => {
+      const bar = document.querySelector('[data-boot-bar]')
+      return bar === null ? 'no boot bar on the page' : getComputedStyle(bar).animationName
+    })
     expect(name, 'the bar is not on the keyframes that hold it still').toBe(HOLDS)
 
     const widths = await page.evaluate((holds) => {
