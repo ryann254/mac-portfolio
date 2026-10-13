@@ -160,7 +160,7 @@ function DockItem({ app }: { app: App }) {
     return (
       <li className={room}>
         <a
-          data-dock-item=""
+          data-dock-item={app.id}
           href={app.href}
           target="_blank"
           rel="noreferrer"
@@ -178,7 +178,7 @@ function DockItem({ app }: { app: App }) {
       <li className={room}>
         <button
           type="button"
-          data-dock-item=""
+          data-dock-item={app.id}
           className={shared}
           aria-label={app.name}
           onClick={() => {
@@ -199,7 +199,7 @@ function DockItem({ app }: { app: App }) {
     <li className={room}>
       <button
         type="button"
-        data-dock-item=""
+        data-dock-item={app.id}
         className={shared}
         aria-label={app.name}
         aria-expanded={panelUp}
