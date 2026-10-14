@@ -2,6 +2,7 @@
 status: doing
 owner: claude
 files:
+  - PLAN.md
   - src/lib/copy-tells.ts
   - src/lib/copy-tells.test.ts
   - src/app/global-error.tsx
@@ -49,13 +50,15 @@ Done when, line by line:
   Robots, the sitemap and every link-preview card resolve against that origin
   and answer 200, and `/resume.pdf` is the 222,327-byte file the copy pass
   printed. `mac-portfolio.vercel.app` is somebody else's Vite app, not this.
-  Ryan's word is the part that is still outstanding, with the domain.
+  Ryan confirmed it on 2026-10-14 and bought `ryanwaweru.com` through Vercel
+  the same day. Attaching that domain and moving the canonical origin onto it
+  is a separate change and is not in this diff.
 
 ## The definition of done, line by line
 
 | Line | Measured | Artifact |
 | --- | --- | --- |
-| Boot screen inside 200ms, desktop interactive inside 1.5s, mobile profile | **Not met as written.** Lighthouse's mobile profile: first paint 540-570ms, a press on the dock opens a window at 2.9s. Unthrottled: 140ms and 450ms. | `boot-probe.txt` |
+| Boot screen inside 1s, a press on the dock answered inside 3s, mobile profile | First paint 540-570ms, a press on the dock opens a window at 2.9s. Unthrottled: 140ms and 450ms. The line asked for 200ms and 1.5s until Ryan restated it on 2026-10-14. | `boot-probe.txt` |
 | Lighthouse mobile: 90+ performance, 100 accessibility, 100 best practices, 90+ SEO | 0.95 median performance (0.93, 0.95, 0.95), 100, 100, 100 | `lighthouse-summary.txt`, `lighthouse/` |
 | Each phase reports its own number | 0.95, against 0.97 in phase 3 and the 0.90 floor | same |
 | First load under 600 kB, under 230 kB of JavaScript | 322.8 kB and 164.4 kB | `size-report.json` |
@@ -81,10 +84,14 @@ taken at 2x and looked like a bug in the site. It is not: the hit test and the
 stacking both say the panel is on top, and the same panel shot on its own is
 solid. `evidence/phase-11-shots.ts` captures at 1x for that reason.
 
-## Not done, and why
+## The line that moved
 
-The first line of the definition of done, the 200ms and the 1.5s, is not met on
-Lighthouse's mobile profile and wants Ryan's ruling rather than a quiet edit.
-The gap is hydration: 164 kB of JavaScript parsed and run on a main thread
-throttled to a quarter speed. Closing it means taking React off the first load,
-which is a different project from this phase.
+The first line of the definition of done asked for the boot screen inside 200ms
+and an interactive desktop inside 1.5s on Lighthouse's mobile profile. Measured
+there it is 540-570ms and 2.9s. The gap is hydration: 164 kB of JavaScript
+parsed and run on a main thread throttled to a quarter speed, and React answers
+no press until that finishes, so the old number needs React off the first load.
+
+Ryan restated the line on 2026-10-14. `PLAN.md` now asks for the boot screen
+inside 1s and a press on the dock answered inside 3s, and keeps the measured
+pair beside it so a drift shows up the way every other figure there does.
